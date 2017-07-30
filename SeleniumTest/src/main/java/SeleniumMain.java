@@ -1,135 +1,82 @@
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import au.com.bytecode.opencsv.CSVReader;
-import au.com.bytecode.opencsv.bean.ColumnPositionMappingStrategy;
-import au.com.bytecode.opencsv.bean.CsvToBean;
+import jp.sigre.LogMessage;
+import jp.sigre.selenium.trade.FileUtils;
+import jp.sigre.selenium.trade.IniBean;
+import jp.sigre.selenium.trade.SeleniumTrade;
+import jp.sigre.selenium.trade.TradeDataBean;
+import jp.sigre.selenium.trade.TradeMethodFilter;
 
 public class SeleniumMain  {
 	public static void main(String[] args) throws InterruptedException {
 
-		//TODO:フォルダパスは別ファイルから
-		String strFolderPath = "D:\\Program Files\\pleiades\\Juno_4.2\\workspace\\SeleniumTest\\target";
+		//MEMO；売りの際は複数の特定株の複数メソッドのレコードをまとめる
+		//まとめる際は合計からMod 100を取得、その値の売りレコードを追加するとともに、レコードの一つから追加分を減らす
 
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		Date dateToday = new Date();
+		//TODO:Firefoxインストールチェック
+		//TODO:PCスリープ、休止モード状態チェック
+		//TODO:Selenium IDEインストールチェック
 
-		String strToday = sdf.format(dateToday);
+		//TODO:fbs.ini存在チェック
 
-		String strFilePath = strFolderPath + "\\" + strToday + "_L.csv";
+		FileUtils csv = new FileUtils();
+		IniBean iniBean = csv.iniToBean(new File("C:\\Users\\sigre\\git\\SeleniumTest\\SeleniumTest\\target\\fbs.ini"));
 
-		String strIdPassPath = strFolderPath + "\\" + "idpassword.txt";
+		//TODO:IniBean内のファイルパス存在チェック
+		//TODO:売買メソッド無選択チェック
 
-		List<TorihikiDataBean> beanList = csvToTorihikiData(new File(strFilePath));
+		//String strFolderPath = "D:\\Program Files\\pleiades\\Juno_4.2\\workspace\\SeleniumTest\\target";
+		String strFolderPath = iniBean.getlS_FilePath();
 
-		String[] aryIdPass = csvToIdPass(new File(strIdPassPath));
+		new LogMessage().writeInLog("iniファイル読み込み完了", strFolderPath);
 
-		String strId = aryIdPass[0];
-		String strLoginPass = aryIdPass[1];
-		String strTorihPass = aryIdPass[2];
+		String strFilePath = new FileUtils().getBuyDataFilePath(strFolderPath);
 
-		System.setProperty("webdriver.gecko.driver", "D:\\Program Files\\pleiades\\Juno_4.2\\workspace\\SeleniumTest\\lib\\geckodriver.exe");
-		WebDriver driver = new FirefoxDriver();
+		File lFile = new File(strFilePath);
 
-		// 検索は8秒以内に終了して欲しい
-		WebDriverWait waitForSearch = new WebDriverWait(driver, 8);
-		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+		List<TradeDataBean> beanList = csv.csvToTorihikiData(lFile);
 
-		WebElement element = null;
+		new TradeMethodFilter().longFilter(beanList, iniBean);
 
-		//TODO:ID、Passは別ファイルから入力する
-
-		driver.get("https://www.sbisec.co.jp/ETGate");
-
-		element = driver.findElement(By.name("user_id"));
-
-		element.sendKeys(new String[]{strId});
-
-		element = driver.findElement(By.name("user_password"));
-
-		element.sendKeys(new String[]{strLoginPass});
-
-		element = driver.findElement(By.name("ACT_login"));
-
-		element.click();
-
-		waitForSearch.until(ExpectedConditions.presenceOfElementLocated(By.id("logout")));
-
-		System.out.println("Page title is: " + driver.getTitle());
-
-		for (TorihikiDataBean bean : beanList) {
+		//TODO:売買株の有無チェック
+		//TODO:売買開始メッセージ
 
 
-			//element.wait(3000);
+		SeleniumTrade trade =  new SeleniumTrade();
 
-			driver.findElement(By.cssSelector("img[alt=\"取引\"]")).click();
+		trade.login(strFolderPath);
 
-			driver.findElement(By.linkText("単元未満株（S株）")).click();
-			driver.findElement(By.id("genK")).click();
-			// ERROR: Caught exception [Error: Dom locators are not implemented yet!]
-			driver.findElement(By.name("odd_agreement")).click();
-			driver.findElement(By.name("stock_sec_code")).clear();
-			driver.findElement(By.name("stock_sec_code")).sendKeys(new String[]{bean.getCode()});
+		List<TradeDataBean> failedList = trade.buyStocks(beanList, strFolderPath);
 
-			driver.findElement(By.name("input_quantity")).clear();
-			driver.findElement(By.name("input_quantity")).sendKeys(new String[]{bean.getRealEntryVolume()});
-			driver.findElement(By.name("trade_pwd")).clear();
-			driver.findElement(By.name("trade_pwd")).sendKeys(new String[]{strTorihPass});
-			driver.findElement(By.name("skip_estimate")).click();
-			driver.findElement(By.name("ACT_place")).click();
+		trade.logout();
 
-
-
-		}
-
-		driver.quit();
-	}
-
-
-	public static List<TorihikiDataBean> csvToTorihikiData(File file) {
-		final String[] HEADER = new String[] { "code","dayTime","type","entryMethod","exitMethod","MINI_CHECK_flg","realEntryVolume","entry_money" };
-
+		String movedPath = new FileUtils().getMovedTradeDataPath(strFolderPath);
 		try {
-			CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(file), "SJIS"), ',', '"', 1);
-			ColumnPositionMappingStrategy<TorihikiDataBean> strat = new ColumnPositionMappingStrategy<TorihikiDataBean>();
-			strat.setType(TorihikiDataBean.class);
-			strat.setColumnMapping(HEADER);
-			CsvToBean<TorihikiDataBean> csv = new CsvToBean<TorihikiDataBean>();
-			return csv.parse(strat, reader);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+			new File(strFolderPath + File.separator + "old").mkdirs();
+			if (!new File(movedPath).exists()) {
+				Files.move(Paths.get(strFilePath), Paths.get(movedPath), StandardCopyOption.ATOMIC_MOVE);
+			} else {
+				new File(strFilePath).delete();
+			}
+		} catch (SecurityException e) {
+			new LogMessage().writeInLog(e.toString(), strFolderPath);
+		} catch (IOException ioe) {
+			new LogMessage().writeInLog(ioe.toString(), strFolderPath);
 		}
+
+		if (failedList.size()!=0) {
+			new LogMessage().writeInLog("のこってるよー", strFolderPath);
+			new FileUtils().makeTradeDataFile(failedList, strFolderPath);
+		} else {
+			new LogMessage().writeInLog("おわりだよー", strFolderPath);
+		}
+
 	}
 
-	public static String[] csvToIdPass(File file) {
-		CSVReader reader = null;
-		try {
 
-			reader = new CSVReader(new InputStreamReader(new FileInputStream(file), "SJIS"));
-			String[] nextLine = reader.readNext();
-			System.out.println(nextLine.length);
-			return nextLine;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} finally {
-			try {
-				reader.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			};
-		}
-	}
 }
