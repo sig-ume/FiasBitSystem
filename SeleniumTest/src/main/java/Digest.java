@@ -10,6 +10,8 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
+import jp.sigre.LogMessage;
+
 public class Digest {
 
 	final static String DIG_ALGORITHM = "MD5";
@@ -29,11 +31,11 @@ public class Digest {
 		Digest digSample = new Digest();
 
 		String key = digSample.getKeyStr();
-		
+
 		System.out.println("key:" + key);
-		
+
 		System.out.println("key Digest         : " + digSample.getDigestStr(key));
-		
+
 		System.out.println("other key Digest   : " + digSample.getDigestStr("test"));
 
 		System.out.println("make               : " + digSample.makeDigestFile(target1, key, 0));
@@ -43,11 +45,11 @@ public class Digest {
 		System.out.println("failed(illegal key): " + digSample.checkDigestFile(target2, key));
 
 		System.out.println("failed(no file)    : " + digSample.checkDigestFile(target3, key));
-		
+
 		System.out.println("make(count 5)      : " + digSample.makeDigestFile(target4, key, 5));
 
 		System.out.println("failed(count 5)    : " + digSample.checkDigestFile(target4, key));
-		
+
 		System.out.println("success            : " + digSample.checkDigestFile(target1, key));
 
 	}
@@ -82,7 +84,7 @@ public class Digest {
 
 			writer.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			new LogMessage().writelnLog(e.toString());
 		}
 
 		return true;
@@ -107,21 +109,21 @@ public class Digest {
 			digestInFile = br.readLine();
 			String strCount = br.readLine();
 			System.out.println(strCount);
-			
+
 			if (strCount!=null) {
 				count = Integer.parseInt(strCount);
 			}
-			
+
 			br.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			new LogMessage().writelnLog(e.toString());
 		}
 
 		if (!digest.equals(digestInFile)) {
 			System.out.println(digestInFile);
 			return false;
 		}
-		
+
 		if (count >= 5) {
 			return false;
 		}
@@ -146,13 +148,12 @@ public class Digest {
 		byte[] digest = null;
 		try {
 			msgDig = MessageDigest.getInstance(DIG_ALGORITHM);
-			digest = msgDig.digest(key.getBytes()); 
+			digest = msgDig.digest(key.getBytes());
 
 		} catch (Exception e) {
-			//e.printStackTrace();
 			Arrays.fill(digest,(byte)0);
 			return digest;
-		} 
+		}
 
 		return digest;
 	}

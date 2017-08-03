@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
+import jp.sigre.LogMessage;
 import jp.sigre.selenium.trade.TradeDataBean;
 
 
@@ -32,12 +33,12 @@ public class ConnectDB {
 			stmt = con.createStatement();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			new LogMessage().writelnLog(e.toString());
 			try {
 				if (stmt != null) stmt.close();
 				if (con  != null) con.close();
 			} catch (SQLException e1) {
-				e1.printStackTrace();
+				new LogMessage().writelnLog(e1.toString());
 			}
 		}
 		return stmt;
@@ -47,7 +48,7 @@ public class ConnectDB {
 		try {
 			Class.forName("org.sqlite.JDBC");
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			new LogMessage().writelnLog(e.toString());
 		}
 		con = DriverManager
 				.getConnection("jdbc:sqlite:db/TradeInfo.sqlite");
@@ -63,7 +64,7 @@ public class ConnectDB {
 			if (stmt != null) stmt.close();
 			if (con  != null) con.close();
 		} catch (SQLException e1) {
-			e1.printStackTrace();
+			new LogMessage().writelnLog(e1.toString());
 			return false;
 		}
 		return true;
@@ -71,84 +72,163 @@ public class ConnectDB {
 
 
 	/**
-	 * TradeDataTableのデータをBeanに格納してリスト化
+	 * TradeDataテーブルから全レコードのレコードを取得
+	 *
+	 * @param code
 	 * @return
 	 */
-	public TradeDataBean getTradeDataList() {
+	public List<TradeDataBean> getTradeDataList() {
 		try {
 			con = getConnection();
 			String sql = "SELECT * FROM TradeData;";
 			PreparedStatement pstmt = con.prepareStatement(sql);
 			ResultSet rs = pstmt.executeQuery();
-			return new ConvertNormalResultSet().convertTradeData(rs).get(0);
+			List<TradeDataBean> list = new ConvertNormalResultSet().convertTradeData(rs);
+
+			return list;
 		} catch (SQLException e1) {
-			e1.printStackTrace();
+			new LogMessage().writelnLog(e1.toString());
 		}  finally {
 			closeStatement();
 		}
 		return null;
 	}
 
-	public TradeDataBean getTradeViewOfCode() {
+	/**
+	 * TradeViewOfCodeテーブルから全コードのレコードを取得
+	 * （各コードの合計所有株数）
+	 * レコードが存在しない場合、realEntryVolume=0の空Beanを返す。
+	 * @param code
+	 * @return
+	 */
+	public List<TradeDataBean> getTradeViewOfCode() {
 		try {
 			con = getConnection();
 			String sql = "Select * From TradeViewOfCode;";
 			PreparedStatement pstmt = con.prepareStatement(sql);
 			ResultSet rs = pstmt.executeQuery();
-			return new ConvertCodeResultSet().convertTradeData(rs).get(0);
+
+			List<TradeDataBean> list = new ConvertCodeResultSet().convertTradeData(rs);
+
+			return list;
 		} catch (SQLException e1) {
 			closeStatement();
-			e1.printStackTrace();
+			new LogMessage().writelnLog(e1.toString());
 		}
 		return null;
 	}
 
-	public List<TradeDataBean> getTradeViewOfCode(String code) {
+	/**
+	 * TradeViewOfCodeテーブルから特定コードのレコードを取得
+	 * （特定レコードの合計所有株数）
+	 * レコードが存在しない場合、realEntryVolume=0の空Beanを返す。
+	 * @param code
+	 * @return
+	 */
+	public TradeDataBean getTradeViewOfCode(String code) {
 		try {
 			con = getConnection();
 			String sql = "Select * From TradeViewOfCode WHERE code = ?;";
 			PreparedStatement pstmt = con.prepareStatement(sql);
 			pstmt.setString(1, code);
 			ResultSet rs = pstmt.executeQuery();
-			return new ConvertCodeResultSet().convertTradeData(rs);
+
+			List<TradeDataBean> list = new ConvertCodeResultSet().convertTradeData(rs);
+			//Listのサイズ0の場合の処理
+			if (list.size()==0) {
+				TradeDataBean noDataBean = new TradeDataBean();
+				noDataBean.setRealEntryVolume("0");
+				noDataBean.setCode(code);
+				return noDataBean;
+			}
+			return list.get(0);
 		} catch (SQLException e1) {
 			closeStatement();
-			e1.printStackTrace();
+			new LogMessage().writelnLog(e1.toString());
 		}
 		return null;
 	}
 
-	public TradeDataBean getTradeViewOfCodeMethods(String code, String entryMethod, String exitMethod) {
+	/**
+	 * TradeViewOfCodeMethodビューから特定コード,売却メソッドのレコードリストを取得
+	 * （特定レコードの合計所有株数）
+	 * @param code
+	 * @return
+	 */
+	public List<TradeDataBean> getTradeViewOfCodeMethods(String code, String exitMethod) {
 		try {
 			con = getConnection();
-			String sql = "Select * From TradeViewOfCodeExit WHERE code = ? AND entryMethod = ? AND exitMethod = ?;";
+			String sql = "Select * From TradeViewOfCodeMethods WHERE code = ? AND exitMethod = ?;";
 			PreparedStatement pstmt = con.prepareStatement(sql);
 			pstmt.setString(1, code);
-			pstmt.setString(2, entryMethod);
-			pstmt.setString(3, exitMethod);
+			pstmt.setString(2, exitMethod);
 			ResultSet rs = pstmt.executeQuery();
-			return new ConvertCodeMethodsResultSet().convertTradeData(rs).get(0);
+			return new ConvertCodeMethodsResultSet().convertTradeData(rs);
 		} catch (SQLException e1) {
 			closeStatement();
-			e1.printStackTrace();
+			new LogMessage().writelnLog(e1.toString());
 		}
 		return null;
 	}
 
-	public TradeDataBean getTradeViewOfCodeExit() {
+	/**
+	 * TradeViewOfCodeViewテーブルから特定コード,売却メソッドのレコードリストを取得
+	 * （特定レコードの合計所有株数）
+	 * レコードが存在しない場合、realEntryVolume=0の空Beanを返す。
+	 * @param code
+	 * @return
+	 */
+	public TradeDataBean getHighestTradeViewOfCodeMethods(String code) {
+		try {
+			con = getConnection();
+			String sql = "Select * From TradeViewOfCodeExit WHERE code = ? ORDER BY realEntryVolume DESC;";
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, code);
+			ResultSet rs = pstmt.executeQuery();
+
+			List<TradeDataBean> list = new ConvertCodeResultSet().convertTradeData(rs);
+			//Listのサイズ0の場合の処理
+			if (list.size()==0) {
+				TradeDataBean noDataBean = new TradeDataBean();
+				noDataBean.setRealEntryVolume("0");
+				noDataBean.setCode(code);
+				return noDataBean;
+			}
+			return list.get(0);
+		} catch (SQLException e1) {
+			closeStatement();
+			new LogMessage().writelnLog(e1.toString());
+		}
+		return null;
+	}
+
+	/**
+	 * TradeViewOfCodeExitビューから全レコードリストを取得
+	 * （特定レコードの合計所有株数）。
+	 * @param code
+	 * @return
+	 */
+	public List<TradeDataBean> getTradeViewOfCodeExit() {
 		try {
 			con = getConnection();
 			String sql = "Select * From TradeViewOfCodeExit;";
 			PreparedStatement pstmt = con.prepareStatement(sql);
 			ResultSet rs = pstmt.executeQuery();
-			return new ConvertCodeExitResultSet().convertTradeData(rs).get(0);
+			return new ConvertCodeExitResultSet().convertTradeData(rs);
 		} catch (SQLException e1) {
 			closeStatement();
-			e1.printStackTrace();
+			new LogMessage().writelnLog(e1.toString());
 		}
 		return null;
 	}
 
+	/**
+	 * TradeViewOfCodeExitビューから特定コード,売却メソッドのレコードを取得
+	 * （特定レコードの合計所有株数）
+	 * レコードが存在しない場合、realEntryVolume=0の空Beanを返す。
+	 * @param code
+	 * @return
+	 */
 	public TradeDataBean getTradeViewOfCodeExit(String code, String exitMethod) {
 		try {
 			con = getConnection();
@@ -157,10 +237,20 @@ public class ConnectDB {
 			pstmt.setString(1, code);
 			pstmt.setString(2, exitMethod);
 			ResultSet rs = pstmt.executeQuery();
-			return new ConvertCodeExitResultSet().convertTradeData(rs).get(0);
+
+			List<TradeDataBean> list = new ConvertCodeResultSet().convertTradeData(rs);
+			//Listのサイズ0の場合の処理
+			if (list.size()==0) {
+				TradeDataBean noDataBean = new TradeDataBean();
+				noDataBean.setRealEntryVolume("0");
+				noDataBean.setCode(code);
+				noDataBean.setExitMethod(exitMethod);
+				return noDataBean;
+			}
+			return list.get(0);
 		} catch (SQLException e1) {
 			closeStatement();
-			e1.printStackTrace();
+			new LogMessage().writelnLog(e1.toString());
 		}
 		return null;
 	}
@@ -179,7 +269,7 @@ public class ConnectDB {
 
 			return pstmt.executeUpdate();
 		} catch (SQLException e1) {
-			e1.printStackTrace();
+			new LogMessage().writelnLog(e1.toString());
 		}
 		return 0;
 	}
@@ -218,7 +308,7 @@ public class ConnectDB {
 			}
 			return result;
 		} catch (SQLException e1) {
-			e1.printStackTrace();
+			new LogMessage().writelnLog(e1.toString());
 		} finally {
 			closeStatement();
 		}
@@ -246,7 +336,7 @@ public class ConnectDB {
 
 			return pstmt.executeUpdate();
 		} catch (SQLException e1) {
-			e1.printStackTrace();
+			new LogMessage().writelnLog(e1.toString());
 		}  finally {
 			closeStatement();
 		}
@@ -266,7 +356,7 @@ public class ConnectDB {
 
 			return pstmt.executeUpdate();
 		} catch (SQLException e1) {
-			e1.printStackTrace();
+			new LogMessage().writelnLog(e1.toString());
 		}  finally {
 			closeStatement();
 		}
@@ -286,7 +376,7 @@ public class ConnectDB {
 
 			result = pstmt.executeQuery().next();
 		} catch (SQLException e1) {
-			e1.printStackTrace();
+			new LogMessage().writelnLog(e1.toString());
 		}  finally {
 			closeStatement();
 		}

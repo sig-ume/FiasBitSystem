@@ -14,7 +14,7 @@ public class ConvertCodeMethodsResultSet implements ConvertResultSet {
 		info.setCode			(rs.getString("code"));
 		info.setEntryMethod(rs.getString("entryMethod"));
 		info.setExitMethod		(rs.getString("exitMethod"));
-		info.setCorrectedEntryVolume(rs.getString("correctedEntryVolume"));
+		info.setRealEntryVolume(rs.getString("realEntryVolume"));
 
 		return info;
 	}

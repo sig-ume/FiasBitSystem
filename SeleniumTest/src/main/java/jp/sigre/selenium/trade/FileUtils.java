@@ -43,7 +43,7 @@ public class FileUtils {
 			try {
 				reader.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				new LogMessage().writelnLog(e.toString());
 			}
 		}
 	}
@@ -62,7 +62,7 @@ public class FileUtils {
 			try {
 				reader.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				new LogMessage().writelnLog(e.toString());
 			}
 		}
 	}
@@ -80,15 +80,15 @@ public class FileUtils {
 	            readIniLine(line, bean);
 	        }
 	    } catch (FileNotFoundException e) {
-	        e.printStackTrace();
+			new LogMessage().writelnLog(e.toString());
 	    } catch (IOException e) {
-	        e.printStackTrace();
+			new LogMessage().writelnLog(e.toString());
 	    } finally {
 	        try {
 	            br.close();
 	            fr.close();
 	        } catch (IOException e) {
-	            e.printStackTrace();
+				new LogMessage().writelnLog(e.toString());
 	        }
 	    }
 
@@ -122,15 +122,17 @@ public class FileUtils {
 		bean.addMethodSet(methodSet);
 	}
 
-	public void makeTradeDataFile(List<TradeDataBean> list, String outPath) {
-		writeFile("\"code\",\"dayTime\",\"type\",\"entryMethod\",\"exitMethod\",\"MINI_CHECK_flg\","
-				+ "\"realEntryVolume\",\"entry_money\"", outPath, "trade_remains.csv");
+	public void makeTradeDataFile(List<TradeDataBean> list, String outPath, boolean isBuying) {
+
+		String fileName = isBuying? "buy_remains.csv" : "sell_remains.csv";
+
+		writeFile("code,dayTime,type,entryMethod,exitMethod,MINI_CHECK_flg,"
+				+ "realEntryVolume,entry_money\n", outPath, fileName);
 
 		for (TradeDataBean bean : list) {
-			writeFile(bean.toCSV(), outPath, "trade_remains.csv");
+			writeFile(bean.toCSV() + "\n", outPath, fileName);
 		}
 
-		new LogMessage().writeInLog("売買失敗件数：" + list.size(), outPath);
 	}
 
 
@@ -146,8 +148,7 @@ public class FileUtils {
 		try {
 			file.createNewFile();
 		} catch (IOException e1) {
-			// TODO 自動生成された catch ブロック
-			e1.printStackTrace();
+			new LogMessage().writelnLog(e1.toString());
 		}
 		try{
 			//				File file = new File(newFile);
@@ -173,16 +174,29 @@ public class FileUtils {
 		return strFilePath;
 	}
 
-	public String getsellDataFilePath(String strFolderPath) {
+	public String getSellDataFilePath(String strFolderPath) {
 
-		String strFilePath = strFolderPath + "\\" + getSellDataFileName();
+		String strFilePath = strFolderPath + File.separator + getSellDataFileName();
 
 		return strFilePath;
 	}
 
-	public String getMovedTradeDataPath(String strFolderPath) {
+	public String getMovedBuyDataPath(String strFolderPath) {
 
 		String strFilePath = strFolderPath + "\\old\\" + getBuyDataFileName();
+
+		return strFilePath;
+	}
+
+	public String getMovedSellDataPath(String strFolderPath) {
+
+		String strFilePath = strFolderPath + "\\old\\" + getSellDataFileName();
+
+		return strFilePath;
+	}
+
+	public String getIniPath(String strFolderPath) {
+		String strFilePath = strFolderPath + File.separator + "fbs.ini";
 
 		return strFilePath;
 	}
@@ -202,6 +216,12 @@ public class FileUtils {
 		Date dateToday = new Date();
 
 		return sdf.format(dateToday);
+	}
+
+	public void removeTradeDataFile(String strLsPath, boolean isBuying) {
+		String fileName = isBuying? "buy_remains.csv" : "sell_remains.csv";
+
+		new File(strLsPath + File.separator + fileName).delete();
 	}
 
 }

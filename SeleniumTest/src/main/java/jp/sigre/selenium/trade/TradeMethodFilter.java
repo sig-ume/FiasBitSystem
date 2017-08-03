@@ -20,12 +20,16 @@ public class TradeMethodFilter {
 
 		for (int i = 0; i<list.size(); i++) {
 			TradeDataBean tradeData = list.get(i);
+			System.out.println(tradeData);
 			String entryMethod = tradeData.getEntryMethod();
 			String exitMethod = tradeData.getExitMethod();
 
 			for (String[] methodSet : iniBean.getMethodSet()) {
 
+				System.out.println("フィルター前:" + list.get(0));
+
 				if (entryMethod.equals(methodSet[0]) && exitMethod.equals(methodSet[1]) && methodSet[2].equals("1")) {
+					System.out.println("チェックTrue: " + i);
 					checkbox.set(i, true);
 				}
 			}
@@ -33,6 +37,7 @@ public class TradeMethodFilter {
 
 		for (int i = 0; i<list.size(); i++) {
 			if (!checkbox.get(i)) {
+				System.out.println("削除");
 				list.remove(i);
 				checkbox.remove(i);
 				i--;

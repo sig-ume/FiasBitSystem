@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.sigre.LogMessage;
 import jp.sigre.selenium.trade.TradeDataBean;
 
 /**
@@ -26,12 +27,12 @@ public abstract interface ConvertResultSet {
 			}
 			if(result.size()!=0) return result;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			new LogMessage().writelnLog(e.toString());
 		}
-		return null;
+		return new ArrayList<TradeDataBean>();
 	}
 
 	TradeDataBean rsToBean(ResultSet rs) throws SQLException;
-	
+
 
 }

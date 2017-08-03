@@ -14,42 +14,6 @@ public class TradeDataBean {
 	private String type;
 	private String entryMethod;
 	private String exitMethod;
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((code == null) ? 0 : code.hashCode());
-		result = prime * result + ((entryMethod == null) ? 0 : entryMethod.hashCode());
-		result = prime * result + ((exitMethod == null) ? 0 : exitMethod.hashCode());
-		return result;
-	}
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		TradeDataBean other = (TradeDataBean) obj;
-		if (code == null) {
-			if (other.code != null)
-				return false;
-		} else if (!code.equals(other.code))
-			return false;
-		if (entryMethod == null) {
-			if (other.entryMethod != null)
-				return false;
-		} else if (!entryMethod.equals(other.entryMethod))
-			return false;
-		if (exitMethod == null) {
-			if (other.exitMethod != null)
-				return false;
-		} else if (!exitMethod.equals(other.exitMethod))
-			return false;
-		return true;
-	}
-
 	private String MINI_CHECK_flg;
 	private String realEntryVolume;
 	private String entry_money;
@@ -109,6 +73,11 @@ public class TradeDataBean {
 	public void setCorrectedEntryVolume(String correctedEntryVolume) {
 		this.correctedEntryVolume = correctedEntryVolume;
 	}
+
+	public void minusRealEntryVolume(int volume) {
+		this.realEntryVolume = String.valueOf(Integer.parseInt(this.realEntryVolume) - volume);
+	}
+
 	@Override
 	public String toString() {
 		return "TradeDataBean [code=" + code + ", dayTime=" + dayTime + ", type=" + type + ", entryMethod="
@@ -118,9 +87,61 @@ public class TradeDataBean {
 	}
 
 	public String toCSV() {
-		return code + ", " + dayTime + ", " + type + ", " + entryMethod + ", " + exitMethod + ", " + MINI_CHECK_flg
-				 + ", " + realEntryVolume + ", " + entry_money;
+		return code + "," + dayTime + "," + type + "," + entryMethod + "," + exitMethod + "," + MINI_CHECK_flg
+				+ "," + realEntryVolume + "," + entry_money;
 	}
 
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((code == null) ? 0 : code.hashCode());
+		result = prime * result + ((entryMethod == null) ? 0 : entryMethod.hashCode());
+		result = prime * result + ((exitMethod == null) ? 0 : exitMethod.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TradeDataBean other = (TradeDataBean) obj;
+		if (code == null) {
+			if (other.code != null)
+				return false;
+		} else if (!code.equals(other.code))
+			return false;
+		if (entryMethod == null) {
+			if (other.entryMethod != null)
+				return false;
+		} else if (!entryMethod.equals(other.entryMethod))
+			return false;
+		if (exitMethod == null) {
+			if (other.exitMethod != null)
+				return false;
+		} else if (!exitMethod.equals(other.exitMethod))
+			return false;
+		return true;
+	}
+
+	public TradeDataBean clone() {
+		TradeDataBean bean = new TradeDataBean();
+
+		bean.setCode(this.code);;
+		bean.setDayTime(this.dayTime);;
+		bean.setType(this.type);;
+		bean.setEntryMethod(this.entryMethod);
+		bean.setExitMethod(this.exitMethod);;
+		bean.setMINI_CHECK_flg(this.MINI_CHECK_flg);;
+		bean.setRealEntryVolume(this.realEntryVolume);
+		bean.setEntry_money(this.entry_money);
+		bean.setCorrectedEntryVolume(this.correctedEntryVolume);;
+
+		return bean;
+	}
 
 }

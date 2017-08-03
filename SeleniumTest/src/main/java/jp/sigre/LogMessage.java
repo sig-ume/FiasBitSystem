@@ -14,9 +14,21 @@ import jp.sigre.selenium.trade.FileUtils;
  */
 public class LogMessage {
 
-//TODO;コンストラクタでフォルダパス指定
 
-	public void writeInLog(String writing, String outPath){
+	String folderPath;
+	/**
+	 * コンストラクタでフォルダパス指定
+	 * @param folderPath
+	 */
+	public LogMessage(String folderPath) {
+		this.folderPath = folderPath;
+	}
+
+	public LogMessage() {
+		this.folderPath = System.getProperty("user.dir");
+	}
+
+	public void writelnLog(String writing){
 		Calendar now = Calendar.getInstance(); //インスタンス化
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		//
@@ -33,7 +45,7 @@ public class LogMessage {
 		//		System.out.println(y+"/"+mo + "/" + d + "_" +h + ":"+m+":"+s+":");
 
 
-		new FileUtils().writeFile(nowTime + "," + writing + "\r\n", outPath,  "fbs_sys.log");
+		new FileUtils().writeFile(nowTime + "," + writing + "\r\n", folderPath,  "fbs_sys.log");
 
 	}
 

@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 
 import jp.sigre.LogMessage;
@@ -21,59 +22,117 @@ public class SeleniumMain  {
 		//TODO:Firefoxインストールチェック
 		//TODO:PCスリープ、休止モード状態チェック
 		//TODO:Selenium IDEインストールチェック
+		//TODO:ログ出力先はiniファイルの配置先＝実行ファイルの配置先
 
-		//TODO:fbs.ini存在チェック
+		String basePath = System.getProperty("user.dir");
 
-		FileUtils csv = new FileUtils();
-		IniBean iniBean = csv.iniToBean(new File("C:\\Users\\sigre\\git\\SeleniumTest\\SeleniumTest\\target\\fbs.ini"));
+		LogMessage log = new LogMessage(basePath);
 
-		//TODO:IniBean内のファイルパス存在チェック
-		//TODO:売買メソッド無選択チェック
+		FileUtils file = new FileUtils();
+		File iniFile = new File(file.getIniPath(basePath));
+
+		//fbs.ini存在チェック
+		if (!iniFile.exists()) {
+			return;
+		}
+
+		IniBean iniBean = file.iniToBean(iniFile);
+
+		String strLsPath = iniBean.getlS_FilePath();
+		String strIdPath = iniBean.getiD_FilePath();
+		int intMethodCount = iniBean.getMethodSet().size();
+
+		if (!new File(strLsPath).isDirectory() ) {
+			log.writelnLog("fbs.iniに指定されたLSファイル格納フォルダが存在しません。");
+			return;
+		}
+
+		if (!new File(strIdPath).isDirectory()) {
+			log.writelnLog("fbs.iniに指定されたIDファイル格納フォルダが存在しません。");
+			return;
+		}
+
+		//売買メソッド無選択チェック
+		if (intMethodCount == 0) {
+			log.writelnLog("売買メソッドが1つも選択されていません。");
+			return;
+		}
 
 		//String strFolderPath = "D:\\Program Files\\pleiades\\Juno_4.2\\workspace\\SeleniumTest\\target";
-		String strFolderPath = iniBean.getlS_FilePath();
 
-		new LogMessage().writeInLog("iniファイル読み込み完了", strFolderPath);
 
-		String strFilePath = new FileUtils().getBuyDataFilePath(strFolderPath);
+		log.writelnLog("iniファイル読み込み開始");
+
+		String strFilePath = new FileUtils().getBuyDataFilePath(strLsPath);
 
 		File lFile = new File(strFilePath);
 
-		List<TradeDataBean> beanList = csv.csvToTorihikiData(lFile);
+		File lRemFile = new File(strLsPath + File.separator + "buy_remains.csv");
+
+		if (!lFile.exists() && !lRemFile.exists()) {
+			log.writelnLog("LSファイル等の売買対象データファイルが存在しません。");
+			return;
+		}
+
+		log.writelnLog("Iniファイルの内容を確認しました。");
+
+
+		List<TradeDataBean> beanList = new ArrayList<>();
+		if (lFile.exists()) beanList.addAll(file.csvToTorihikiData(lFile));
+
+		if (lRemFile.exists()) beanList.addAll(file.csvToTorihikiData(lRemFile));
 
 		new TradeMethodFilter().longFilter(beanList, iniBean);
 
-		//TODO:売買株の有無チェック
-		//TODO:売買開始メッセージ
+		//売買株の有無チェック
+		if (beanList.size() == 0) {
+			log.writelnLog("売買対象の株がありません。");
+			return;
+		}
 
+		log.writelnLog("LSファイルの読み込みが完了しました。");
 
-		SeleniumTrade trade =  new SeleniumTrade();
+		log.writelnLog("LSファイルの移動、削除を開始します。");
 
-		trade.login(strFolderPath);
-
-		List<TradeDataBean> failedList = trade.buyStocks(beanList, strFolderPath);
-
-		trade.logout();
-
-		String movedPath = new FileUtils().getMovedTradeDataPath(strFolderPath);
+		//ファイル削除は売買の前
+		String movedPath = new FileUtils().getMovedBuyDataPath(strLsPath);
 		try {
-			new File(strFolderPath + File.separator + "old").mkdirs();
+			new File(strLsPath + File.separator + "old").mkdirs();
 			if (!new File(movedPath).exists()) {
 				Files.move(Paths.get(strFilePath), Paths.get(movedPath), StandardCopyOption.ATOMIC_MOVE);
 			} else {
 				new File(strFilePath).delete();
 			}
+			//remains削除
+			lRemFile.delete();
 		} catch (SecurityException e) {
-			new LogMessage().writeInLog(e.toString(), strFolderPath);
+			log.writelnLog(e.toString());
 		} catch (IOException ioe) {
-			new LogMessage().writeInLog(ioe.toString(), strFolderPath);
+			log.writelnLog(ioe.toString());
 		}
 
+		log.writelnLog("LSファイルの移動、削除を行いました。");
+
+		log.writelnLog("購入処理を開始します。");
+
+		SeleniumTrade trade =  new SeleniumTrade(basePath);
+
+		trade.login(strLsPath);
+
+		List<TradeDataBean> failedList = trade.buyStocks(beanList, strLsPath);
+
+		trade.logout();
+
+
 		if (failedList.size()!=0) {
-			new LogMessage().writeInLog("のこってるよー", strFolderPath);
-			new FileUtils().makeTradeDataFile(failedList, strFolderPath);
+			log.writelnLog("のこってるよー");
+			new FileUtils().removeTradeDataFile(strLsPath, true);
+			//TradeData開業を追加
+			new FileUtils().makeTradeDataFile(failedList, basePath, true);
+
+			log.writelnLog("売買失敗件数：" + failedList.size());
 		} else {
-			new LogMessage().writeInLog("おわりだよー", strFolderPath);
+			log.writelnLog("おわりだよー");
 		}
 
 	}

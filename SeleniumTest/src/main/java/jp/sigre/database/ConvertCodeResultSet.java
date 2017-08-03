@@ -12,7 +12,7 @@ public class ConvertCodeResultSet implements ConvertResultSet {
 		TradeDataBean info = new TradeDataBean();
 
 		info.setCode				(rs.getString("code"));
-		info.setCorrectedEntryVolume(rs.getString("correctedEntryVolume"));
+		info.setRealEntryVolume(rs.getString("realEntryVolume"));
 
 		return info;
 	}

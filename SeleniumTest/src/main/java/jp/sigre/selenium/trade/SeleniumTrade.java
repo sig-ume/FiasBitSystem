@@ -16,27 +16,27 @@ import jp.sigre.LogMessage;
 import jp.sigre.database.ConnectDB;
 
 public class SeleniumTrade {
-	
-	//TODO:エラーメッセージすべてログに出力する
+
 	WebDriver driver = null;
+	String basePath;
+	LogMessage log;
 
-	public SeleniumTrade() {
-
+	public SeleniumTrade(String basePath) {
+		this.basePath = basePath;
+		log = new LogMessage(basePath);
 	}
 
 	public WebDriver login(String strFolderPath) {
 		FileUtils csv = new FileUtils();
 
 
-
-		//TODO:IDパスワード取得をメソッド化
+		//TODO:idpassword.fbsのフルパスをFileUtilsから取得する
 		String strIdPassPath = strFolderPath + "\\" + "idpassword.fbs";
 
 		String[] aryIdPass = csv.csvToIdPass(new File(strIdPassPath));
 
 		String strId = aryIdPass[0];
 		String strLoginPass = aryIdPass[1];
-		String strTorihPass = aryIdPass[2];
 
 		//System.setProperty("webdriver.gecko.driver", "D:\\Program Files\\pleiades\\Juno_4.2\\workspace\\SeleniumTest\\lib\\geckodriver.exe");
 		System.setProperty("webdriver.gecko.driver", "C:\\Users\\sigre\\git\\SeleniumTest\\SeleniumTest\\lib\\geckodriver.exe");
@@ -47,8 +47,6 @@ public class SeleniumTrade {
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
 		WebElement element = null;
-
-		//TODO:ID、Passは別ファイルから入力する
 
 		driver.get("https://www.sbisec.co.jp/ETGate");
 
@@ -66,8 +64,7 @@ public class SeleniumTrade {
 
 		waitForSearch.until(ExpectedConditions.presenceOfElementLocated(By.id("logout")));
 
-		
-		//TODO:ログイン完了メッセージ
+		log.writelnLog("SBIへのログインが完了しました。");
 		System.out.println("Page title is: " + driver.getTitle());
 
 		return driver;
@@ -76,7 +73,7 @@ public class SeleniumTrade {
 
 	public void logout() {
 		//TODO:ログアウト処理
-		//TODO:ログアウトメッセージ
+		log.writelnLog("SBIからのログアウトが完了しました。");
 		driver.quit();
 	}
 
@@ -95,7 +92,7 @@ public class SeleniumTrade {
 		String[] aryIdPass = csv.csvToIdPass(new File(strIdPassPath));
 
 		String strTorihPass = aryIdPass[2];
-		
+
 		List<TradeDataBean> failedTradeList = new ArrayList<>();
 
 		for (TradeDataBean bean : beanList) {
@@ -116,10 +113,9 @@ public class SeleniumTrade {
 					||strResult.contains("取引となります。")) {
 
 				if (!isBuying) {
-					bean.setCorrectedEntryVolume(String.valueOf(Integer.parseInt(bean.getCorrectedEntryVolume())	*-1));
-					bean.setRealEntryVolume		(String.valueOf(Integer.parseInt(bean.getRealEntryVolume())		*-1));
+					bean.setCorrectedEntryVolume(String.valueOf(Integer.parseInt(bean.getRealEntryVolume())	*-1));
+					bean.setRealEntryVolume		(String.valueOf(Integer.parseInt(bean.getRealEntryVolume())	*-1));
 				}
-
 
 				ConnectDB connect = new ConnectDB();
 				connect.connectStatement();
@@ -130,10 +126,10 @@ public class SeleniumTrade {
 
 				failedTradeList.add(bean);
 			}
-			
-			new LogMessage().writeInLog(bean.getCode() + ":" + bean.getRealEntryVolume() + " " + strResult, strFolderPath);;
+
+			log.writelnLog(bean.getCode() + ":" + bean.getRealEntryVolume() + " " + strResult);;
 		}
-		
+
 		return failedTradeList;
 	}
 
