@@ -6,9 +6,18 @@ import java.util.List;
 public class IniBean {
 	private String lS_FilePath;
 	private String iD_FilePath;
-	
+
 	private List<String[]> methodSet = new ArrayList<>();
 
+	private String tradeVisible;
+
+	public String getTradeVisible() {
+		return tradeVisible;
+	}
+
+	public void setTradeVisible(String tradeVisible) {
+		this.tradeVisible = tradeVisible;
+	}
 
 	public String getlS_FilePath() {
 		return lS_FilePath;
@@ -33,7 +42,7 @@ public class IniBean {
 	public void setMethodSet(List<String[]> methodSet) {
 		this.methodSet = methodSet;
 	}
-	
+
 	public void addMethodSet(String[] method) {
 		this.methodSet.add(method);
 	}
@@ -44,6 +53,7 @@ public class IniBean {
 		for (String[] strs : methodSet) {
 			result += strs[0] + ", " + strs[1] + ", " + strs[2] + "\n";
 		}
+		result += "TradeVisible=" + tradeVisible;
 		return result;
 	}
 

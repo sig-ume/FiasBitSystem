@@ -11,6 +11,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -54,7 +57,7 @@ public class FileUtils {
 
 			reader = new CSVReader(new InputStreamReader(new FileInputStream(file), "SJIS"));
 			String[] nextLine = reader.readNext();
-			System.out.println(nextLine.length);
+			//System.out.println(nextLine.length);
 			return nextLine;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -68,37 +71,38 @@ public class FileUtils {
 	}
 
 	public IniBean iniToBean(File file) {
-	    FileReader fr = null;
-	    BufferedReader br = null;
-	    IniBean bean = new IniBean();
-	    try {
-	        fr = new FileReader(file);
-	        br = new BufferedReader(fr);
+		FileReader fr = null;
+		BufferedReader br = null;
+		IniBean bean = new IniBean();
+		try {
+			fr = new FileReader(file);
+			br = new BufferedReader(fr);
 
-	        String line;
-	        while ((line = br.readLine()) != null) {
-	            readIniLine(line, bean);
-	        }
-	    } catch (FileNotFoundException e) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				readIniLine(line, bean);
+			}
+		} catch (FileNotFoundException e) {
 			new LogMessage().writelnLog(e.toString());
-	    } catch (IOException e) {
+		} catch (IOException e) {
 			new LogMessage().writelnLog(e.toString());
-	    } finally {
-	        try {
-	            br.close();
-	            fr.close();
-	        } catch (IOException e) {
+		} finally {
+			try {
+				br.close();
+				fr.close();
+			} catch (IOException e) {
 				new LogMessage().writelnLog(e.toString());
-	        }
-	    }
+			}
+		}
 
-	    return bean;
+		return bean;
 	}
 
 	private void readIniLine(String line, IniBean bean) {
 		if (line.startsWith("LS_FilePath")) bean.setlS_FilePath(getLS_FilePath(line));
 		if (line.startsWith("ID_FilePath")) bean.setiD_FilePath(getID_FilePath(line));
 		if (line.startsWith("["))			getUseMethod(line, bean);
+		if (line.startsWith("Trade_Visible")) bean.setTradeVisible(getTradeVisible(line));
 
 	}
 
@@ -122,17 +126,39 @@ public class FileUtils {
 		bean.addMethodSet(methodSet);
 	}
 
+	private String getTradeVisible(String line) {
+		return line.split("=")[1];
+	}
+
 	public void makeTradeDataFile(List<TradeDataBean> list, String outPath, boolean isBuying) {
 
 		String fileName = isBuying? "buy_remains.csv" : "sell_remains.csv";
 
+		makeDataFile(list, outPath, fileName);
+
+	}
+
+	public void makeBackupDataFile(List<TradeDataBean> list, String outPath) {
+
+		String fileName = "backup.csv";
+
+		File target = new File(outPath + File.separator + fileName);
+
+		if (target.exists()) {
+			target.delete();
+		}
+
+		makeDataFile(list, outPath, fileName);
+
+	}
+
+	private void makeDataFile(List<TradeDataBean> list, String outPath, String fileName) {
 		writeFile("code,dayTime,type,entryMethod,exitMethod,MINI_CHECK_flg,"
 				+ "realEntryVolume,entry_money\n", outPath, fileName);
 
 		for (TradeDataBean bean : list) {
 			writeFile(bean.toCSV() + "\n", outPath, fileName);
 		}
-
 	}
 
 
@@ -140,7 +166,7 @@ public class FileUtils {
 
 		String logFilePath = outPath + File.separator + fileName;
 
-		System.out.println(logFilePath);
+		//System.out.println(logFilePath);
 		File file = new File(logFilePath);
 		//			File folder = new File(file_name);
 		//			folder.mkdirs();
@@ -160,7 +186,7 @@ public class FileUtils {
 			System.out.println(e);
 		}
 
-		System.out.print(writing);
+		//System.out.print(writing);
 	}
 
 	public String getIdPassFilePath(String strFolderPath) {
@@ -222,6 +248,21 @@ public class FileUtils {
 		String fileName = isBuying? "buy_remains.csv" : "sell_remains.csv";
 
 		new File(strLsPath + File.separator + fileName).delete();
+	}
+
+	public boolean atoshimatsuDataFile(String strLsPath, String strFilePath) throws IOException {
+		//TODO：処理終了後のファイル処理をFileUtilsでメソッド化
+
+		String movedPath = new FileUtils().getMovedSellDataPath(strLsPath);
+
+		new File(strLsPath + File.separator + "old").mkdirs();
+		if (!new File(movedPath).exists()) {
+			Files.move(Paths.get(strFilePath), Paths.get(movedPath), StandardCopyOption.ATOMIC_MOVE);
+		} else {
+			new File(strFilePath).delete();
+		}
+
+		return true;
 	}
 
 }

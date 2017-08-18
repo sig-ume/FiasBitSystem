@@ -29,16 +29,14 @@ public class SeleniumShort {
 	 */
 	public static void main(String[] args) {
 		//TODO：現行のLファイルをすべてDBに登録してみる
-		//TODO；現行の所有株をDBに取り込む機能追加
-		//TODO；画面非表示Ver作成
-
+		//TODO:株の一部を売却するパターンテスト
 
 		String basePath = System.getProperty("user.dir");
 
 		LogMessage log = new LogMessage(basePath);
 
 		FileUtils csv = new FileUtils();
-		IniBean iniBean = csv.iniToBean(new File("C:\\Users\\sigre\\git\\SeleniumTest\\SeleniumTest\\target\\fbs.ini"));
+		IniBean iniBean = csv.iniToBean(new File("C:\\Users\\sigre\\git\\SeleniumTest\\SeleniumTest\\fbs.ini"));
 
 		//TODO:iniファイルチェックをメソッド化
 
@@ -62,6 +60,8 @@ public class SeleniumShort {
 			return;
 		}
 
+		String tradeVisible = iniBean.getTradeVisible();
+
 		log.writelnLog("iniファイル読み込み完了");
 
 		//テスト用にLファイルを対象にする→しない
@@ -69,6 +69,7 @@ public class SeleniumShort {
 
 		File lFile = new File(strFilePath);
 
+		//TODO:ファイルが無い場合の例外処理
 		List<TradeDataBean> beanList = csv.csvToTorihikiData(lFile);//
 
 		new TradeMethodFilter().shortFilter(beanList, iniBean);
@@ -82,10 +83,25 @@ public class SeleniumShort {
 		ConnectDB db = new ConnectDB();
 		db.connectStatement();
 
+		//TODO：処理終了後のファイル処理をFileUtilsでメソッド化
 
-		SeleniumTrade trade =  new SeleniumTrade(basePath);
+		String movedPath = new FileUtils().getMovedSellDataPath(strLsPath);
+		try {
+			new File(strLsPath + File.separator + "old").mkdirs();
+			if (!new File(movedPath).exists()) {
+				Files.move(Paths.get(strFilePath), Paths.get(movedPath), StandardCopyOption.ATOMIC_MOVE);
+			} else {
+				new File(strFilePath).delete();
+			}
+		} catch (SecurityException e) {
+			log.writelnLog(e.toString());
+		} catch (IOException ioe) {
+			log.writelnLog(ioe.toString());
+		}
 
-		trade.login(strLsPath);
+		SeleniumTrade trade =  new SeleniumTrade();
+
+		trade.login(strLsPath, tradeVisible);
 
 		List<TradeDataBean> failedList = new ArrayList<>();
 
@@ -183,21 +199,7 @@ public class SeleniumShort {
 
 		trade.logout();
 
-		//TODO：処理終了後のファイル処理をFileUtilsでメソッド化
 
-		String movedPath = new FileUtils().getMovedSellDataPath(strLsPath);
-		try {
-			new File(strLsPath + File.separator + "old").mkdirs();
-			if (!new File(movedPath).exists()) {
-				Files.move(Paths.get(strFilePath), Paths.get(movedPath), StandardCopyOption.ATOMIC_MOVE);
-			} else {
-				new File(strFilePath).delete();
-			}
-		} catch (SecurityException e) {
-			log.writelnLog(e.toString());
-		} catch (IOException ioe) {
-			log.writelnLog(ioe.toString());
-		}
 
 		if (failedList.size()!=0) {
 			log.writelnLog("のこってるよー");

@@ -28,7 +28,7 @@ public class TradeMethodFilter {
 
 				System.out.println("フィルター前:" + list.get(0));
 
-				if (entryMethod.equals(methodSet[0]) && exitMethod.equals(methodSet[1]) && methodSet[2].equals("1")) {
+				if (entryMethod.equals(methodSet[0]) && exitMethod.equals(methodSet[1]) && !methodSet[2].equals("0")) {
 					System.out.println("チェックTrue: " + i);
 					checkbox.set(i, true);
 				}

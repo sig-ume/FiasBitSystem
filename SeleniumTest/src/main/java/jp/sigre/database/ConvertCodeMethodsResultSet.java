@@ -7,6 +7,8 @@ import jp.sigre.selenium.trade.TradeDataBean;
 
 public class ConvertCodeMethodsResultSet implements ConvertResultSet {
 
+	//TODO:日付、DD、MiniCheck、Moneyうめる
+
 	@Override
 	public TradeDataBean rsToBean(ResultSet rs) throws SQLException {
 		TradeDataBean info = new TradeDataBean();

@@ -172,7 +172,60 @@ public class ConnectDB {
 	}
 
 	/**
-	 * TradeViewOfCodeViewテーブルから特定コード,売却メソッドのレコードリストを取得
+	 * TradeViewOfCodeMethodビューから特定コード,購入/売却メソッドのレコードを取得
+	 * （特定レコードの合計所有株数）
+	 * @param code
+	 * @return
+	 */
+	public TradeDataBean getTradeViewOfCodeMethods(String code, String entryMethod, String exitMethod) {
+		try {
+			con = getConnection();
+			String sql = "Select * From TradeViewOfCodeMethods WHERE code = ? AND entryMethod = ? AND exitMethod = ?;";
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, code);
+			pstmt.setString(2, entryMethod);
+			pstmt.setString(3, exitMethod);
+			ResultSet rs = pstmt.executeQuery();
+
+			List<TradeDataBean> list = new ConvertCodeMethodsResultSet().convertTradeData(rs);
+			//Listのサイズ0の場合の処理
+			if (list.size()==0) {
+				TradeDataBean noDataBean = new TradeDataBean();
+				noDataBean.setRealEntryVolume("0");
+				noDataBean.setCode(code);
+				return noDataBean;
+			}
+			return list.get(0);
+		} catch (SQLException e1) {
+			closeStatement();
+			new LogMessage().writelnLog(e1.toString());
+		}
+		return null;
+	}
+
+	/**
+	 * TradeViewOfCodeMethodビューから特定コードのレコードリストを取得
+	 * （特定レコードの合計所有株数）
+	 * @param code
+	 * @return
+	 */
+	public List<TradeDataBean> getTradeViewOfCodeMethods() {
+		try {
+			con = getConnection();
+			String sql = "Select * From TradeViewOfCodeMethods;";
+			PreparedStatement pstmt = con.prepareStatement(sql);
+
+			ResultSet rs = pstmt.executeQuery();
+			return new ConvertCodeMethodsResultSet().convertTradeData(rs);
+		} catch (SQLException e1) {
+			closeStatement();
+			new LogMessage().writelnLog(e1.toString());
+		}
+		return null;
+	}
+
+	/**
+	 * TradeViewOfCodeMethodから特定コード,売却メソッドのレコードリストを取得
 	 * （特定レコードの合計所有株数）
 	 * レコードが存在しない場合、realEntryVolume=0の空Beanを返す。
 	 * @param code
@@ -181,12 +234,45 @@ public class ConnectDB {
 	public TradeDataBean getHighestTradeViewOfCodeMethods(String code) {
 		try {
 			con = getConnection();
-			String sql = "Select * From TradeViewOfCodeExit WHERE code = ? ORDER BY realEntryVolume DESC;";
+			String sql = "Select * From TradeViewOfCodeMethods WHERE code = ? ORDER BY realEntryVolume DESC;";
 			PreparedStatement pstmt = con.prepareStatement(sql);
 			pstmt.setString(1, code);
 			ResultSet rs = pstmt.executeQuery();
 
-			List<TradeDataBean> list = new ConvertCodeResultSet().convertTradeData(rs);
+			List<TradeDataBean> list = new ConvertCodeMethodsResultSet().convertTradeData(rs);
+			//Listのサイズ0の場合の処理
+			if (list.size()==0) {
+				TradeDataBean noDataBean = new TradeDataBean();
+				noDataBean.setRealEntryVolume("0");
+				noDataBean.setCode(code);
+				return noDataBean;
+			}
+			return list.get(0);
+		} catch (SQLException e1) {
+			closeStatement();
+			new LogMessage().writelnLog(e1.toString());
+		}
+		return null;
+	}
+
+	/**
+	 * TradeViewOfCodeMethodから特定コードかつ,entryMethod,exitMethodが指定されたものでないレコードリストを取得
+	 * レコードが存在しない場合、realEntryVolume=0の空Beanを返す。
+	 * @param code
+	 * @return
+	 */
+	public TradeDataBean getHighestTradeViewOfCodeMethods(String code, String entryMethod, String exitMethod) {
+		try {
+			con = getConnection();
+			String sql = "Select * From TradeViewOfCodeMethods WHERE code = ? AND entryMethod != ? "
+					+ "AND exitMethod != ? ORDER BY realEntryVolume DESC;";
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, code);
+			pstmt.setString(2, entryMethod);
+			pstmt.setString(3, exitMethod);
+			ResultSet rs = pstmt.executeQuery();
+
+			List<TradeDataBean> list = new ConvertCodeMethodsResultSet().convertTradeData(rs);
 			//Listのサイズ0の場合の処理
 			if (list.size()==0) {
 				TradeDataBean noDataBean = new TradeDataBean();
@@ -382,6 +468,5 @@ public class ConnectDB {
 		}
 		return result;
 	}
-
 
 }
