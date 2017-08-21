@@ -6,6 +6,8 @@ package jp.sigre.selenium.trade;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.sigre.database.ConnectDB;
+
 /**
  * @author sigre
  *
@@ -63,8 +65,16 @@ public class TradeMethodFilter {
 			}
 		}
 
+		ConnectDB db = new ConnectDB();
 
-		for (TradeDataBean tradeData : list ) {
+		for (int i = 0; i < list.size(); i++ ) {
+			TradeDataBean tradeData = list.get(i);
+			//処理予定の株を持ってるかチェックをフィルターに
+			TradeDataBean dbBean = db.getTradeViewOfCodeMethods(tradeData.getCode(), tradeData.getEntryMethod(), tradeData.getExitMethod());
+			if (dbBean.getRealEntryVolume()=="0") {
+				list.remove(i);
+				i--;
+			}
 			System.out.println(tradeData.toString());
 		}
 

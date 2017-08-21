@@ -28,8 +28,6 @@ public class SeleniumShort {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//TODO：現行のLファイルをすべてDBに登録してみる
-		//TODO:株の一部を売却するパターンテスト
 
 		String basePath = System.getProperty("user.dir");
 
