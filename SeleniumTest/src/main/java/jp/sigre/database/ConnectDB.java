@@ -180,7 +180,7 @@ public class ConnectDB {
 	public TradeDataBean getTradeViewOfCodeMethods(String code, String entryMethod, String exitMethod) {
 		try {
 			con = getConnection();
-			String sql = "Select * From TradeViewOfCodeMethods WHERE code = ? AND entryMethod  = ? AND exitMethod = ?;";
+			String sql = "Select * From TradeViewOfCodeMethods WHERE code = ? AND entryMethod = ? AND exitMethod = ?;";
 			PreparedStatement pstmt = con.prepareStatement(sql);
 			pstmt.setString(1, code);
 			pstmt.setString(2, entryMethod);
