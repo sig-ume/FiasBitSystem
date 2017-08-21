@@ -109,18 +109,34 @@ public class SeleniumTrade {
 		ConnectDB db = new ConnectDB();
 		db.connectStatement();
 
+		//wildcard(按分)レコード用リスト。最後にbeanlistに追加。
+		List<TradeDataBean> wildcardList = new ArrayList<>();
+
 		for (int i = 0; i < beanList.size(); i++) {
 			TradeDataBean bean = beanList.get(i);
 			TradeDataBean tmpBean = db.getTradeViewOfCodeMethods(bean.getCode(), bean.getEntryMethod(), bean.getExitMethod());
 			System.out.println("sellData:"+tmpBean);
+
+			//Code、entryMethod、exitMethodが一致し、volumeが0じゃない場合、volumeを更新
 			if (!bean.getRealEntryVolume().equals("0")) {
-			bean.setRealEntryVolume(tmpBean.getRealEntryVolume());
-			bean.setCorrectedEntryVolume(tmpBean.getCorrectedEntryVolume());
+				bean.setRealEntryVolume(tmpBean.getRealEntryVolume());
+				bean.setCorrectedEntryVolume(tmpBean.getCorrectedEntryVolume());
 			} else {
+				//volumeが0なら無視
 				beanList.remove(i);
 				i--;
 			}
+
+			//wildcardレコード捜索
+			TradeDataBean wildBean = db.getTradeViewOfCodeMethods(bean.getCode(), "wildcard", "wildcard");
+			if (!wildBean.getRealEntryVolume().equals("0")) {
+				wildcardList.add(wildBean);
+			}
+
 		}
+
+		//wildcardをリストに追加
+		beanList.addAll(wildcardList);
 
 		db.closeStatement();
 
