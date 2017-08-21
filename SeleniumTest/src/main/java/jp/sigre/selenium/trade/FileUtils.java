@@ -56,18 +56,15 @@ public class FileUtils {
 		try {
 
 			reader = new CSVReader(new InputStreamReader(new FileInputStream(file), "SJIS"));
-			if (reader == null) {
-				System.out.println("リーダーがNull");
-			}
 			String[] nextLine = reader.readNext();
-			System.out.println(nextLine.length);
+			//System.out.println(nextLine.length);
 			return nextLine;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
 			try {
 				reader.close();
-			} catch (Exception e) {
+			} catch (IOException e) {
 				new LogMessage().writelnLog(e.toString());
 			}
 		}
@@ -133,7 +130,7 @@ public class FileUtils {
 		return line.split("=")[1];
 	}
 
-	public void makeRemainsDataFile(List<TradeDataBean> list, String outPath, boolean isBuying) {
+	public void makeTradeDataFile(List<TradeDataBean> list, String outPath, boolean isBuying) {
 
 		String fileName = isBuying? "buy_remains.csv" : "sell_remains.csv";
 
@@ -160,7 +157,6 @@ public class FileUtils {
 				+ "realEntryVolume,entry_money\n", outPath, fileName);
 
 		for (TradeDataBean bean : list) {
-			System.out.println(bean);
 			writeFile(bean.toCSV() + "\n", outPath, fileName);
 		}
 	}
@@ -177,7 +173,7 @@ public class FileUtils {
 
 		try {
 			file.createNewFile();
-		} catch (Exception e1) {
+		} catch (IOException e1) {
 			new LogMessage().writelnLog(e1.toString());
 		}
 		try{
@@ -186,7 +182,7 @@ public class FileUtils {
 			FileWriter filewriter = new FileWriter(file,true);
 			filewriter.write(writing );
 			filewriter.close();
-		}catch(Exception e){
+		}catch(IOException e){
 			System.out.println(e);
 		}
 

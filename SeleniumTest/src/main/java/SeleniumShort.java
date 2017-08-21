@@ -201,7 +201,7 @@ public class SeleniumShort {
 
 		if (failedList.size()!=0) {
 			log.writelnLog("のこってるよー");
-			new FileUtils().makeRemainsDataFile(failedList, strLsPath, false);
+			new FileUtils().makeTradeDataFile(failedList, strLsPath, false);
 		} else {
 			log.writelnLog("おわりだよー");
 		}
