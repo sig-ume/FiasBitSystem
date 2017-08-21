@@ -1,0 +1,8 @@
+"code","dayTime","type","entryMethod","exitMethod","MINI_CHECK_flg","realEntryVolume","entry_money"
+"6869","2017-08-15","DD","technique.Technique04.MACD_M_L_OVER0","technique.Technique04.MACD_M_S_OVER0","0","1100","11000"
+"6869","2017-08-15","DD","technique.Technique04.MACD_M_L_OVER0","technique.Technique04.MACD_M_S_OVER0","1","15","11000"
+"6869","2017-08-15","DD","technique.Technique08.MACD_IDOHEIKIN_L","technique.Technique04.MACD_M_S_OVER0","0","1100","11000"
+"6869","2017-08-15","DD","technique.Technique08.MACD_IDOHEIKIN_L","technique.Technique04.MACD_M_S_OVER0","1","15","11000"
+"6918","2017-08-15","DD","technique.Technique06.IDO_HEKIN_1_S","technique.Technique06.IDO_HEKIN_2_L","0","8500","11000"
+"6918","2017-08-15","DD","technique.Technique06.IDO_HEKIN_1_S","technique.Technique06.IDO_HEKIN_2_L","1","42","11000"
+"8876","2017-08-15","DD","technique.Technique06.IDO_HEKIN_3_S","technique.Technique04.MACD_M_S_OVER0","1","16","11000"

@@ -129,6 +129,7 @@ public class SeleniumTrade {
 
 			//wildcardレコード捜索
 			TradeDataBean wildBean = db.getTradeViewOfCodeMethods(bean.getCode(), "wildcard", "wildcard");
+			System.out.println("wildbean:" + wildBean.toString());
 			if (!wildBean.getRealEntryVolume().equals("0")) {
 				wildcardList.add(wildBean);
 			}
@@ -304,7 +305,7 @@ public class SeleniumTrade {
 		ConnectDB db = new ConnectDB();
 		db.connectStatement();
 
-		for (int i = 0; i < list.size(); i++) {
+		for (int i = 1; i < list.size(); i++) {
 			TradeDataBean plusBean = firstBean.clone();
 			TradeDataBean minusBean = list.get(i).clone();
 			plusBean.setRealEntryVolume(minusBean.getRealEntryVolume());

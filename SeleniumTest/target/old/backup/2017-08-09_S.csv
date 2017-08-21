@@ -1,0 +1,4 @@
+"code","dayTime","type","entryMethod","exitMethod","MINI_CHECK_flg","realEntryVolume","entry_money"
+"6062","2017-08-09","DD","technique.Technique06.IDO_HEKIN_3_S","technique.Technique04.MACD_M_S_OVER0","1","8","11000"
+"9989","2017-08-09","DD","technique.Technique08.MACD_IDOHEIKIN_L","technique.Technique04.MACD_M_S_OVER0","0","200","11000"
+"9989","2017-08-09","DD","technique.Technique08.MACD_IDOHEIKIN_L","technique.Technique04.MACD_M_S_OVER0","1","46","11000"

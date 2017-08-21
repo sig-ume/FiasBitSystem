@@ -35,6 +35,11 @@ public class TradeMethodFilter {
 					checkbox.set(i, true);
 				}
 			}
+
+			if(exitMethod.equals("wildcard")) {
+				System.out.println("wildcardチェックTrue: " + i);
+				checkbox.set(i, true);
+			}
 		}
 
 		for (int i = 0; i<list.size(); i++) {

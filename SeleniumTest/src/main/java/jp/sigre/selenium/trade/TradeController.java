@@ -71,15 +71,16 @@ public class TradeController {
 		}
 
 
+
 		log.writelnLog("Iniファイルの内容を確認しました。");
 	}
 
 	public void newTradeLong() {
 
 	}
-	
+
 	public void tradeLogin() {
-		
+
 	}
 
 	public void tradeLong() {
@@ -130,7 +131,7 @@ public class TradeController {
 				new File(strFilePath).delete();
 			}
 			//remains削除
-			lRemFile.delete();
+			//lRemFile.delete();
 		} catch (SecurityException e) {
 			log.writelnLog(e.toString());
 		} catch (IOException ioe) {
@@ -143,7 +144,7 @@ public class TradeController {
 
 		SeleniumTrade trade =  new SeleniumTrade();
 
-		trade.login(strLsPath, tradeVisible);
+		trade.login(strIdPath, tradeVisible);
 
 		List<TradeDataBean> failedList = trade.buyStocks(beanList, strLsPath);
 
@@ -155,7 +156,7 @@ public class TradeController {
 			new FileUtils().removeTradeDataFile(strLsPath, true);
 
 			//バックアプファイル作成
-			new FileUtils().makeTradeDataFile(failedList, strLsPath, true);
+			new FileUtils().makeRemainsDataFile(failedList, strLsPath, true);
 
 			log.writelnLog("売買失敗件数：" + failedList.size());
 		} else {
@@ -171,7 +172,6 @@ public class TradeController {
 		String tradeVisible = iniBean.getTradeVisible();
 
 
-		//テスト用にLファイルを対象にする→しない
 		String strFilePath = new FileUtils().getSellDataFilePath(strLsPath);
 
 		File lFile = new File(strFilePath);
@@ -185,7 +185,7 @@ public class TradeController {
 
 		new TradeMethodFilter().shortFilter(beanList, iniBean);
 
-
+		//TODO:対象レコードが無い場合に終了処理
 
 		SeleniumTrade trade =  new SeleniumTrade();
 
@@ -198,7 +198,7 @@ public class TradeController {
 			log.writelnLog("のこってるよー");
 			new FileUtils().removeTradeDataFile(strLsPath, false);
 
-			new FileUtils().makeTradeDataFile(failedList, strLsPath, false);
+			new FileUtils().makeRemainsDataFile(failedList, strLsPath, false);
 
 		} else {
 			log.writelnLog("おわりだよー");
@@ -214,8 +214,8 @@ public class TradeController {
 			} else {
 				new File(strFilePath).delete();
 			}
-			//remains削除
-			lRemFile.delete();
+			//TODO:なぜこれを？→remains削除
+			//lRemFile.delete();
 		} catch (SecurityException e) {
 			log.writelnLog(e.toString());
 		} catch (IOException ioe) {
@@ -387,7 +387,7 @@ public class TradeController {
 			log.writelnLog("のこってるよー");
 			new FileUtils().removeTradeDataFile(strLsPath, false);
 
-			new FileUtils().makeTradeDataFile(failedList, strLsPath, false);
+			new FileUtils().makeRemainsDataFile(failedList, strLsPath, false);
 
 		} else {
 			log.writelnLog("おわりだよー");

@@ -1,0 +1,8 @@
+code,dayTime,type,entryMethod,exitMethod,MINI_CHECK_flg,realEntryVolume,entry_money
+3193,2017/7/11,DD,technique.Technique08.MACD_IDOHEIKIN_L,technique.Technique06.IDO_HEKIN_2_L,0,3,1000000
+3660,2017/7/11,DD,technique.Technique08.MACD_IDOHEIKIN_L,technique.Technique06.IDO_HEKIN_2_L,0,12,1000000
+4293,2017/7/11,DD,technique.Technique08.MACD_IDOHEIKIN_L,technique.Technique06.IDO_HEKIN_2_L,0,29,1000000
+4368,2017/7/11,DD,technique.Technique08.MACD_IDOHEIKIN_L,technique.Technique06.IDO_HEKIN_2_L,0,2,1000000
+4736,2017/7/11,DD,technique.Technique08.MACD_IDOHEIKIN_L,technique.Technique06.IDO_HEKIN_2_L,0,10,1000000
+7965,2017/7/11,DD,technique.Technique08.MACD_IDOHEIKIN_L,technique.Technique06.IDO_HEKIN_2_L,0,8,1000000
+9758,2017/7/11,DD,technique.Technique08.MACD_IDOHEIKIN_L,technique.Technique06.IDO_HEKIN_2_L,0,18,1000000

@@ -52,7 +52,7 @@ public class SeleniumMain  {
         		trade.tradeLong();
         		//selenium.tradeShort();
         		trade.newTradeShort();
-        		trade.makeBackupFile();
+        		//trade.makeBackupFile();
             }
         }, 0, 20 * 60 * 1000);
 
