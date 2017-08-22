@@ -66,10 +66,15 @@ public class TradeController {
 
 		String tradeVisible = iniBean.getTradeVisible();
 		if (tradeVisible.equals("")) {
-			log.writelnLog("売買処理可視が選択されていません。");
+			log.writelnLog("売買処理を可視状態にするかどうかが選択されていません。");
 			System.exit(1);
 		}
 
+		String sellUnusedMethod = iniBean.getSellUnusedMethod();
+		if (sellUnusedMethod.equals("")) {
+			log.writelnLog("使用していないメソッドで所有している株をどのように売却するかが選択されていません。");
+			System.exit(1);
+		}
 
 		log.writelnLog("Iniファイルの内容を確認しました。");
 	}
@@ -77,9 +82,9 @@ public class TradeController {
 	public void newTradeLong() {
 
 	}
-	
+
 	public void tradeLogin() {
-		
+
 	}
 
 	public void tradeLong() {
@@ -143,9 +148,9 @@ public class TradeController {
 
 		SeleniumTrade trade =  new SeleniumTrade();
 
-		trade.login(strLsPath, tradeVisible);
+		trade.login(strIdPath, tradeVisible);
 
-		List<TradeDataBean> failedList = trade.buyStocks(beanList, strLsPath);
+		List<TradeDataBean> failedList = trade.buyStocks(beanList, strIdPath);
 
 		trade.logout();
 
@@ -167,11 +172,9 @@ public class TradeController {
 	public void newTradeShort() {
 		String strLsPath = iniBean.getlS_FilePath();
 		String strIdPath = iniBean.getiD_FilePath();
-		int intMethodCount = iniBean.getMethodSet().size();
 		String tradeVisible = iniBean.getTradeVisible();
 
 
-		//テスト用にLファイルを対象にする→しない
 		String strFilePath = new FileUtils().getSellDataFilePath(strLsPath);
 
 		File lFile = new File(strFilePath);
@@ -189,9 +192,9 @@ public class TradeController {
 
 		SeleniumTrade trade =  new SeleniumTrade();
 
-		trade.login(strLsPath, tradeVisible);
+		trade.login(strIdPath, tradeVisible);
 
-		List<TradeDataBean> failedList = trade.newSellStocks(trade.getSellData(beanList), strLsPath);
+		List<TradeDataBean> failedList = trade.newSellStocks(trade.getSellData(beanList), strIdPath);
 
 
 		if (failedList.size()!=0) {
@@ -215,7 +218,7 @@ public class TradeController {
 				new File(strFilePath).delete();
 			}
 			//remains削除
-			lRemFile.delete();
+			//lRemFile.delete();
 		} catch (SecurityException e) {
 			log.writelnLog(e.toString());
 		} catch (IOException ioe) {
@@ -233,7 +236,6 @@ public class TradeController {
 		String tradeVisible = iniBean.getTradeVisible();
 
 
-		//テスト用にLファイルを対象にする→しない
 		String strFilePath = new FileUtils().getSellDataFilePath(strLsPath);
 
 		File lFile = new File(strFilePath);
@@ -274,7 +276,7 @@ public class TradeController {
 
 		SeleniumTrade trade =  new SeleniumTrade();
 
-		trade.login(strLsPath, tradeVisible);
+		trade.login(strIdPath, tradeVisible);
 
 		List<TradeDataBean> failedList = new ArrayList<>();
 
@@ -352,7 +354,7 @@ public class TradeController {
 				}
 
 				//売却レコードList完成したのでレコードごとに売却
-				failedList.addAll(trade.sellStocks(listCodeMethods, strLsPath));
+				failedList.addAll(trade.sellStocks(listCodeMethods, strIdPath));
 				//TODO:highestBeanをDBに登録
 				//TODO:同じ株数を売ったやつから削除
 			} else {
@@ -375,7 +377,7 @@ public class TradeController {
 					list.add(sBean);
 				}
 
-				failedList.addAll(trade.sellStocks(list, strLsPath));
+				failedList.addAll(trade.sellStocks(list, strIdPath));
 			}
 
 
@@ -396,13 +398,13 @@ public class TradeController {
 
 	public void makeBackupFile() {
 		log.writelnLog("バックアップ開始");
-		String strFolderPath = iniBean.getlS_FilePath();
+		String strLsFolderPath = iniBean.getlS_FilePath();
 		ConnectDB db = new ConnectDB();
 		db.connectStatement();
 
 		//TODO:不足データを追加する。
 		List<TradeDataBean> tradeList = db.getTradeViewOfCodeMethods();
-		new FileUtils().makeBackupDataFile(tradeList, strFolderPath);
+		new FileUtils().makeBackupDataFile(tradeList, strLsFolderPath);
 		log.writelnLog("バックアップ完了");
 	}
 }

@@ -90,12 +90,12 @@ public class SeleniumTrade {
 		driver.quit();
 	}
 
-	public List<TradeDataBean> buyStocks(List<TradeDataBean> beanList, String strFolderPath) {
-		return tradeStocks(beanList, strFolderPath, true);
+	public List<TradeDataBean> buyStocks(List<TradeDataBean> beanList, String strIdFolderPath) {
+		return tradeStocks(beanList, strIdFolderPath, true);
 	}
 
-	public List<TradeDataBean> sellStocks(List<TradeDataBean> beanList, String strFolderPath) {
-		return tradeStocks(beanList, strFolderPath, false);
+	public List<TradeDataBean> sellStocks(List<TradeDataBean> beanList, String strIdFolderPath) {
+		return tradeStocks(beanList, strIdFolderPath, false);
 	}
 
 	/**
@@ -131,11 +131,11 @@ public class SeleniumTrade {
 	/**
 	 * 売却用Tradeメソッド
 	 * @param beanList ViewOfCodeMethodsから取得したレコードリスト
-	 * @param strFolderPath
+	 * @param strIdFolderPath
 	 * @param isBuying
 	 * @return 取引失敗リスト
 	 */
-	public List<TradeDataBean> newSellStocks(List<TradeDataBean> beanList, String strFolderPath) {
+	public List<TradeDataBean> newSellStocks(List<TradeDataBean> beanList, String strIdFolderPath) {
 
 		boolean isBuying = false;
 
@@ -190,7 +190,7 @@ public class SeleniumTrade {
 			List<TradeDataBean> tradeList = getTangennAndS(sumBean);
 
 			//それぞれをトレード
-			failedTradeList = trade(tradeList, strFolderPath, false);
+			failedTradeList = trade(tradeList, strIdFolderPath, false);
 
 		}
 
@@ -328,12 +328,12 @@ public class SeleniumTrade {
 	}
 
 
-	private List<TradeDataBean> trade(List<TradeDataBean> beanList, String strFolderPath, boolean isBuying) {
+	private List<TradeDataBean> trade(List<TradeDataBean> beanList, String strIdFolderPath, boolean isBuying) {
 
 		FileUtils csv = new FileUtils();
 
 		//SBI取引パスワード取得
-		String strIdPassPath = new FileUtils().getIdPassFilePath(strFolderPath);
+		String strIdPassPath = new FileUtils().getIdPassFilePath(strIdFolderPath);
 		String[] aryIdPass = csv.csvToIdPass(new File(strIdPassPath));
 		String strTorihPass = aryIdPass[2];
 		List<TradeDataBean> failedTradeList = new ArrayList<>();
@@ -400,9 +400,9 @@ public class SeleniumTrade {
 		return result;
 	}
 
-	public List<TradeDataBean> tradeStocks(List<TradeDataBean> beanList, String strFolderPath, boolean isBuying) {
+	public List<TradeDataBean> tradeStocks(List<TradeDataBean> beanList, String strIdFolderPath, boolean isBuying) {
 		FileUtils csv = new FileUtils();
-		String strIdPassPath = new FileUtils().getIdPassFilePath(strFolderPath);
+		String strIdPassPath = new FileUtils().getIdPassFilePath(strIdFolderPath);
 
 		String[] aryIdPass = csv.csvToIdPass(new File(strIdPassPath));
 
