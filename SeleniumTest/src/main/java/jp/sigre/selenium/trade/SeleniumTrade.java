@@ -353,7 +353,7 @@ public class SeleniumTrade {
 			System.out.println(bean.getCode() + ": " + strResult);
 
 			if (strResult.contains("ご注文を受け付けました。")
-					||strResult.contains("取引となります。")) {
+					||strResult.contains("取引となります。") || strResult.contains("ご注文を受付いたします。")) {
 
 				if (!isBuying) {
 					bean.setCorrectedEntryVolume(String.valueOf(Integer.parseInt(bean.getRealEntryVolume())	*-1));
@@ -424,8 +424,8 @@ public class SeleniumTrade {
 
 			System.out.println(bean.getCode() + ": " + strResult);
 
-			if (strResult.contains("ご注文を受付いたします。")
-					||strResult.contains("取引となります。")) {
+			if (strResult.contains("ご注文を受け付けました。")
+					||strResult.contains("取引となります。") || strResult.contains("ご注文を受付いたします。")) {
 
 				if (!isBuying) {
 					bean.setCorrectedEntryVolume(String.valueOf(Integer.parseInt(bean.getRealEntryVolume())	*-1));
@@ -544,10 +544,10 @@ public class SeleniumTrade {
 			element = elements.get(2);
 			System.out.println(element.isEnabled());
 
-			if (strMiniFlg.equals("1")) element = element.findElement(By.tagName("font"));
-			else if (strMiniFlg.equals("0")) element = element.findElement(By.className("mtext"));
+			//if (strMiniFlg.equals("1")) element = element.findElement(By.tagName("font"));
+			//else if (strMiniFlg.equals("0")) element = element.findElement(By.className("mtext"));
 
-			//element = element.findElement(By.tagName("b"));
+			element = element.findElement(By.tagName("b"));
 
 			System.out.println(element.isEnabled());
 
