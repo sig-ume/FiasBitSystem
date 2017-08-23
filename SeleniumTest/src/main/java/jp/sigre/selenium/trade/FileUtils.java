@@ -103,6 +103,7 @@ public class FileUtils {
 		if (line.startsWith("ID_FilePath")) bean.setiD_FilePath(getID_FilePath(line));
 		if (line.startsWith("["))			getUseMethod(line, bean);
 		if (line.startsWith("Trade_Visible")) bean.setTradeVisible(getTradeVisible(line));
+		if (line.startsWith("Sell_UnusedMethod_Immediately")) bean.setSellUnusedMethod(getSellUnusedMethod(line));
 
 	}
 
@@ -127,6 +128,10 @@ public class FileUtils {
 	}
 
 	private String getTradeVisible(String line) {
+		return line.split("=")[1];
+	}
+
+	private String getSellUnusedMethod(String line) {
 		return line.split("=")[1];
 	}
 

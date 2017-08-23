@@ -203,6 +203,23 @@ public class ConnectDB {
 		return null;
 	}
 
+	public List<TradeDataBean> getTradeViewOfCodeMethods_Unused(String entryMethod, String exitMethod) {
+		try {
+			con = getConnection();
+			String sql = "Select * From TradeViewOfCodeMethods WHERE entryMethod = ? AND exitMethod = ?;";
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, entryMethod);
+			pstmt.setString(2, exitMethod);
+
+			ResultSet rs = pstmt.executeQuery();
+			return new ConvertCodeMethodsResultSet().convertTradeData(rs);
+		} catch (SQLException e1) {
+			closeStatement();
+			new LogMessage().writelnLog(e1.toString());
+		}
+		return null;
+	}
+
 	/**
 	 * TradeViewOfCodeMethodビューから特定コードのレコードリストを取得
 	 * （特定レコードの合計所有株数）
@@ -228,6 +245,7 @@ public class ConnectDB {
 	 * TradeViewOfCodeMethodから特定コード,売却メソッドのレコードリストを取得
 	 * （特定レコードの合計所有株数）
 	 * レコードが存在しない場合、realEntryVolume=0の空Beanを返す。
+	 * TODO:説明と内容が違う
 	 * @param code
 	 * @return
 	 */

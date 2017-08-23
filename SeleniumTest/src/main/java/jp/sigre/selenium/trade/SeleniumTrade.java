@@ -669,4 +669,23 @@ public class SeleniumTrade {
 		//TODO：DBをリセット
 		//TODO;tradeListをDBに投入
 	}
+
+	public List<TradeDataBean> getUnusedMethodStockList(IniBean iniBean) {
+
+		ConnectDB db = new ConnectDB();
+		db.connectStatement();
+
+		List<TradeDataBean> result = new ArrayList<>();
+
+		for (String[] methods : iniBean.getMethodSet()) {
+			if (methods[2].equals("0")) {
+				result.addAll(db.getTradeViewOfCodeMethods_Unused(methods[0], methods[1]));
+			}
+		}
+
+		db.closeStatement();
+
+		return result;
+	}
+
 }

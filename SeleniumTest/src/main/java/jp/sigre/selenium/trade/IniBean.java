@@ -11,6 +11,8 @@ public class IniBean {
 
 	private String tradeVisible;
 
+	private String sellUnusedMethod;
+
 	public String getTradeVisible() {
 		return tradeVisible;
 	}
@@ -45,6 +47,14 @@ public class IniBean {
 
 	public void addMethodSet(String[] method) {
 		this.methodSet.add(method);
+	}
+
+	public String getSellUnusedMethod() {
+		return sellUnusedMethod;
+	}
+
+	public void setSellUnusedMethod(String sellUnusedMethod) {
+		this.sellUnusedMethod = sellUnusedMethod;
 	}
 
 	@Override

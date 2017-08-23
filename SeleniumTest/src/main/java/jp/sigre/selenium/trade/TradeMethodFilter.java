@@ -54,7 +54,12 @@ public class TradeMethodFilter {
 	}
 
 	public void shortFilter(List<TradeDataBean> list, IniBean iniBean) {
-		this.longFilter(list, iniBean);
+
+		//sellUnusedMethodが0だった場合、使用するメソッドのみ売却処理→methodでのフィルターをかける
+		if (iniBean.getSellUnusedMethod().equals("0")) {
+			this.longFilter(list, iniBean);
+		}
+
 
 		for (int i = 0; i < list.size(); i++) {
 			for (int j = i+1; j < list.size(); j++) {
@@ -75,7 +80,7 @@ public class TradeMethodFilter {
 				list.remove(i);
 				i--;
 			}
-			System.out.println(tradeData.toString());
+			//System.out.println(tradeData.toString());
 		}
 
 	}

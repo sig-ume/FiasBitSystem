@@ -194,8 +194,15 @@ public class TradeController {
 
 		trade.login(strIdPath, tradeVisible);
 
-		List<TradeDataBean> failedList = trade.newSellStocks(trade.getSellData(beanList), strIdPath);
+		List<TradeDataBean> tradeList = trade.getSellData(beanList);
 
+		//sellUnusedMethodが1の場合、使用していないメソッドの所有銘柄をすべて売却リストに追加
+		//TODO:SellUnusedMethodが1の場合、使用していないメソッドで所有する銘柄をすべて売却する
+		if (iniBean.getSellUnusedMethod().equals("1")) {
+			tradeList.addAll(trade.getUnusedMethodStockList(iniBean));
+		}
+
+		List<TradeDataBean> failedList = trade.newSellStocks(tradeList, strIdPath);
 
 		if (failedList.size()!=0) {
 			log.writelnLog("のこってるよー");
