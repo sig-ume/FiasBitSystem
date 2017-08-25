@@ -90,7 +90,7 @@ public class TradeController {
 
 	}
 
-	public void trade() {
+	public boolean trade() {
 
 		String strLsPath = iniBean.getlS_FilePath();
 		String strIdPath = iniBean.getiD_FilePath();
@@ -121,11 +121,11 @@ public class TradeController {
 				log.writelnLog("KICKファイルを確認しました。");
 			} else {
 				log.writelnLog("KICKファイルが存在しないか不正です。");
-				return;
+				return false;
 			}
 		} else {
 			log.writelnLog("LSファイルが存在しません。売買処理は行われません。");
-			return;
+			return false;
 		}
 
 		if (canBuy) {
@@ -140,6 +140,7 @@ public class TradeController {
 			log.writelnLog("Sファイル等の売却対象データファイルが存在しません。");
 		}
 
+		return true;
 	}
 
 	public void tradeLong() {

@@ -52,8 +52,10 @@ public class SeleniumMain  {
         		//trade.tradeLong();
         		//selenium.tradeShort();
         		//trade.newTradeShort();
-        		if (resultSetup) trade.trade();
-        		trade.makeBackupFile();
+        		boolean resultTrade = false;
+        		if (resultSetup) resultTrade = trade.trade();
+
+        		if (resultTrade) trade.makeBackupFile();
             }
         }, 0, 20 * 60 * 1000);
 
