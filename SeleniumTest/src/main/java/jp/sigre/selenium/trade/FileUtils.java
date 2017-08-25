@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -274,6 +275,21 @@ public class FileUtils {
 		}
 
 		return true;
+	}
+
+	public String getExePath(InputStream inputStream, String prefix, String suffix) {
+		try {
+			java.nio.file.Path p = java.nio.file.Files.createTempFile(prefix, suffix);
+			p.toFile().deleteOnExit();
+			java.nio.file.Files.copy(inputStream, p, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+			return p.toAbsolutePath().toString();
+		} catch (IOException e) {
+			new LogMessage().writelnLog(e.toString());
+			System.exit(1);
+		}
+
+		//到達しないはず
+		return "";
 	}
 
 }

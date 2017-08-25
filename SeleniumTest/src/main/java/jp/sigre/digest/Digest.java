@@ -65,8 +65,6 @@ public class Digest {
 
 		String key = "GOD_BLESS_ME_SYO_UME_" + strToday;
 
-		System.out.println(key);
-
 		return key;
 	}
 
@@ -110,18 +108,19 @@ public class Digest {
 		File keyFile = new File(path);
 
 		if (!keyFile.exists()) {
+			new LogMessage().writelnLog("KICKファイルが存在しません。");
 			return false;
 		}
 
 		String digestInFile = "";
 		count = -1;
 
+		System.out.println("test1" + path);
 		try {
 			FileReader reader = new FileReader(new File(path));
 			BufferedReader br = new BufferedReader(reader);
 			digestInFile = br.readLine();
 			String strCount = br.readLine();
-			System.out.println(strCount);
 
 			if (strCount!=null) {
 				count = Integer.parseInt(strCount);
@@ -133,11 +132,12 @@ public class Digest {
 		}
 
 		if (!digest.equals(digestInFile)) {
-			System.out.println(digestInFile);
+			new LogMessage().writelnLog("KICKファイルが不正です。");
 			return false;
 		}
 
-		if (count >= 5) {
+		if (count >= 20) {
+			new LogMessage().writelnLog("実行回数制限をオーバーしています。");
 			return false;
 		}
 

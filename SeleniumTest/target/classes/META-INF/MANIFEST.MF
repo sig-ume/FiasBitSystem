@@ -100,7 +100,7 @@ maven-settings-builder-Implementation-Version: 3.0
 maven-repository-metadata-Implementation-Version: 3.0
 maven-compat-Extension-Name: maven-compat
 asm-commons-Implementation-Version: 5.0.2
-Main-Class: sample.hoge.Main
+Main-Class: SampleMain
 maven-settings-Extension-Name: maven-settings
 jdependency-Extension-Name: jdependency
 cglib-nodep-Implementation-Version: 3.2.4

@@ -1,6 +1,7 @@
 package jp.sigre.selenium.trade;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -40,16 +41,19 @@ public class SeleniumTrade {
 		String strLoginPass = aryIdPass[1];
 
 		//System.setProperty("webdriver.gecko.driver", "D:\\Program Files\\pleiades\\Juno_4.2\\workspace\\SeleniumTest\\lib\\geckodriver.exe");
-		System.setProperty("webdriver.gecko.driver", "C:\\Users\\sigre\\git\\SeleniumTest\\SeleniumTest\\lib\\geckodriver.exe");
+		//System.setProperty("webdriver.gecko.driver", "C:\\Users\\sigre\\git\\SeleniumTest\\SeleniumTest\\lib\\geckodriver.exe");
+		InputStream geckoStream = this.getClass().getClassLoader().getResourceAsStream("lib/geckodriver.exe");
+		System.setProperty("webdriver.gecko.driver", csv.getExePath(geckoStream, "geckodriver", "exe"));
 
 		//FirefoxとPhantomJSの選択設定を追加
 		if (visible.equals("1")) {
 			driver = new FirefoxDriver();
 		} else {
+			InputStream phantomStream = this.getClass().getClassLoader().getResourceAsStream("lib/phantomjs.exe");
 			DesiredCapabilities caps = new DesiredCapabilities();
 			caps.setCapability(
 					PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY,
-					"C:\\Users\\sigre\\git\\SeleniumTest\\SeleniumTest\\lib\\phantomjs.exe"
+					csv.getExePath(phantomStream, "phantomJS", "exe")
 					);
 			driver = new PhantomJSDriver(caps);
 		}

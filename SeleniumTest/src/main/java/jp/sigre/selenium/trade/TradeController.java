@@ -105,18 +105,19 @@ public class TradeController {
 
 		boolean canBuy = lFile.exists() || lRemFile.exists();
 
-		strFilePath = new FileUtils().getSellDataFilePath(strLsPath);
+		String strSFilePath = new FileUtils().getSellDataFilePath(strLsPath);
 
-		lFile = new File(strFilePath);
-		lRemFile = new File(strLsPath + File.separator + "sell_remains.csv");
+		File sFile = new File(strSFilePath);
+		File sRemFile = new File(strLsPath + File.separator + "sell_remains.csv");
 
-		boolean canSell = lFile.exists() || lRemFile.exists();
+		boolean canSell = sFile.exists() || sRemFile.exists();
 
 		if (canBuy || canSell) {
 			Digest dig = new Digest();
 			int count = 0;
-			if (dig.checkDigestFile(strLsPath, count)) {
-				dig.makeDigestFile(csv.getKeyPath(strLsPath), ++count);
+			String keyPath = csv.getKeyPath(strLsPath);
+			if (dig.checkDigestFile(keyPath, count)) {
+				dig.makeDigestFile(keyPath, ++count);
 				log.writelnLog("KICKファイルを確認しました。");
 			} else {
 				log.writelnLog("KICKファイルが存在しないか不正です。");
@@ -265,7 +266,7 @@ public class TradeController {
 				new File(strFilePath).delete();
 			}
 			//remains削除
-			//lRemFile.delete();
+			lRemFile.delete();
 		} catch (SecurityException e) {
 			log.writelnLog(e.toString());
 		} catch (IOException ioe) {
@@ -473,13 +474,12 @@ public class TradeController {
 
 	public void makeBackupFile() {
 		log.writelnLog("バックアップ開始");
-		String strLsFolderPath = iniBean.getlS_FilePath();
 		ConnectDB db = new ConnectDB();
 		db.connectStatement();
 
 		//TODO:不足データを追加する。
 		List<TradeDataBean> tradeList = db.getTradeViewOfCodeMethods();
-		new FileUtils().makeBackupDataFile(tradeList, strLsFolderPath);
+		new FileUtils().makeBackupDataFile(tradeList, basePath);
 		log.writelnLog("バックアップ完了");
 	}
 
