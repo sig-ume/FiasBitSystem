@@ -48,10 +48,11 @@ public class SeleniumMain  {
                 // ここに繰り返し処理を書く
                 System.out.println("action.");
 
-        		trade.tradeSetup();
-        		trade.tradeLong();
+        		boolean resultSetup = trade.tradeSetup();
+        		//trade.tradeLong();
         		//selenium.tradeShort();
-        		trade.newTradeShort();
+        		//trade.newTradeShort();
+        		if (resultSetup) trade.trade();
         		trade.makeBackupFile();
             }
         }, 0, 20 * 60 * 1000);

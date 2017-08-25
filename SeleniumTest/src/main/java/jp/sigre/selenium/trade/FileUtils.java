@@ -232,6 +232,12 @@ public class FileUtils {
 		return strFilePath;
 	}
 
+	public String getKeyPath(String strFolderPath) {
+		String strFilePath = strFolderPath + File.separator + "FBS_KICK_" + getTodayDate() + ".fbs";
+
+		return strFilePath;
+	}
+
 	private String getBuyDataFileName() {
 
 		return getTodayDate() + "_L.csv";

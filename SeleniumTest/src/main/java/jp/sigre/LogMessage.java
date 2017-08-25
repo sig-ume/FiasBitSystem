@@ -44,7 +44,7 @@ public class LogMessage {
 		//		System.out.println(sdf.format(now.getTime()));
 		//		System.out.println(y+"/"+mo + "/" + d + "_" +h + ":"+m+":"+s+":");
 
-
+		System.out.println(nowTime + "," + writing);
 		new FileUtils().writeFile(nowTime + "," + writing + "\r\n", folderPath,  "fbs_sys.log");
 
 	}
