@@ -11,24 +11,20 @@ public class SeleniumMain  {
 
 	public static void main(String[] args) {
 
-		//MEMO；売りの際は複数の特定株の複数メソッドのレコードをまとめる
-		//まとめる際は合計からMod 100を取得、その値の売りレコードを追加するとともに、レコードの一つから追加分を減らす
-
+	
 		//TODO:Firefoxインストールチェック
 		//TODO:PCスリープ、休止モード状態チェック
-		//TODO:Selenium IDEインストールチェック
-
-		//TODO：fbs key認証
-
-		//TODO:引数によって動作するメソッドを変更する
 
 		//TODO：現行のLファイルをすべてDBに登録してみる
 
 		//TODO:LongとShortの共通部分を抜き出す
-		//TODO;Firebugでチェク
-		//TODO:売る際の端数計算で残る株数はそれ専用のentry,exitMethodを指定する
+		//TODO;Firebugでチェック→IntelliJでやる
 		//TODO:SetupをログインとIniの読み込み別に
 		//TODO;ログイン→買い→売り→ログアウトという順の処理にする
+		
+		
+		//TODO:無駄に出力されるコメントを削除
+		//TODO:Seleniumの出力メッセージ抑止が可能か調べる
 
 		new SeleniumMain().loop();
 
