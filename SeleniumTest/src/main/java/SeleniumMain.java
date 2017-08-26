@@ -11,7 +11,7 @@ public class SeleniumMain  {
 
 	public static void main(String[] args) {
 
-	
+
 		//TODO:Firefoxインストールチェック
 		//TODO:PCスリープ、休止モード状態チェック
 
@@ -21,10 +21,10 @@ public class SeleniumMain  {
 		//TODO;Firebugでチェック→IntelliJでやる
 		//TODO:SetupをログインとIniの読み込み別に
 		//TODO;ログイン→買い→売り→ログアウトという順の処理にする
-		
-		
 		//TODO:無駄に出力されるコメントを削除
 		//TODO:Seleniumの出力メッセージ抑止が可能か調べる
+		//TODO:PhantomJSｄｒｉｖｅｒの正常終了処理を確認（logがずっと掴まれている
+		//TODO：https://www.google.co.jp/search?q=geckodriver+%E3%83%97%E3%83%AD%E3%82%BB%E3%82%B9+%E6%AE%8B%E3%82%8B&ie=utf-8&oe=utf-8&client=firefox-b&gfe_rd=cr&ei=URebWZnZMOPd8AeOirG4Cw
 
 		new SeleniumMain().loop();
 
@@ -47,11 +47,13 @@ public class SeleniumMain  {
         		boolean resultSetup = trade.tradeSetup();
         		//trade.tradeLong();
         		//selenium.tradeShort();
+
         		//trade.newTradeShort();
         		boolean resultTrade = false;
         		if (resultSetup) resultTrade = trade.trade();
 
         		if (resultTrade) trade.makeBackupFile();
+
             }
         }, 0, 20 * 60 * 1000);
 

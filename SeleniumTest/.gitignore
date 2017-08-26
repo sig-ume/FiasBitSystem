@@ -24,7 +24,7 @@ Thumbs.db
 !gradle-wrapper.jar
 
 # Maven
-#target
+target
 
 # Build
 out
