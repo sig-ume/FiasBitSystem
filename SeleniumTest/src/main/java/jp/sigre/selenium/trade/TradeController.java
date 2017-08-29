@@ -82,10 +82,6 @@ public class TradeController {
 		return true;
 	}
 
-	public void newTradeLong() {
-
-	}
-
 	public void tradeLogin() {
 
 	}

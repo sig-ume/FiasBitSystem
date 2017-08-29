@@ -40,6 +40,11 @@ public class SeleniumTrade {
 		String strId = aryIdPass[0];
 		String strLoginPass = aryIdPass[1];
 
+		//TODO:Seleniumの出力メッセージ抑止が可能か調べる
+		//TODO:PhantomJSｄｒｉｖｅｒの正常終了処理を確認（logがずっと掴まれている
+		//TODO：https://www.google.co.jp/search?q=geckodriver+%E3%83%97%E3%83%AD%E3%82%BB%E3%82%B9+%E6%AE%8B%E3%82%8B&ie=utf-8&oe=utf-8&client=firefox-b&gfe_rd=cr&ei=URebWZnZMOPd8AeOirG4Cw
+
+
 		//System.setProperty("webdriver.gecko.driver", "D:\\Program Files\\pleiades\\Juno_4.2\\workspace\\SeleniumTest\\lib\\geckodriver.exe");
 		//System.setProperty("webdriver.gecko.driver", "C:\\Users\\sigre\\git\\SeleniumTest\\SeleniumTest\\lib\\geckodriver.exe");
 		InputStream geckoStream = this.getClass().getClassLoader().getResourceAsStream("lib/geckodriver.exe");
@@ -149,6 +154,99 @@ public class SeleniumTrade {
 
 	}
 
+	public List<TradeDataBean> newBuyStocks(List<TradeDataBean> beanList, String strIdFolderPath) {
+
+		boolean isBuying = true;
+
+		FileUtils csv = new FileUtils();
+		String strIdPassPath = new FileUtils().getIdPassFilePath(strIdFolderPath);
+
+		String[] aryIdPass = csv.csvToIdPass(new File(strIdPassPath));
+
+		String strTorihPass = aryIdPass[2];
+
+		List<TradeDataBean> failedTradeList = new ArrayList<>();
+
+		for (int i = 0; i < beanList.size(); i++) {
+			TradeDataBean bean = beanList.get(i);
+
+			//売買それぞれの補正entryVolume計算
+			calcCorrectedEntryVolume(bean, isBuying);
+
+			//			if (bean.getMINI_CHECK_flg().equals("1")) {
+			//				tradeSmallStock(bean, strTorihPass, isBuying);
+			//			} else if (bean.getMINI_CHECK_flg().equals("0")){
+			tradeNormalStock(bean, strTorihPass, isBuying);
+			//			}
+
+			//同じcodeのBeanをListにまとめる
+			List<TradeDataBean> buyOrigList = getBuyOrigList(bean, beanList);
+
+			//実際に買うBeanを上記リストから作成
+			TradeDataBean buyBean = getSumBean(buyOrigList);
+
+			//buyBeanから単元株分とS株分に割る
+			TradeDataBean sBuyBean = getSBuyBean(buyBean);
+
+			//S株の株数分、元データのレコードをs株用リストに移す
+			List<TradeDataBean> sBuyOrigList = getSBuyOrigList(
+					Integer.parseInt(sBuyBean.getRealEntryVolume()), buyOrigList);
+
+			if (!buyBean.getRealEntryVolume().equals("0")) {
+				tradeNormalStock(buyBean, strTorihPass, isBuying);
+
+				//結果メッセージ確認後、DBor失敗リスト追加
+			}
+
+			if (!sBuyBean.getRealEntryVolume().equals("0")) {
+				tradeSmallStock(sBuyBean, strTorihPass, isBuying);
+
+				//結果メッセージ確認後、DBor失敗リスト追加
+			}
+
+			String strResult = getTradeResult(bean.getMINI_CHECK_flg());
+
+			System.out.println(bean.getCode() + ": " + strResult);
+
+			if (strResult.contains("ご注文を受け付けました。")
+					||strResult.contains("取引となります。") || strResult.contains("ご注文を受付いたします。")) {
+
+				if (!isBuying) {
+					bean.setCorrectedEntryVolume(String.valueOf(Integer.parseInt(bean.getRealEntryVolume())	*-1));
+					bean.setRealEntryVolume		(String.valueOf(Integer.parseInt(bean.getRealEntryVolume())	*-1));
+				}
+
+				ConnectDB connect = new ConnectDB();
+				connect.connectStatement();
+				connect.insertTradeData(bean);
+				connect.closeStatement();
+
+			} else {
+
+				failedTradeList.add(bean);
+			}
+
+			log.writelnLog(bean.getCode() + ":" + bean.getRealEntryVolume() + " " + strResult);;
+		}
+
+		return failedTradeList;
+	}
+
+	private List<TradeDataBean> getSBuyOrigList(int parseInt, List<TradeDataBean> buyOrigList) {
+		// TODO 自動生成されたメソッド・スタブ
+		return null;
+	}
+
+	private TradeDataBean getSBuyBean(TradeDataBean buyBean) {
+		// TODO 自動生成されたメソッド・スタブ
+		return null;
+	}
+
+	private List<TradeDataBean> getBuyOrigList(TradeDataBean bean, List<TradeDataBean> beanList) {
+		// TODO 自動生成されたメソッド・スタブ
+		return null;
+	}
+
 	/**
 	 * 売却用Tradeメソッド
 	 * @param beanList ViewOfCodeMethodsから取得したレコードリスト
@@ -218,6 +316,12 @@ public class SeleniumTrade {
 		return failedTradeList;
 	}
 
+	/**
+	 * リストすべてのvolumeを合計したBeanを作成
+	 * volume以外はlistの最初のレコード準拠
+	 * @param tradeList
+	 * @return
+	 */
 	private TradeDataBean getSumBean(List<TradeDataBean> tradeList) {
 
 		TradeDataBean result = tradeList.get(0).clone();
@@ -367,7 +471,7 @@ public class SeleniumTrade {
 			if (bean.getMINI_CHECK_flg().equals("1")) {
 				tradeSmallStock(bean, strTorihPass, isBuying);
 			} else if (bean.getMINI_CHECK_flg().equals("0")){
-				tradeNormalStocks(bean, strTorihPass, isBuying);
+				tradeNormalStock(bean, strTorihPass, isBuying);
 			}
 			String strResult = getTradeResult(bean.getMINI_CHECK_flg());
 
@@ -421,7 +525,7 @@ public class SeleniumTrade {
 		return result;
 	}
 
-	public List<TradeDataBean> tradeStocks(List<TradeDataBean> beanList, String strIdFolderPath, boolean isBuying) {
+	private List<TradeDataBean> tradeStocks(List<TradeDataBean> beanList, String strIdFolderPath, boolean isBuying) {
 		FileUtils csv = new FileUtils();
 		String strIdPassPath = new FileUtils().getIdPassFilePath(strIdFolderPath);
 
@@ -439,7 +543,7 @@ public class SeleniumTrade {
 			if (bean.getMINI_CHECK_flg().equals("1")) {
 				tradeSmallStock(bean, strTorihPass, isBuying);
 			} else if (bean.getMINI_CHECK_flg().equals("0")){
-				tradeNormalStocks(bean, strTorihPass, isBuying);
+				tradeNormalStock(bean, strTorihPass, isBuying);
 			}
 			String strResult = getTradeResult(bean.getMINI_CHECK_flg());
 
@@ -494,7 +598,7 @@ public class SeleniumTrade {
 
 	}
 
-	public void tradeSmallStock(TradeDataBean bean, String strTorihPass, boolean isBuying) {
+	private void tradeSmallStock(TradeDataBean bean, String strTorihPass, boolean isBuying) {
 		//TODO：driver有効かチェック
 
 		driver.findElement(By.cssSelector("img[alt=\"取引\"]")).click();
@@ -518,7 +622,7 @@ public class SeleniumTrade {
 	}
 
 
-	public void tradeNormalStocks(TradeDataBean bean, String strTorihPass, boolean isBuying) {
+	private void tradeNormalStock(TradeDataBean bean, String strTorihPass, boolean isBuying) {
 		//TODO：driver有効かチェック
 		driver.findElement(By.cssSelector("img[alt=\"取引\"]")).click();
 
@@ -535,22 +639,6 @@ public class SeleniumTrade {
 		driver.findElement(By.id("pwd3")).sendKeys(new String[]{strTorihPass});
 		driver.findElement(By.name("skip_estimate")).click();
 		driver.findElement(By.name("ACT_place")).click();
-	}
-
-	public void sellSmallStocks() {
-
-	}
-
-	public void sellNormalStocks() {
-
-	}
-
-	public void getStockList() {
-
-	}
-
-	public String getTradeResult() {
-		return "";
 	}
 
 	private String getTradeResult(String strMiniFlg) {
@@ -582,7 +670,8 @@ public class SeleniumTrade {
 		return strMsg;
 	}
 
-	public String getTradeErrorResult() {
+	@SuppressWarnings("unused")
+	private String getTradeErrorResult() {
 		WebElement element = driver.findElement(By.name("FORM"));
 		System.out.println(element.isEnabled());
 
