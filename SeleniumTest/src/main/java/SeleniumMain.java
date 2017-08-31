@@ -21,17 +21,20 @@ public class SeleniumMain  {
 		//TODO;Firebugでチェック→IntelliJでやる
 		//TODO:SetupをログインとIniの読み込み別に
 		//TODO;ログイン→買い→売り→ログアウトという順の処理にする
-		//TODO:無駄に出力されるコメントを削除
 
-		new SeleniumMain().loop();
+		TradeController trade = new TradeController();
+		boolean resultSetup = trade.tradeSetup();
+
+		if (!resultSetup) return;
+
+		new SeleniumMain().loop(trade);
 
         //timer.cancel();
 
 
 	}
 
-	public void loop() {
-		TradeController trade = new TradeController();
+	public void loop(TradeController trade) {
 
         final Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -41,13 +44,12 @@ public class SeleniumMain  {
                 // ここに繰り返し処理を書く
                 System.out.println("action.");
 
-        		boolean resultSetup = trade.tradeSetup();
+
         		//trade.tradeLong();
         		//selenium.tradeShort();
 
         		//trade.newTradeShort();
-        		boolean resultTrade = false;
-        		if (resultSetup) resultTrade = trade.trade();
+        		boolean resultTrade = trade.trade();
 
         		if (resultTrade) trade.makeBackupFile();
 
