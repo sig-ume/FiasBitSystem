@@ -22,40 +22,28 @@ public class TradeMethodFilter {
 
 		for (int i = 0; i<list.size(); i++) {
 			TradeDataBean tradeData = list.get(i);
-			System.out.println(tradeData);
 			String entryMethod = tradeData.getEntryMethod();
 			String exitMethod = tradeData.getExitMethod();
 
 			for (String[] methodSet : iniBean.getMethodSet()) {
 
-				System.out.println("フィルター前:" + list.get(0));
-
 				if (entryMethod.equals(methodSet[0]) && exitMethod.equals(methodSet[1]) && !methodSet[2].equals("0")) {
-					System.out.println("チェックTrue: " + i);
 					checkbox.set(i, true);
 				}
 			}
 
 			if(exitMethod.equals("wildcard")) {
-				System.out.println("wildcardチェックTrue: " + i);
 				checkbox.set(i, true);
 			}
 		}
 
 		for (int i = 0; i<list.size(); i++) {
 			if (!checkbox.get(i)) {
-				System.out.println("削除");
 				list.remove(i);
 				checkbox.remove(i);
 				i--;
 			}
 		}
-
-		for (TradeDataBean tradeData : list ) {
-			System.out.println(tradeData.toString());
-		}
-
-		System.out.println("-------------");
 	}
 
 	public void shortFilter(List<TradeDataBean> list, IniBean iniBean) {
@@ -85,7 +73,6 @@ public class TradeMethodFilter {
 				list.remove(i);
 				i--;
 			}
-			//System.out.println(tradeData.toString());
 		}
 
 	}

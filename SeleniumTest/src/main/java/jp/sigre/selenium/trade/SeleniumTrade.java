@@ -119,7 +119,6 @@ public class SeleniumTrade {
 		for (int i = 0; i < beanList.size(); i++) {
 			TradeDataBean bean = beanList.get(i);
 			TradeDataBean tmpBean = db.getTradeViewOfCodeMethods(bean.getCode(), bean.getEntryMethod(), bean.getExitMethod());
-			System.out.println("sellData:"+tmpBean);
 
 			//Code、entryMethod、exitMethodが一致し、volumeが0じゃない場合、volumeを更新
 			if (!bean.getRealEntryVolume().equals("0")) {
@@ -133,7 +132,6 @@ public class SeleniumTrade {
 
 			//wildcardレコード捜索
 			TradeDataBean wildBean = db.getTradeViewOfCodeMethods(bean.getCode(), "wildcard", "wildcard");
-			System.out.println("wildbean:" + wildBean.toString());
 			if (!wildBean.getRealEntryVolume().equals("0")) {
 				wildcardList.add(wildBean);
 			}
@@ -171,11 +169,9 @@ public class SeleniumTrade {
 			TradeDataBean firstBean = beanList.get(i);
 
 			beanList.remove(i);
-			System.out.println(firstBean);
 
 			//同codeのレコードリスト作成
 			List<TradeDataBean> sameCodeList = getSameCodeList(firstBean.getCode(), beanList);
-			System.out.println("size=0?:" + sameCodeList.size());
 
 			if (sameCodeList.size() != 0) {
 
@@ -194,13 +190,11 @@ public class SeleniumTrade {
 				sumBean = firstBean;
 			}
 
-			System.out.println("sumBean:" + sumBean);
 			//sumBean分Trade
 			//sumBeanを単元とミニに分割
 
 			//端数計算
 			int hasuu = calcHasuu(sumBean);
-			System.out.println("hasuu:" + hasuu);
 
 			//端数があるときは端数分の購入レコードを追加
 			if (hasuu>0) {
@@ -255,20 +249,15 @@ public class SeleniumTrade {
 		//端数計算は所有株数が100を超えてるときのみ
 		if (stockVolume > 100) {
 
-
-			System.out.println("株数と売却数:" + fracStockVolume + " " + fracTmpSellVolume);
-
 			//if 株数Mod < 売却数Mod
 			if (fracStockVolume < fracTmpSellVolume) {
-				System.out.println("株数Mod < 売却数Mod");
 
 				fracSellVolume = fracStockVolume;
 			} else {
-				System.out.println("株数Mod > 売却数Mod");
+
 				//	売却端数を売却数Modに設定
 				fracSellVolume = fracTmpSellVolume;
 			}
-			System.out.println("売却端数:" + fracSellVolume);
 
 			return fracTmpSellVolume - fracSellVolume;
 		}
@@ -332,7 +321,7 @@ public class SeleniumTrade {
 		db.connectStatement();
 		TradeDataBean plusBean = db.getHighestTradeViewOfCodeMethods(
 				firstBean.getCode(), firstBean.getEntryMethod(), firstBean.getExitMethod());
-		System.out.println("plus;" + plusBean);
+
 		String strHasuu = String.valueOf(hasuu);
 		plusBean.setRealEntryVolume(strHasuu);
 		plusBean.setCorrectedEntryVolume(strHasuu);
@@ -371,7 +360,6 @@ public class SeleniumTrade {
 			}
 			String strResult = getTradeResult(bean.getMINI_CHECK_flg());
 
-			System.out.println(bean.getCode() + ": " + strResult);
 
 			if (strResult.contains("ご注文を受け付けました。")
 					||strResult.contains("取引となります。") || strResult.contains("ご注文を受付いたします。")) {
@@ -443,7 +431,6 @@ public class SeleniumTrade {
 			}
 			String strResult = getTradeResult(bean.getMINI_CHECK_flg());
 
-			System.out.println(bean.getCode() + ": " + strResult);
 
 			if (strResult.contains("ご注文を受け付けました。")
 					||strResult.contains("取引となります。") || strResult.contains("ご注文を受付いたします。")) {
@@ -557,20 +544,15 @@ public class SeleniumTrade {
 		String strMsg = "";
 		try{
 			WebElement element = driver.findElement(By.name("FORM"));
-			System.out.println(element.isEnabled());
 
 			List<WebElement> elements = element.findElements(By.tagName("table"));
-			System.out.println(elements.size());
 
 			element = elements.get(2);
-			System.out.println(element.isEnabled());
 
 			//if (strMiniFlg.equals("1")) element = element.findElement(By.tagName("font"));
 			//else if (strMiniFlg.equals("0")) element = element.findElement(By.className("mtext"));
 
 			element = element.findElement(By.tagName("b"));
-
-			System.out.println(element.isEnabled());
 
 			//WebElement element = driver.findElement(By.xpath("//form/table[3].0.0"));
 
@@ -584,16 +566,12 @@ public class SeleniumTrade {
 
 	public String getTradeErrorResult() {
 		WebElement element = driver.findElement(By.name("FORM"));
-		System.out.println(element.isEnabled());
 
 		List<WebElement> elements = element.findElements(By.tagName("table"));
-		System.out.println(elements.size());
 
 		element = elements.get(2);
-		System.out.println(element.isEnabled());
 
 		element = element.findElement(By.tagName("font"));
-		System.out.println(element.isEnabled());
 
 		String strError = element.getText();
 		//String strError = driver.findElement(By.xpath("html/body/div/div/table/tbody")).findElement(By.tagName("d")).getText();
@@ -619,22 +597,16 @@ public class SeleniumTrade {
 		//middleAreaM2
 		WebElement element = driver.findElement(By.className("middleAreaM2")).findElements(By.tagName("table")).get(5);
 		if (!element.isEnabled()) {
-			System.out.println("ページ番号テーブル取得失敗");
-		} else {
-			System.out.println("OK1");
+			new LogMessage().writelnLog("ページ番号テーブル取得失敗");
 		}
 		element = element.findElement(By.className("mtext"));
 		if (!element.isEnabled()) {
-			System.out.println("mtxt取得失敗");
-		} else {
-			System.out.println("OK2");
+			new LogMessage().writelnLog("mtxt取得失敗");
 		}
 		element = element.findElement(By.tagName("b"));
 		if (!element.isEnabled()) {
-			System.out.println("b取得失敗");
+			new LogMessage().writelnLog("b取得失敗");
 		}
-
-		System.out.println(element.getText());
 
 		//		//1663 Ｋ＆Ｏエナジー
 		//		element = driver.findElement(By.xpath("//tr[2]/td/table/tbody/tr[2]/td[2]"));
@@ -670,7 +642,6 @@ public class SeleniumTrade {
 			element = driver.findElement(By.xpath(strXpath));
 			String strStockCount = element.getText().replace(",", "");
 
-			System.out.println(strCodeName + ": " + strStockCount);
 			TradeDataBean bean = new TradeDataBean();
 			bean.setCode(strCode);
 			bean.setCorrectedEntryVolume(strStockCount);
@@ -681,7 +652,6 @@ public class SeleniumTrade {
 			bean.setMINI_CHECK_flg("2");
 			bean.setRealEntryVolume(strStockCount);
 			bean.setType("DD");
-			System.out.println(bean.toString());
 
 			tradeList.add(bean);
 		}

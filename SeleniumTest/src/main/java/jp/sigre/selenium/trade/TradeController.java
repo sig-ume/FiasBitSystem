@@ -326,12 +326,6 @@ public class TradeController {
 
 		new TradeMethodFilter().shortFilter(beanList, iniBean);
 
-		//		System.out.println(list.size());
-		//
-		//		LogMessage log = new LogMessage();
-		//
-		//		log.writeInLog("test", iniBean.getlS_FilePath());
-
 		ConnectDB db = new ConnectDB();
 		db.connectStatement();
 
@@ -385,7 +379,6 @@ public class TradeController {
 			for (TradeDataBean beanCodeMethods : listCodeMethods ) {
 				tmpSellVolume += Integer.parseInt(beanCodeMethods.getRealEntryVolume());
 			}
-			System.out.println("コードの売却株数取得;" + tmpSellVolume);
 
 			//端数計算は所有株数が100を超えてるときのみ
 			if (stockVolume > 100) {
@@ -396,11 +389,9 @@ public class TradeController {
 				int fracStockVolume = stockVolume % 100;
 				int fracSellVolume = 0;
 
-				System.out.println("株数と売却数:" + fracStockVolume + " " + fracTmpSellVolume);
 
 				//if 株数Mod < 売却数Mod
 				if (fracStockVolume < fracTmpSellVolume) {
-					System.out.println("株数Mod < 売却数Mod");
 					//コードで一番株数が多いメソッド組を取得
 					TradeDataBean highestBean = db.getHighestTradeViewOfCodeMethods(bean.getCode()).clone();
 					//売却数Mod - 株数Modを上記メソッド組に加算
@@ -409,11 +400,9 @@ public class TradeController {
 					//	売却端数を株数Modに設定
 					fracSellVolume = fracStockVolume;
 				} else {
-					System.out.println("株数Mod > 売却数Mod");
 					//	売却端数を売却数Modに設定
 					fracSellVolume = fracTmpSellVolume;
 				}
-				System.out.println("売却端数:" + fracSellVolume);
 				//Listの末尾のレコードのvolumeから売却端数を減らす
 				TradeDataBean tailBean = listCodeMethods.get(listCodeMethods.size()-1);
 				tailBean.minusRealEntryVolume(fracTmpSellVolume);
@@ -425,17 +414,11 @@ public class TradeController {
 				cloneBean.setMINI_CHECK_flg("1");
 				listCodeMethods.add(cloneBean);
 
-				//test
-				for (TradeDataBean bean1 : listCodeMethods) {
-					System.out.println(bean1);
-				}
-
 				//売却レコードList完成したのでレコードごとに売却
 				failedList.addAll(trade.sellStocks(listCodeMethods, strIdPath));
 				//TODO:highestBeanをDBに登録
 				//TODO:同じ株数を売ったやつから削除
 			} else {
-				System.out.println("今日はこっち");
 				List<TradeDataBean> list = new ArrayList<>();
 				TradeDataBean sBean = bean.clone();
 

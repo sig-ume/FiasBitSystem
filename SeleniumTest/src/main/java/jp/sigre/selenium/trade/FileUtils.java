@@ -58,7 +58,7 @@ public class FileUtils {
 
 			reader = new CSVReader(new InputStreamReader(new FileInputStream(file), "SJIS"));
 			String[] nextLine = reader.readNext();
-			//System.out.println(nextLine.length);
+
 			return nextLine;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -172,10 +172,7 @@ public class FileUtils {
 
 		String logFilePath = outPath + File.separator + fileName;
 
-		//System.out.println(logFilePath);
 		File file = new File(logFilePath);
-		//			File folder = new File(file_name);
-		//			folder.mkdirs();
 
 		try {
 			file.createNewFile();
@@ -183,16 +180,13 @@ public class FileUtils {
 			new LogMessage().writelnLog(e1.toString());
 		}
 		try{
-			//				File file = new File(newFile);
-
 			FileWriter filewriter = new FileWriter(file,true);
 			filewriter.write(writing );
 			filewriter.close();
 		}catch(IOException e){
-			System.out.println(e);
+			new LogMessage().writelnLog(e.toString());
 		}
 
-		//System.out.print(writing);
 	}
 
 	public String getIdPassFilePath(String strFolderPath) {

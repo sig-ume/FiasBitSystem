@@ -41,8 +41,6 @@ public class LogMessage {
 		//		int d = now.get(Calendar.DATE); //現在の日を取得
 		//		String nowTime = y+"/"+mo + "/" + d + "　" +h + ":"+m+":"+s+":";
 		String nowTime = sdf.format(now.getTime());
-		//		System.out.println(sdf.format(now.getTime()));
-		//		System.out.println(y+"/"+mo + "/" + d + "_" +h + ":"+m+":"+s+":");
 
 		System.out.println(nowTime + "," + writing);
 		new FileUtils().writeFile(nowTime + "," + writing + "\r\n", folderPath,  "fbs_sys.log");

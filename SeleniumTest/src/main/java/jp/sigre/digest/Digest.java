@@ -115,7 +115,6 @@ public class Digest {
 		String digestInFile = "";
 		count = -1;
 
-		System.out.println("test1" + path);
 		try {
 			FileReader reader = new FileReader(new File(path));
 			BufferedReader br = new BufferedReader(reader);
