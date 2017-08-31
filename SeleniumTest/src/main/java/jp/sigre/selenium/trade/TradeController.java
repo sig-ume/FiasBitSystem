@@ -169,13 +169,6 @@ public class TradeController {
 
 		new TradeMethodFilter().longFilter(beanList, iniBean);
 
-		//売買株の有無チェック
-		if (beanList.size() == 0) {
-			log.writelnLog("売買対象の株がありません。");
-			return;
-		}
-
-
 		log.writelnLog("LSファイルの読み込みが完了しました。");
 
 		log.writelnLog("LSファイルの移動、削除を開始します。");
@@ -198,6 +191,12 @@ public class TradeController {
 		}
 
 		log.writelnLog("LSファイルの移動、削除を行いました。");
+
+		//売買株の有無チェック
+		if (beanList.size() == 0) {
+			log.writelnLog("売買対象の株がありません。");
+			return;
+		}
 
 		log.writelnLog("購入処理を開始します。");
 
