@@ -40,8 +40,6 @@ public class SeleniumTrade {
 		String strId = aryIdPass[0];
 		String strLoginPass = aryIdPass[1];
 
-		//System.setProperty("webdriver.gecko.driver", "D:\\Program Files\\pleiades\\Juno_4.2\\workspace\\SeleniumTest\\lib\\geckodriver.exe");
-		//System.setProperty("webdriver.gecko.driver", "C:\\Users\\sigre\\git\\SeleniumTest\\SeleniumTest\\lib\\geckodriver.exe");
 		InputStream geckoStream = this.getClass().getClassLoader().getResourceAsStream("lib/geckodriver.exe");
 		System.setProperty("webdriver.gecko.driver", csv.getExePath(geckoStream, "geckodriver", "exe"));
 
@@ -205,8 +203,7 @@ public class SeleniumTrade {
 			List<TradeDataBean> tradeList = getTangennAndS(sumBean);
 
 			//それぞれをトレード
-			failedTradeList = trade(tradeList, strIdFolderPath, false);
-
+			failedTradeList.addAll(trade(tradeList, strIdFolderPath, false));
 		}
 
 		return failedTradeList;
@@ -375,13 +372,11 @@ public class SeleniumTrade {
 				connect.closeStatement();
 
 			} else {
-
 				failedTradeList.add(bean);
 			}
 
 			log.writelnLog(bean.getCode() + ":" + bean.getRealEntryVolume() + " " + strResult);;
 		}
-
 		return failedTradeList;
 
 	}
