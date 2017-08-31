@@ -6,8 +6,6 @@ import jp.sigre.selenium.trade.TradeController;
 public class SeleniumMain  {
 
 
-    private volatile boolean isFirst = true;
-    private volatile int taskNum = 1;
 
 	public static void main(String[] args) {
 

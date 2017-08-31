@@ -147,7 +147,6 @@ public class TradeController {
 
 		String strLsPath = iniBean.getlS_FilePath();
 		String strIdPath = iniBean.getiD_FilePath();
-		int intMethodCount = iniBean.getMethodSet().size();
 		String tradeVisible = iniBean.getTradeVisible();
 
 		String strFilePath = new FileUtils().getBuyDataFilePath(strLsPath);
@@ -244,13 +243,13 @@ public class TradeController {
 
 		new TradeMethodFilter().shortFilter(beanList, iniBean);
 
+		SeleniumTrade trade =  new SeleniumTrade();
 
-		//売買株の有無チェック
-		if (beanList.size() == 0) {
-			log.writelnLog("売買対象の株がありません。");
-			return;
+		//sellUnusedMethodが1の場合、使用していないメソッドの所有銘柄をすべて売却リストに追加
+		//TODO:SellUnusedMethodが1の場合、使用していないメソッドで所有する銘柄をすべて売却する
+		if (iniBean.getSellUnusedMethod().equals("1")) {
+			beanList.addAll(trade.getUnusedMethodStockList(iniBean));
 		}
-
 
 		log.writelnLog("LSファイルの読み込みが完了しました。");
 
@@ -275,19 +274,17 @@ public class TradeController {
 		}
 
 
-		log.writelnLog("売却処理を開始します。");
+		//売買株の有無チェック
+		if (beanList.size() == 0) {
+			log.writelnLog("売買対象の株がありません。");
+			return;
+		}
 
-		SeleniumTrade trade =  new SeleniumTrade();
+		log.writelnLog("売却処理を開始します。");
 
 		trade.login(strIdPath, tradeVisible);
 
 		List<TradeDataBean> tradeList = trade.getSellData(beanList);
-
-		//sellUnusedMethodが1の場合、使用していないメソッドの所有銘柄をすべて売却リストに追加
-		//TODO:SellUnusedMethodが1の場合、使用していないメソッドで所有する銘柄をすべて売却する
-		if (iniBean.getSellUnusedMethod().equals("1")) {
-			tradeList.addAll(trade.getUnusedMethodStockList(iniBean));
-		}
 
 		List<TradeDataBean> failedList = trade.newSellStocks(tradeList, strIdPath);
 
