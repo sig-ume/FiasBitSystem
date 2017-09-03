@@ -32,7 +32,7 @@ public class SeleniumMain  {
 
 	}
 
-	public void loop(TradeController trade) {
+	private void loop(TradeController trade) {
 
         final Timer timer = new Timer();
         timer.schedule(new TimerTask() {

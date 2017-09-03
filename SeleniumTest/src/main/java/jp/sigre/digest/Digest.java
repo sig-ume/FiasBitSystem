@@ -15,14 +15,12 @@ import jp.sigre.LogMessage;
 
 public class Digest {
 
-	final static String DIG_ALGORITHM = "MD5";
+	private static final String target1 = "target\\TestFile\\target1.txt";
+	private static final String target2 = "target\\TestFile\\target2.txt";
+	private static final String target3 = "target\\TestFile\\target3.txt";
+	private static final String target4 = "target\\TestFile\\target4.txt";
 
-	static String target1 = "target\\TestFile\\target1.txt";
-	static String target2 = "target\\TestFile\\target2.txt";
-	static String target3 = "target\\TestFile\\target3.txt";
-	static String target4 = "target\\TestFile\\target4.txt";
-
-	static String target5 = "target\\TestFile\\FBS_KICK_2017-07-20.fbs";
+	//static String target5 = "target\\TestFile\\FBS_KICK_2017-07-20.fbs";
 
 	public Digest() {
 	}
@@ -63,34 +61,37 @@ public class Digest {
 
 		String strToday = sdf.format(dateToday);
 
-		String key = "GOD_BLESS_ME_SYO_UME_" + strToday;
-
-		return key;
+		return "GOD_BLESS_ME_SYO_UME_" + strToday;
 	}
 
-	public boolean makeDigestFile(String path, int count) {
+	public void makeDigestFile(String path, int count) {
 		String key = getKeyStr();
-		return makeDigestFile(path, key, count);
+		makeDigestFile(path, key, count);
 	}
 
-	public boolean makeDigestFile(String path, String key, int count) {
+	private boolean makeDigestFile(String path, String key, int count) {
 		String digest = getDigestStr(key);
 
 		File keyFile = new File(path);
 
-		FileWriter writer = null;
 		try {
 			if (keyFile.exists()) {
-				keyFile.delete();
+				if (!keyFile.delete()) {
+					System.out.println("Key削除失敗しました。");
+				}
 			}
-			keyFile.createNewFile();
-			writer = new FileWriter(keyFile);
+			if (!keyFile.createNewFile()) {
+			    System.out.println("Keyファイル作成に失敗しました。");
+            }
+
+			FileWriter writer = new FileWriter(keyFile);
 			writer.write(digest);
 			writer.write("\n" + count);
 
 			writer.close();
 		} catch (IOException e) {
 			new LogMessage().writelnLog(e.toString());
+			return false;
 		}
 
 		return true;
@@ -101,7 +102,8 @@ public class Digest {
 		return checkDigestFile(path, key, count);
 	}
 
-	public boolean checkDigestFile(String path, String key, int count) {
+	//TODO;実装確認
+	private boolean checkDigestFile(String path, String key, int count) {
 
 		String digest = getDigestStr(key);
 
@@ -113,7 +115,7 @@ public class Digest {
 		}
 
 		String digestInFile = "";
-		count = -1;
+		//count = -1;
 
 		try {
 			FileReader reader = new FileReader(new File(path));
@@ -143,7 +145,7 @@ public class Digest {
 		return true;
 	}
 
-	public String getDigestStr(String key) {
+	private String getDigestStr(String key) {
 
 		String md5 = "";
 
@@ -156,9 +158,10 @@ public class Digest {
 	}
 
 	private byte[] getDigest(String key) {
-		MessageDigest msgDig = null;
+		MessageDigest msgDig;
 		byte[] digest = null;
 		try {
+			String DIG_ALGORITHM = "MD5";
 			msgDig = MessageDigest.getInstance(DIG_ALGORITHM);
 			digest = msgDig.digest(key.getBytes());
 

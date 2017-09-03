@@ -1,6 +1,3 @@
-/**
- * 
- */
 package jp.sigre.database;
 
 import java.sql.ResultSet;
@@ -12,6 +9,7 @@ import jp.sigre.selenium.trade.TradeDataBean;
  * @author sigre
  *
  */
+@SuppressWarnings("unused")
 public class ConvertNormalResultSet implements ConvertResultSet {
 
 	/* (非 Javadoc)

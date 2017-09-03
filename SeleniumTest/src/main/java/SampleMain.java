@@ -6,10 +6,6 @@ import jp.sigre.selenium.trade.IniBean;
 import jp.sigre.selenium.trade.SeleniumTrade;
 
 /**
- *
- */
-
-/**
  * @author sigre
  *
  */
@@ -37,7 +33,7 @@ public class SampleMain {
 
 		SeleniumTrade trade = new SeleniumTrade();
 
-		trade.login(iniBean.getiD_FilePath(), "0");
+		trade.login(iniBean.getID_FilePath(), "0");
 		//trade.getSBIStock(iniBean);
 		trade.logout();
 //

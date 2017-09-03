@@ -1,6 +1,3 @@
-/**
- *
- */
 package jp.sigre.selenium.trade;
 
 import java.util.ArrayList;
@@ -69,7 +66,7 @@ public class TradeMethodFilter {
 			TradeDataBean tradeData = list.get(i);
 			//処理予定の株を持ってるかチェックをフィルターに
 			TradeDataBean dbBean = db.getTradeViewOfCodeMethods(tradeData.getCode(), tradeData.getEntryMethod(), tradeData.getExitMethod());
-			if (dbBean.getRealEntryVolume()=="0") {
+			if (dbBean.getRealEntryVolume().equals("0")) {
 				list.remove(i);
 				i--;
 			}

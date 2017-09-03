@@ -21,14 +21,14 @@ import jp.sigre.database.ConnectDB;
 
 public class SeleniumTrade {
 
-	WebDriver driver = null;
-	LogMessage log;
+	private WebDriver driver = null;
+	private final LogMessage log;
 
 	public SeleniumTrade() {
 		log = new LogMessage();
 	}
 
-	public WebDriver login(String strFolderPath, String visible) {
+	public void login(String strFolderPath, String visible) {
 		FileUtils csv = new FileUtils();
 
 
@@ -60,7 +60,7 @@ public class SeleniumTrade {
 		WebDriverWait waitForSearch = new WebDriverWait(driver, 8);
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
-		WebElement element = null;
+		WebElement element;
 
 		driver.get("https://www.sbisec.co.jp/ETGate");
 
@@ -80,8 +80,6 @@ public class SeleniumTrade {
 
 		log.writelnLog("SBIへのログインが完了しました。");
 		System.out.println("Page title is: " + driver.getTitle());
-
-		return driver;
 
 	}
 
@@ -103,15 +101,13 @@ public class SeleniumTrade {
 	/**
 	 * Sファイルのデータをもとに、売却用TradeData（株数入り）をDBから取得
 	 * @param beanList Sファイルの中身
-	 * @param strFolderPath
-	 * @param isBuying
 	 * @return 売却数入りTradeリスト
 	 */
 	public List<TradeDataBean> getSellData(List<TradeDataBean> beanList) {
 		ConnectDB db = new ConnectDB();
 		db.connectStatement();
 
-		//wildcard(按分)レコード用リスト。最後にbeanlistに追加。
+		//wildcard(按分)レコード用リスト。最後にbeanListに追加。
 		List<TradeDataBean> wildcardList = new ArrayList<>();
 
 		for (int i = 0; i < beanList.size(); i++) {
@@ -149,17 +145,14 @@ public class SeleniumTrade {
 	 * 売却用Tradeメソッド
 	 * @param beanList ViewOfCodeMethodsから取得したレコードリスト
 	 * @param strIdFolderPath
-	 * @param isBuying
 	 * @return 取引失敗リスト
 	 */
 	public List<TradeDataBean> newSellStocks(List<TradeDataBean> beanList, String strIdFolderPath) {
 
-		boolean isBuying = false;
-
 		//取引失敗レコードリスト
 		List<TradeDataBean> failedTradeList = new ArrayList<>();
 
-		TradeDataBean sumBean = null;
+		TradeDataBean sumBean;
 
 		//各株レコードごとに処理
 		for (int i = 0; i < beanList.size(); ) {
@@ -176,7 +169,7 @@ public class SeleniumTrade {
 				sameCodeList.add(firstBean);
 
 				//売買それぞれの補正entryVolume計算
-				calcCorrectedEntryVolume(sameCodeList, isBuying);
+				calcCorrectedEntryVolume(sameCodeList);
 
 				//株数の合計取得
 				sumBean = getSumBean(sameCodeList);
@@ -241,7 +234,7 @@ public class SeleniumTrade {
 		//株数と売却数それぞれのMod 100を取得
 		int fracStockVolume = stockVolume % 100;
 		int fracTmpSellVolume = tmpSellVolume % 100;
-		int fracSellVolume = 0;
+		int fracSellVolume;
 
 		//端数計算は所有株数が100を超えてるときのみ
 		if (stockVolume > 100) {
@@ -334,7 +327,7 @@ public class SeleniumTrade {
 
 	}
 
-
+	//TODO:売りメソッドのみ呼び出し？→引数isBuying削除
 	private List<TradeDataBean> trade(List<TradeDataBean> beanList, String strIdFolderPath, boolean isBuying) {
 
 		FileUtils csv = new FileUtils();
@@ -348,14 +341,14 @@ public class SeleniumTrade {
 		for (TradeDataBean bean : beanList) {
 
 			//売買それぞれの補正entryVolume計算
-			calcCorrectedEntryVolume(bean, isBuying);
+			calcCorrectedEntryVolume(bean);
 
 			if (bean.getMINI_CHECK_flg().equals("1")) {
 				tradeSmallStock(bean, strTorihPass, isBuying);
 			} else if (bean.getMINI_CHECK_flg().equals("0")){
 				tradeNormalStocks(bean, strTorihPass, isBuying);
 			}
-			String strResult = getTradeResult(bean.getMINI_CHECK_flg());
+			String strResult = getTradeResult();
 
 
 			if (strResult.contains("ご注文を受け付けました。")
@@ -375,7 +368,7 @@ public class SeleniumTrade {
 				failedTradeList.add(bean);
 			}
 
-			log.writelnLog(bean.getCode() + ":" + bean.getRealEntryVolume() + " " + strResult);;
+			log.writelnLog(bean.getCode() + ":" + bean.getRealEntryVolume() + " " + strResult);
 		}
 		return failedTradeList;
 
@@ -404,7 +397,7 @@ public class SeleniumTrade {
 		return result;
 	}
 
-	public List<TradeDataBean> tradeStocks(List<TradeDataBean> beanList, String strIdFolderPath, boolean isBuying) {
+	private List<TradeDataBean> tradeStocks(List<TradeDataBean> beanList, String strIdFolderPath, boolean isBuying) {
 		FileUtils csv = new FileUtils();
 		String strIdPassPath = new FileUtils().getIdPassFilePath(strIdFolderPath);
 
@@ -417,14 +410,14 @@ public class SeleniumTrade {
 		for (TradeDataBean bean : beanList) {
 
 			//売買それぞれの補正entryVolume計算
-			calcCorrectedEntryVolume(bean, isBuying);
+			calcCorrectedEntryVolume(bean);
 
 			if (bean.getMINI_CHECK_flg().equals("1")) {
 				tradeSmallStock(bean, strTorihPass, isBuying);
 			} else if (bean.getMINI_CHECK_flg().equals("0")){
 				tradeNormalStocks(bean, strTorihPass, isBuying);
 			}
-			String strResult = getTradeResult(bean.getMINI_CHECK_flg());
+			String strResult = getTradeResult();
 
 
 			if (strResult.contains("ご注文を受け付けました。")
@@ -445,38 +438,25 @@ public class SeleniumTrade {
 				failedTradeList.add(bean);
 			}
 
-			log.writelnLog(bean.getCode() + ":" + bean.getRealEntryVolume() + " " + strResult);;
+			log.writelnLog(bean.getCode() + ":" + bean.getRealEntryVolume() + " " + strResult);
 		}
 
 		return failedTradeList;
 	}
 
-	private void calcCorrectedEntryVolume(List<TradeDataBean> list, boolean isBuying) {
+	private void calcCorrectedEntryVolume(List<TradeDataBean> list) {
 
 		for (TradeDataBean bean : list) {
-			calcCorrectedEntryVolume(bean, isBuying);
+			calcCorrectedEntryVolume(bean);
 		}
 	}
 
-	private void calcCorrectedEntryVolume(TradeDataBean bean, boolean isBuying) {
+	private void calcCorrectedEntryVolume(TradeDataBean bean) {
 		bean.setCorrectedEntryVolume(bean.getRealEntryVolume());
-		//TODO:補正後売却株数計算処理
-		//０．Sデータを使用する売買メソッドのみにフィルタリング
-		//１．SデータをCode、ExitMethodごとにまとめてBean化→Code、ExitMethodごとの売却数取得（A）
-		//２．TradeViewOfCodeExitからCode、ExitMethodをキーに所有株数を取得（B)
-		//	→A>Bなら売却数をBに
-		//	　A<Bなら売却数をAに
-		//３．TradeViewOfCodeからCodeをキーに所有株数を取得（C)
-		//４．BをCodeごとにまとめる→Codeごとの所有数を取得（D）
-		//５．C=D→Cを売却
-		//　　C>D→C Mod 100＞D Mod 100→Dを売却
-		//	 C Mod 100＜D Mod 100→D - D Mod 100 + C Mod 100を売却
-		//　　C<D→パターンなし
-
 
 	}
 
-	public void tradeSmallStock(TradeDataBean bean, String strTorihPass, boolean isBuying) {
+	private void tradeSmallStock(TradeDataBean bean, String strTorihPass, boolean isBuying) {
 		//TODO：driver有効かチェック
 
 		driver.findElement(By.cssSelector("img[alt=\"取引\"]")).click();
@@ -500,7 +480,7 @@ public class SeleniumTrade {
 	}
 
 
-	public void tradeNormalStocks(TradeDataBean bean, String strTorihPass, boolean isBuying) {
+	private void tradeNormalStocks(TradeDataBean bean, String strTorihPass, boolean isBuying) {
 		//TODO：driver有効かチェック
 		driver.findElement(By.cssSelector("img[alt=\"取引\"]")).click();
 
@@ -519,24 +499,8 @@ public class SeleniumTrade {
 		driver.findElement(By.name("ACT_place")).click();
 	}
 
-	public void sellSmallStocks() {
-
-	}
-
-	public void sellNormalStocks() {
-
-	}
-
-	public void getStockList() {
-
-	}
-
-	public String getTradeResult() {
-		return "";
-	}
-
-	private String getTradeResult(String strMiniFlg) {
-		String strMsg = "";
+	private String getTradeResult() {
+		String strMsg;
 		try{
 			WebElement element = driver.findElement(By.name("FORM"));
 
@@ -557,21 +521,6 @@ public class SeleniumTrade {
 		}
 
 		return strMsg;
-	}
-
-	public String getTradeErrorResult() {
-		WebElement element = driver.findElement(By.name("FORM"));
-
-		List<WebElement> elements = element.findElements(By.tagName("table"));
-
-		element = elements.get(2);
-
-		element = element.findElement(By.tagName("font"));
-
-		String strError = element.getText();
-		//String strError = driver.findElement(By.xpath("html/body/div/div/table/tbody")).findElement(By.tagName("d")).getText();
-
-		return strError;
 	}
 
 	public void getSBIStock(IniBean iniBean) {

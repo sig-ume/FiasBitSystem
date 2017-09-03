@@ -15,10 +15,6 @@ import jp.sigre.selenium.trade.TradeDataBean;
 import jp.sigre.selenium.trade.TradeMethodFilter;
 
 /**
- *
- */
-
-/**
  * @author sigre
  *
  */
@@ -38,8 +34,8 @@ public class SeleniumShort {
 
 		//TODO:iniファイルチェックをメソッド化
 
-		String strLsPath = iniBean.getlS_FilePath();
-		String strIdPath = iniBean.getiD_FilePath();
+		String strLsPath = iniBean.getLS_FilePath();
+		String strIdPath = iniBean.getID_FilePath();
 		int intMethodCount = iniBean.getMethodSet().size();
 
 		if (!new File(strLsPath).isDirectory() ) {
@@ -72,12 +68,6 @@ public class SeleniumShort {
 
 		new TradeMethodFilter().shortFilter(beanList, iniBean);
 
-		//		System.out.println(list.size());
-		//
-		//		LogMessage log = new LogMessage();
-		//
-		//		log.writeInLog("test", iniBean.getlS_FilePath());
-
 		ConnectDB db = new ConnectDB();
 		db.connectStatement();
 
@@ -85,16 +75,21 @@ public class SeleniumShort {
 
 		String movedPath = new FileUtils().getMovedSellDataPath(strLsPath);
 		try {
-			new File(strLsPath + File.separator + "old").mkdirs();
+			File oldDir = new File(strLsPath + File.separator + "old");
+
+			if (oldDir.mkdirs()) {
+				log.writelnLog(oldDir.getAbsolutePath() + "を作成しました。");
+			}
 			if (!new File(movedPath).exists()) {
 				Files.move(Paths.get(strFilePath), Paths.get(movedPath), StandardCopyOption.ATOMIC_MOVE);
+				log.writelnLog("ファイルを" + movedPath + "に移動しました。");
 			} else {
-				new File(strFilePath).delete();
+				if (new File(strFilePath).delete()) {
+					log.writelnLog(strFilePath + "を削除しました。");
+				}
 			}
-		} catch (SecurityException e) {
+		} catch (SecurityException | IOException e) {
 			log.writelnLog(e.toString());
-		} catch (IOException ioe) {
-			log.writelnLog(ioe.toString());
 		}
 
 		SeleniumTrade trade =  new SeleniumTrade();

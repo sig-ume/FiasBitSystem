@@ -5,6 +5,7 @@ import java.sql.SQLException;
 
 import jp.sigre.selenium.trade.TradeDataBean;
 
+@SuppressWarnings("unused")
 public class ConvertCodeExitResultSet implements ConvertResultSet {
 
 	@Override

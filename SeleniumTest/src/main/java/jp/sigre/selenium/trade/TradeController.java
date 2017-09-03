@@ -1,6 +1,3 @@
-/**
- *
- */
 package jp.sigre.selenium.trade;
 
 import java.io.File;
@@ -21,14 +18,14 @@ import jp.sigre.digest.Digest;
  */
 public class TradeController {
 
-	FileUtils csv = new FileUtils();
-	String basePath = System.getProperty("user.dir");
+	private final FileUtils csv = new FileUtils();
+	private final String basePath = System.getProperty("user.dir");
 
-	LogMessage log = new LogMessage(basePath);
+	private final LogMessage log = new LogMessage(basePath);
 
-	FileUtils file = new FileUtils();
+	private final FileUtils file = new FileUtils();
 
-	IniBean iniBean = null;
+	private IniBean iniBean = null;
 
 	public boolean tradeSetup() {
 		File iniFile = new File(file.getIniPath(basePath));
@@ -46,8 +43,8 @@ public class TradeController {
 
 		//TODO:iniファイルチェックをメソッド化
 
-		String strLsPath = iniBean.getlS_FilePath();
-		String strIdPath = iniBean.getiD_FilePath();
+		String strLsPath = iniBean.getLS_FilePath();
+		String strIdPath = iniBean.getID_FilePath();
 		int intMethodCount = iniBean.getMethodSet().size();
 
 		if (!new File(strLsPath).isDirectory() ) {
@@ -82,20 +79,9 @@ public class TradeController {
 		return true;
 	}
 
-	public void newTradeLong() {
+    public boolean trade() {
 
-	}
-
-	public void tradeLogin() {
-
-	}
-
-	public boolean trade() {
-
-		String strLsPath = iniBean.getlS_FilePath();
-		String strIdPath = iniBean.getiD_FilePath();
-		int intMethodCount = iniBean.getMethodSet().size();
-		String tradeVisible = iniBean.getTradeVisible();
+		String strLsPath = iniBean.getLS_FilePath();
 
 		String strFilePath = new FileUtils().getBuyDataFilePath(strLsPath);
 
@@ -143,10 +129,10 @@ public class TradeController {
 		return true;
 	}
 
-	public void tradeLong() {
+	private void tradeLong() {
 
-		String strLsPath = iniBean.getlS_FilePath();
-		String strIdPath = iniBean.getiD_FilePath();
+		String strLsPath = iniBean.getLS_FilePath();
+		String strIdPath = iniBean.getID_FilePath();
 		String tradeVisible = iniBean.getTradeVisible();
 
 		String strFilePath = new FileUtils().getBuyDataFilePath(strLsPath);
@@ -176,21 +162,25 @@ public class TradeController {
 		//ファイル削除は売買の前
 		String movedPath = new FileUtils().getMovedBuyDataPath(strLsPath);
 		try {
-			new File(strLsPath + File.separator + "old").mkdirs();
+			if (!new File(strLsPath + File.separator + "old").mkdirs()) {
+			    log.writelnLog("oldフォルダの作成に失敗しました。");
+            }
 			if (!new File(movedPath).exists()) {
 				Files.move(Paths.get(strFilePath), Paths.get(movedPath), StandardCopyOption.ATOMIC_MOVE);
 			} else {
-				new File(strFilePath).delete();
+				if (!new File(strFilePath).delete()) {
+				    log.writelnLog(strFilePath + "の削除に失敗しました。");
+                }
 			}
 			//remains削除
-			lRemFile.delete();
-		} catch (SecurityException e) {
+			if (!lRemFile.delete()) {
+                log.writelnLog(lRemFile.getAbsolutePath() + "の削除に失敗しました。");
+            }
+		} catch (SecurityException | IOException e) {
 			log.writelnLog(e.toString());
-		} catch (IOException ioe) {
-			log.writelnLog(ioe.toString());
 		}
 
-		log.writelnLog("LSファイルの移動、削除を行いました。");
+        log.writelnLog("LSファイルの移動、削除を行いました。");
 
 		//売買株の有無チェック
 		if (beanList.size() == 0) {
@@ -223,9 +213,9 @@ public class TradeController {
 
 	}
 
-	public void newTradeShort() {
-		String strLsPath = iniBean.getlS_FilePath();
-		String strIdPath = iniBean.getiD_FilePath();
+	private void newTradeShort() {
+		String strLsPath = iniBean.getLS_FilePath();
+		String strIdPath = iniBean.getID_FilePath();
 		String tradeVisible = iniBean.getTradeVisible();
 
 
@@ -258,22 +248,26 @@ public class TradeController {
 
 		String movedPath = new FileUtils().getMovedSellDataPath(strLsPath);
 		try {
-			new File(strLsPath + File.separator + "old").mkdirs();
+			if (!new File(strLsPath + File.separator + "old").mkdirs()) {
+			    log.writelnLog(strLsPath + "の削除に失敗しました。");
+            }
 			if (!new File(movedPath).exists()) {
 				Files.move(Paths.get(strFilePath), Paths.get(movedPath), StandardCopyOption.ATOMIC_MOVE);
 			} else {
-				new File(strFilePath).delete();
+				if (!new File(strFilePath).delete()) {
+				    log.writelnLog(strLsPath + "の削除に失敗しました。");
+                }
 			}
 			//remains削除
-			lRemFile.delete();
-		} catch (SecurityException e) {
+            if (!lRemFile.delete()) {
+                log.writelnLog(lRemFile.getAbsolutePath() + "の削除に失敗しました。");
+            }
+		} catch (SecurityException | IOException e) {
 			log.writelnLog(e.toString());
-		} catch (IOException ioe) {
-			log.writelnLog(ioe.toString());
 		}
 
 
-		//売買株の有無チェック
+        //売買株の有無チェック
 		if (beanList.size() == 0) {
 			log.writelnLog("売買対象の株がありません。");
 			return;
@@ -301,11 +295,12 @@ public class TradeController {
 		trade.logout();
 	}
 
-	public void tradeShort() {
 
-		String strLsPath = iniBean.getlS_FilePath();
-		String strIdPath = iniBean.getiD_FilePath();
-		int intMethodCount = iniBean.getMethodSet().size();
+	@SuppressWarnings("unused")
+    public void tradeShort() {
+
+		String strLsPath = iniBean.getLS_FilePath();
+		String strIdPath = iniBean.getID_FilePath();
 		String tradeVisible = iniBean.getTradeVisible();
 
 
@@ -329,19 +324,22 @@ public class TradeController {
 
 		String movedPath = new FileUtils().getMovedSellDataPath(strLsPath);
 		try {
-			new File(strLsPath + File.separator + "old").mkdirs();
+            if (!new File(strLsPath + File.separator + "old").mkdirs()) {
+                log.writelnLog(strLsPath + "の削除に失敗しました。");
+            }
 			if (!new File(movedPath).exists()) {
 				Files.move(Paths.get(strFilePath), Paths.get(movedPath), StandardCopyOption.ATOMIC_MOVE);
+				log.writelnLog(movedPath + "を移動しました。");
 			} else {
-				new File(strFilePath).delete();
+				if (!new File(strFilePath).delete()) {
+                    log.writelnLog(strFilePath + "の削除に失敗しました。");
+                }
 			}
-		} catch (SecurityException e) {
+		} catch (SecurityException | IOException e) {
 			log.writelnLog(e.toString());
-		} catch (IOException ioe) {
-			log.writelnLog(ioe.toString());
 		}
 
-		SeleniumTrade trade =  new SeleniumTrade();
+        SeleniumTrade trade =  new SeleniumTrade();
 
 		trade.login(strIdPath, tradeVisible);
 

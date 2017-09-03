@@ -5,17 +5,13 @@ import java.util.Calendar;
 import jp.sigre.selenium.trade.FileUtils;
 
 /**
- *
- */
-
-/**
  * @author sigre
  *
  */
 public class LogMessage {
 
-
-	String folderPath;
+	//TODO;finalでOK?
+	private final String folderPath;
 	/**
 	 * コンストラクタでフォルダパス指定
 	 * @param folderPath

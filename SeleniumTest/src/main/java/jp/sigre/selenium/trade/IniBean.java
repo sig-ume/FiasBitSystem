@@ -21,19 +21,19 @@ public class IniBean {
 		this.tradeVisible = tradeVisible;
 	}
 
-	public String getlS_FilePath() {
+	public String getLS_FilePath() {
 		return lS_FilePath;
 	}
 
-	public void setlS_FilePath(String lS_FilePath) {
+	public void setLS_FilePath(String lS_FilePath) {
 		this.lS_FilePath = lS_FilePath;
 	}
 
-	public String getiD_FilePath() {
+	public String getID_FilePath() {
 		return iD_FilePath;
 	}
 
-	public void setiD_FilePath(String iD_FilePath) {
+	public void setID_FilePath(String iD_FilePath) {
 		this.iD_FilePath = iD_FilePath;
 	}
 
@@ -41,6 +41,8 @@ public class IniBean {
 		return methodSet;
 	}
 
+
+	@SuppressWarnings("unused")
 	public void setMethodSet(List<String[]> methodSet) {
 		this.methodSet = methodSet;
 	}
@@ -60,8 +62,8 @@ public class IniBean {
 	@Override
 	public String toString() {
 		String result = "IniBean [lS_FilePath=" + lS_FilePath + ", iD_FilePath=" + iD_FilePath + ", methodSet=\n";
-		for (String[] strs : methodSet) {
-			result += strs[0] + ", " + strs[1] + ", " + strs[2] + "\n";
+		for (String[] methods : methodSet) {
+			result += methods[0] + ", " + methods[1] + ", " + methods[2] + "\n";
 		}
 		result += "TradeVisible=" + tradeVisible;
 		return result;

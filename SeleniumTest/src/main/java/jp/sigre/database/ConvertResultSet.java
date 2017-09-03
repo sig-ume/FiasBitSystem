@@ -1,6 +1,3 @@
-/**
- *
- */
 package jp.sigre.database;
 
 import java.sql.ResultSet;
@@ -15,10 +12,11 @@ import jp.sigre.selenium.trade.TradeDataBean;
  * @author sigre
  *
  */
-public abstract interface ConvertResultSet {
+//TODO:abstractいらない？
+abstract interface ConvertResultSet {
 
-	public default List<TradeDataBean> convertTradeData(ResultSet rs) {
-		List<TradeDataBean> result = new ArrayList<TradeDataBean>();
+	default List<TradeDataBean> convertTradeData(ResultSet rs) {
+		List<TradeDataBean> result = new ArrayList<>();
 
 		try {
 			while (rs.next()) {
@@ -29,7 +27,7 @@ public abstract interface ConvertResultSet {
 		} catch (SQLException e) {
 			new LogMessage().writelnLog(e.toString());
 		}
-		return new ArrayList<TradeDataBean>();
+		return new ArrayList<>();
 	}
 
 	TradeDataBean rsToBean(ResultSet rs) throws SQLException;

@@ -1,7 +1,4 @@
 package jp.sigre.selenium.trade;
-/**
- *
- */
 
 /**
  * @author sigre
@@ -131,15 +128,15 @@ public class TradeDataBean {
 	public TradeDataBean clone() {
 		TradeDataBean bean = new TradeDataBean();
 
-		bean.setCode(this.code);;
-		bean.setDayTime(this.dayTime);;
-		bean.setType(this.type);;
+		bean.setCode(this.code);
+		bean.setDayTime(this.dayTime);
+		bean.setType(this.type);
 		bean.setEntryMethod(this.entryMethod);
-		bean.setExitMethod(this.exitMethod);;
-		bean.setMINI_CHECK_flg(this.MINI_CHECK_flg);;
+		bean.setExitMethod(this.exitMethod);
+		bean.setMINI_CHECK_flg(this.MINI_CHECK_flg);
 		bean.setRealEntryVolume(this.realEntryVolume);
 		bean.setEntry_money(this.entry_money);
-		bean.setCorrectedEntryVolume(this.correctedEntryVolume);;
+		bean.setCorrectedEntryVolume(this.correctedEntryVolume);
 
 		return bean;
 	}

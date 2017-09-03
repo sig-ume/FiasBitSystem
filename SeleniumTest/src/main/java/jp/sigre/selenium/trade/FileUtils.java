@@ -1,12 +1,8 @@
-/**
- *
- */
 package jp.sigre.selenium.trade;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -36,17 +32,17 @@ public class FileUtils {
 		CSVReader reader = null;
 		try {
 			reader = new CSVReader(new InputStreamReader(new FileInputStream(file), "SJIS"), ',', '"', 1);
-			ColumnPositionMappingStrategy<TradeDataBean> strat = new ColumnPositionMappingStrategy<TradeDataBean>();
+			ColumnPositionMappingStrategy<TradeDataBean> strat = new ColumnPositionMappingStrategy<>();
 			strat.setType(TradeDataBean.class);
 			strat.setColumnMapping(HEADER);
-			CsvToBean<TradeDataBean> csv = new CsvToBean<TradeDataBean>();
+			CsvToBean<TradeDataBean> csv = new CsvToBean<>();
 			return csv.parse(strat, reader);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
 			try {
 				reader.close();
-			} catch (IOException e) {
+			} catch (IOException | NullPointerException e) {
 				new LogMessage().writelnLog(e.toString());
 			}
 		}
@@ -57,15 +53,14 @@ public class FileUtils {
 		try {
 
 			reader = new CSVReader(new InputStreamReader(new FileInputStream(file), "SJIS"));
-			String[] nextLine = reader.readNext();
 
-			return nextLine;
+			return reader.readNext();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {
 			try {
 				reader.close();
-			} catch (IOException e) {
+			} catch (IOException | NullPointerException e) {
 				new LogMessage().writelnLog(e.toString());
 			}
 		}
@@ -83,15 +78,13 @@ public class FileUtils {
 			while ((line = br.readLine()) != null) {
 				readIniLine(line, bean);
 			}
-		} catch (FileNotFoundException e) {
-			new LogMessage().writelnLog(e.toString());
 		} catch (IOException e) {
 			new LogMessage().writelnLog(e.toString());
 		} finally {
 			try {
 				br.close();
 				fr.close();
-			} catch (IOException e) {
+			} catch (IOException | NullPointerException e) {
 				new LogMessage().writelnLog(e.toString());
 			}
 		}
@@ -100,8 +93,8 @@ public class FileUtils {
 	}
 
 	private void readIniLine(String line, IniBean bean) {
-		if (line.startsWith("LS_FilePath")) bean.setlS_FilePath(getLS_FilePath(line));
-		if (line.startsWith("ID_FilePath")) bean.setiD_FilePath(getID_FilePath(line));
+		if (line.startsWith("LS_FilePath")) bean.setLS_FilePath(getLS_FilePath(line));
+		if (line.startsWith("ID_FilePath")) bean.setID_FilePath(getID_FilePath(line));
 		if (line.startsWith("["))			getUseMethod(line, bean);
 		if (line.startsWith("Trade_Visible")) bean.setTradeVisible(getTradeVisible(line));
 		if (line.startsWith("Sell_UnusedMethod_Immediately")) bean.setSellUnusedMethod(getSellUnusedMethod(line));
@@ -151,7 +144,9 @@ public class FileUtils {
 		File target = new File(outPath + File.separator + fileName);
 
 		if (target.exists()) {
-			target.delete();
+			if (!target.delete()) {
+				new LogMessage().writelnLog(target.getAbsolutePath() + "の削除に失敗しました。");
+			}
 		}
 
 		makeDataFile(list, outPath, fileName);
@@ -175,11 +170,10 @@ public class FileUtils {
 		File file = new File(logFilePath);
 
 		try {
-			file.createNewFile();
-		} catch (IOException e1) {
-			new LogMessage().writelnLog(e1.toString());
-		}
-		try{
+			if (!file.createNewFile()) {
+				new LogMessage().writelnLog(file.getAbsolutePath() + "の作成に失敗しました。");
+			}
+
 			FileWriter filewriter = new FileWriter(file,true);
 			filewriter.write(writing );
 			filewriter.close();
@@ -195,42 +189,32 @@ public class FileUtils {
 
 	public String getBuyDataFilePath(String strFolderPath) {
 
-		String strFilePath = strFolderPath + "\\" + getBuyDataFileName();
-
-		return strFilePath;
+		return strFolderPath + File.separator + getBuyDataFileName();
 	}
 
 	public String getSellDataFilePath(String strFolderPath) {
 
-		String strFilePath = strFolderPath + File.separator + getSellDataFileName();
-
-		return strFilePath;
+		return strFolderPath + File.separator + getSellDataFileName();
 	}
 
 	public String getMovedBuyDataPath(String strFolderPath) {
 
-		String strFilePath = strFolderPath + "\\old\\" + getBuyDataFileName();
-
-		return strFilePath;
+		return strFolderPath + "\\old\\" + getBuyDataFileName();
 	}
 
 	public String getMovedSellDataPath(String strFolderPath) {
 
-		String strFilePath = strFolderPath + "\\old\\" + getSellDataFileName();
-
-		return strFilePath;
+		return strFolderPath + "\\old\\" + getSellDataFileName();
 	}
 
 	public String getIniPath(String strFolderPath) {
-		String strFilePath = strFolderPath + File.separator + "fbs.ini";
 
-		return strFilePath;
+		return strFolderPath + File.separator + "fbs.ini";
 	}
 
 	public String getKeyPath(String strFolderPath) {
-		String strFilePath = strFolderPath + File.separator + "FBS_KICK_" + getTodayDate() + ".fbs";
 
-		return strFilePath;
+		return strFolderPath + File.separator + "FBS_KICK_" + getTodayDate() + ".fbs";
 	}
 
 	private String getBuyDataFileName() {
@@ -253,7 +237,9 @@ public class FileUtils {
 	public void removeTradeDataFile(String strLsPath, boolean isBuying) {
 		String fileName = isBuying? "buy_remains.csv" : "sell_remains.csv";
 
-		new File(strLsPath + File.separator + fileName).delete();
+		if (!new File(strLsPath + File.separator + fileName).delete()) {
+			new LogMessage().writelnLog(fileName + "の削除に失敗しました。");
+		}
 	}
 
 	public boolean atoshimatsuDataFile(String strLsPath, String strFilePath) throws IOException {
@@ -261,11 +247,17 @@ public class FileUtils {
 
 		String movedPath = new FileUtils().getMovedSellDataPath(strLsPath);
 
-		new File(strLsPath + File.separator + "old").mkdirs();
+		if (!new File(strLsPath + File.separator + "old").mkdirs()) {
+			new LogMessage().writelnLog(strLsPath + "\\oldフォルダの作成に失敗しました。");
+		}
+
 		if (!new File(movedPath).exists()) {
 			Files.move(Paths.get(strFilePath), Paths.get(movedPath), StandardCopyOption.ATOMIC_MOVE);
+			new LogMessage().writelnLog(movedPath + "へのファイルを移動しました。");
 		} else {
-			new File(strFilePath).delete();
+			if(!new File(strFilePath).delete()) {
+				new LogMessage().writelnLog(strFilePath + "の削除に失敗しました。");
+			}
 		}
 
 		return true;
