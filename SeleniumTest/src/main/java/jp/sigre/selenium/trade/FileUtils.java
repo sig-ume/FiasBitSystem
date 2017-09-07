@@ -8,9 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -145,11 +142,7 @@ public class FileUtils {
 
 		File target = new File(outPath + File.separator + fileName);
 
-		if (target.exists()) {
-			if (!target.delete()) {
-				new LogMessage().writelnLog(target.getAbsolutePath() + "の削除に失敗しました。");
-			}
-		}
+		deleteFile(target);
 
 		makeDataFile(list, outPath, fileName);
 
@@ -172,11 +165,7 @@ public class FileUtils {
 		File file = new File(logFilePath);
 
 		try {
-			if (!file.exists()) {
-				if (!file.createNewFile()) {
-					new LogMessage().writelnLog(file.getAbsolutePath() + "の作成に失敗しました。");
-				}
-			}
+			deleteFile(file);
 
 			FileWriter filewriter = new FileWriter(file,true);
 			filewriter.write(writing );
@@ -241,31 +230,12 @@ public class FileUtils {
 	public void removeTradeDataFile(String strLsPath, boolean isBuying) {
 		String fileName = isBuying? "buy_remains.csv" : "sell_remains.csv";
 
-		if (!new File(strLsPath + File.separator + fileName).delete()) {
-			new LogMessage().writelnLog(fileName + "の削除に失敗しました。");
-		}
+		File target = new File(strLsPath + File.separator + fileName);
+
+		deleteFile(target);
 	}
 
-	public boolean atoshimatsuDataFile(String strLsPath, String strFilePath) throws IOException {
-		//TODO：処理終了後のファイル処理をFileUtilsでメソッド化
 
-		String movedPath = new FileUtils().getMovedSellDataPath(strLsPath);
-
-		if (!new File(strLsPath + File.separator + "old").mkdirs()) {
-			new LogMessage().writelnLog(strLsPath + "\\oldフォルダの作成に失敗しました。");
-		}
-
-		if (!new File(movedPath).exists()) {
-			Files.move(Paths.get(strFilePath), Paths.get(movedPath), StandardCopyOption.ATOMIC_MOVE);
-			new LogMessage().writelnLog(movedPath + "へのファイルを移動しました。");
-		} else {
-			if(!new File(strFilePath).delete()) {
-				new LogMessage().writelnLog(strFilePath + "の削除に失敗しました。");
-			}
-		}
-
-		return true;
-	}
 
 	public String getExePath(InputStream inputStream, String prefix, String suffix) {
 		try {
@@ -302,6 +272,19 @@ public class FileUtils {
 		}
 		log.writelnLog("キックファイルを削除しました。");
 
+	}
+
+	public void deleteFile(String path) {
+		File target = new File(path);
+		deleteFile(target);
+	}
+
+	public void deleteFile(File target) {
+		if (target.exists()) {
+			if (!target.delete()) {
+				new LogMessage().writelnLog(target.getAbsolutePath() + "の削除に失敗しました。");
+			}
+		}
 	}
 
 }

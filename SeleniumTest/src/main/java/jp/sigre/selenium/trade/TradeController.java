@@ -146,8 +146,6 @@ public class TradeController {
 			return;
 		}
 
-
-
 		List<TradeDataBean> beanList = new ArrayList<>();
 		if (lFile.exists()) beanList.addAll(file.csvToTorihikiData(lFile));
 
@@ -162,22 +160,9 @@ public class TradeController {
 		//ファイル削除は売買の前
 		String movedPath = new FileUtils().getMovedBuyDataPath(strLsPath);
 		try {
-			if (!new File(strLsPath + File.separator + "old").mkdirs()) {
-				log.writelnLog("oldフォルダの作成に失敗しました。");
-			}
-			if (!new File(movedPath).exists()) {
-				Files.move(Paths.get(strFilePath), Paths.get(movedPath), StandardCopyOption.ATOMIC_MOVE);
-			} else {
-				if (!new File(strFilePath).delete()) {
-					log.writelnLog(strFilePath + "の削除に失敗しました。");
-				}
-			}
+			atoshimatsuDataFile(strLsPath, strFilePath);
 			//remains削除
-			if (lRemFile.exists()) {
-				if (!lRemFile.delete()) {
-					log.writelnLog(lRemFile.getAbsolutePath() + "の削除に失敗しました。");
-				}
-			}
+			new FileUtils().deleteFile(lRemFile);
 		} catch (SecurityException | IOException e) {
 			log.writelnLog(e.toString());
 		}
@@ -237,7 +222,6 @@ public class TradeController {
 		SeleniumTrade trade =  new SeleniumTrade();
 
 		//sellUnusedMethodが1の場合、使用していないメソッドの所有銘柄をすべて売却リストに追加
-		//TODO:SellUnusedMethodが1の場合、使用していないメソッドで所有する銘柄をすべて売却する
 		if (iniBean.getSellUnusedMethod().equals("1")) {
 			beanList.addAll(trade.getUnusedMethodStockList(iniBean));
 		}
@@ -246,24 +230,10 @@ public class TradeController {
 
 		log.writelnLog("LSファイルの移動、削除を開始します。");
 
-		//TODO：処理終了後のファイル処理をFileUtilsでメソッド化
-
-		String movedPath = new FileUtils().getMovedSellDataPath(strLsPath);
 		try {
-			if (!new File(strLsPath + File.separator + "old").mkdirs()) {
-				log.writelnLog(strLsPath + "の削除に失敗しました。");
-			}
-			if (!new File(movedPath).exists()) {
-				Files.move(Paths.get(strFilePath), Paths.get(movedPath), StandardCopyOption.ATOMIC_MOVE);
-			} else {
-				if (!new File(strFilePath).delete()) {
-					log.writelnLog(strLsPath + "の削除に失敗しました。");
-				}
-			}
+			atoshimatsuDataFile(strLsPath, strFilePath);
 			//remains削除
-			if (!lRemFile.delete()) {
-				log.writelnLog(lRemFile.getAbsolutePath() + "の削除に失敗しました。");
-			}
+			new FileUtils().deleteFile(lRemFile);
 		} catch (SecurityException | IOException e) {
 			log.writelnLog(e.toString());
 		}
@@ -465,5 +435,32 @@ public class TradeController {
 
 	public void deleteKickFiles() {
 		new FileUtils().deleteKickFiles(iniBean.getLS_FilePath());
+	}
+
+	/**
+	 * LSファイルの移動を行う
+	 * @param strLsPath
+	 * @param strFilePath 移動ファイル
+	 * @return
+	 * @throws IOException
+	 */
+	public void atoshimatsuDataFile(String strLsPath, String strFilePath) throws IOException {
+		String movedPath = new FileUtils().getMovedSellDataPath(strLsPath);
+
+		File oldFolder = new File(strLsPath + File.separator + "old");
+		if (!oldFolder.exists()) {
+			if (!oldFolder.mkdirs()) {
+				new LogMessage().writelnLog(strLsPath + "\\oldフォルダの作成に失敗しました。");
+			}
+		}
+
+		if (!new File(movedPath).exists()) {
+			Files.move(Paths.get(strFilePath), Paths.get(movedPath), StandardCopyOption.ATOMIC_MOVE);
+			new LogMessage().writelnLog(movedPath + "へのファイルを移動しました。");
+		} else {
+			new FileUtils().deleteFile(strFilePath);
+		}
+
+		return;
 	}
 }
