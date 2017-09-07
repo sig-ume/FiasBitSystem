@@ -1,6 +1,8 @@
 package jp.sigre.selenium.trade;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +43,28 @@ public class SeleniumTrade {
 		String strLoginPass = aryIdPass[1];
 
 		InputStream geckoStream = this.getClass().getClassLoader().getResourceAsStream("lib/geckodriver.exe");
-		System.setProperty("webdriver.gecko.driver", csv.getExePath(geckoStream, "geckodriver", "exe"));
+
+		if (geckoStream==null) {
+			log.writelnLog("geckoDriverが取得できません。");
+			System.exit(1);
+		}
+
+		ByteArrayOutputStream xxx = new ByteArrayOutputStream();
+		byte[] buf = new byte[32768]; // この値は適当に変更してください
+		int size = 0;
+
+		try {
+			while((size = geckoStream.read(buf, 0, buf.length)) != -1) {
+			    xxx.write(buf, 0, size);
+			}
+		} catch (IOException e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
+		}
+
+		System.out.println("サイズ; " + xxx.size());
+
+		System.setProperty("webdriver.gecko.driver", csv.getExePath(geckoStream, "geckodriver", ".exe"));
 
 		//FirefoxとPhantomJSの選択設定を追加
 		if (visible.equals("1")) {

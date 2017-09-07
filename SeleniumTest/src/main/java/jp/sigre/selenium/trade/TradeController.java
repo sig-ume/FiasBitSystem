@@ -79,7 +79,7 @@ public class TradeController {
 		return true;
 	}
 
-    public boolean trade() {
+	public boolean trade() {
 
 		String strLsPath = iniBean.getLS_FilePath();
 
@@ -163,24 +163,26 @@ public class TradeController {
 		String movedPath = new FileUtils().getMovedBuyDataPath(strLsPath);
 		try {
 			if (!new File(strLsPath + File.separator + "old").mkdirs()) {
-			    log.writelnLog("oldフォルダの作成に失敗しました。");
-            }
+				log.writelnLog("oldフォルダの作成に失敗しました。");
+			}
 			if (!new File(movedPath).exists()) {
 				Files.move(Paths.get(strFilePath), Paths.get(movedPath), StandardCopyOption.ATOMIC_MOVE);
 			} else {
 				if (!new File(strFilePath).delete()) {
-				    log.writelnLog(strFilePath + "の削除に失敗しました。");
-                }
+					log.writelnLog(strFilePath + "の削除に失敗しました。");
+				}
 			}
 			//remains削除
-			if (!lRemFile.delete()) {
-                log.writelnLog(lRemFile.getAbsolutePath() + "の削除に失敗しました。");
-            }
+			if (lRemFile.exists()) {
+				if (!lRemFile.delete()) {
+					log.writelnLog(lRemFile.getAbsolutePath() + "の削除に失敗しました。");
+				}
+			}
 		} catch (SecurityException | IOException e) {
 			log.writelnLog(e.toString());
 		}
 
-        log.writelnLog("LSファイルの移動、削除を行いました。");
+		log.writelnLog("LSファイルの移動、削除を行いました。");
 
 		//売買株の有無チェック
 		if (beanList.size() == 0) {
@@ -249,25 +251,25 @@ public class TradeController {
 		String movedPath = new FileUtils().getMovedSellDataPath(strLsPath);
 		try {
 			if (!new File(strLsPath + File.separator + "old").mkdirs()) {
-			    log.writelnLog(strLsPath + "の削除に失敗しました。");
-            }
+				log.writelnLog(strLsPath + "の削除に失敗しました。");
+			}
 			if (!new File(movedPath).exists()) {
 				Files.move(Paths.get(strFilePath), Paths.get(movedPath), StandardCopyOption.ATOMIC_MOVE);
 			} else {
 				if (!new File(strFilePath).delete()) {
-				    log.writelnLog(strLsPath + "の削除に失敗しました。");
-                }
+					log.writelnLog(strLsPath + "の削除に失敗しました。");
+				}
 			}
 			//remains削除
-            if (!lRemFile.delete()) {
-                log.writelnLog(lRemFile.getAbsolutePath() + "の削除に失敗しました。");
-            }
+			if (!lRemFile.delete()) {
+				log.writelnLog(lRemFile.getAbsolutePath() + "の削除に失敗しました。");
+			}
 		} catch (SecurityException | IOException e) {
 			log.writelnLog(e.toString());
 		}
 
 
-        //売買株の有無チェック
+		//売買株の有無チェック
 		if (beanList.size() == 0) {
 			log.writelnLog("売買対象の株がありません。");
 			return;
@@ -297,7 +299,7 @@ public class TradeController {
 
 
 	@SuppressWarnings("unused")
-    public void tradeShort() {
+	public void tradeShort() {
 
 		String strLsPath = iniBean.getLS_FilePath();
 		String strIdPath = iniBean.getID_FilePath();
@@ -324,22 +326,22 @@ public class TradeController {
 
 		String movedPath = new FileUtils().getMovedSellDataPath(strLsPath);
 		try {
-            if (!new File(strLsPath + File.separator + "old").mkdirs()) {
-                log.writelnLog(strLsPath + "の削除に失敗しました。");
-            }
+			if (!new File(strLsPath + File.separator + "old").mkdirs()) {
+				log.writelnLog(strLsPath + "の削除に失敗しました。");
+			}
 			if (!new File(movedPath).exists()) {
 				Files.move(Paths.get(strFilePath), Paths.get(movedPath), StandardCopyOption.ATOMIC_MOVE);
 				log.writelnLog(movedPath + "を移動しました。");
 			} else {
 				if (!new File(strFilePath).delete()) {
-                    log.writelnLog(strFilePath + "の削除に失敗しました。");
-                }
+					log.writelnLog(strFilePath + "の削除に失敗しました。");
+				}
 			}
 		} catch (SecurityException | IOException e) {
 			log.writelnLog(e.toString());
 		}
 
-        SeleniumTrade trade =  new SeleniumTrade();
+		SeleniumTrade trade =  new SeleniumTrade();
 
 		trade.login(strIdPath, tradeVisible);
 
@@ -461,5 +463,7 @@ public class TradeController {
 		log.writelnLog("バックアップ完了");
 	}
 
-
+	public void deleteKickFiles() {
+		new FileUtils().deleteKickFiles(iniBean.getLS_FilePath());
+	}
 }

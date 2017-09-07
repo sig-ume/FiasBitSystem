@@ -1,9 +1,7 @@
-import java.io.File;
 import java.io.IOException;
 
+import jp.sigre.LogMessage;
 import jp.sigre.selenium.trade.FileUtils;
-import jp.sigre.selenium.trade.IniBean;
-import jp.sigre.selenium.trade.SeleniumTrade;
 
 /**
  * @author sigre
@@ -16,26 +14,32 @@ public class SampleMain {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		String basePath = System.getProperty("user.dir");
 
 		FileUtils file = new FileUtils();
-		File iniFile = new File(file.getIniPath(basePath));
+		file.deleteKickFiles("C:\\Users\\sigre\\git\\SeleniumTest\\SeleniumTest\\target\\deletekick");
 
-		//fbs.ini存在チェック
-		if (!iniFile.exists()) {
-			return;
-		}
+		new LogMessage().writelnLog("test");
 
-		IniBean iniBean = file.iniToBean(iniFile);
-
-		//File defFile = new File(basePath);
-		System.out.println(basePath 	 + File.separator + "target");
-
-		SeleniumTrade trade = new SeleniumTrade();
-
-		trade.login(iniBean.getID_FilePath(), "0");
-		//trade.getSBIStock(iniBean);
-		trade.logout();
+//		String basePath = System.getProperty("user.dir");
+//
+//		FileUtils file = new FileUtils();
+//		File iniFile = new File(file.getIniPath(basePath));
+//
+//		//fbs.ini存在チェック
+//		if (!iniFile.exists()) {
+//			return;
+//		}
+//
+//		IniBean iniBean = file.iniToBean(iniFile);
+//
+//		//File defFile = new File(basePath);
+//		System.out.println(basePath 	 + File.separator + "target");
+//
+//		SeleniumTrade trade = new SeleniumTrade();
+//
+//		trade.login(iniBean.getID_FilePath(), "0");
+//		//trade.getSBIStock(iniBean);
+//		trade.logout();
 //
 //		ConnectDB db = new ConnectDB();
 //		db.connectStatement();

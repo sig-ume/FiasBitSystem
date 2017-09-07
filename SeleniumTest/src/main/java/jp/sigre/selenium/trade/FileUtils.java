@@ -14,6 +14,8 @@ import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.bean.ColumnPositionMappingStrategy;
@@ -170,8 +172,10 @@ public class FileUtils {
 		File file = new File(logFilePath);
 
 		try {
-			if (!file.createNewFile()) {
-				new LogMessage().writelnLog(file.getAbsolutePath() + "の作成に失敗しました。");
+			if (!file.exists()) {
+				if (!file.createNewFile()) {
+					new LogMessage().writelnLog(file.getAbsolutePath() + "の作成に失敗しました。");
+				}
 			}
 
 			FileWriter filewriter = new FileWriter(file,true);
@@ -266,16 +270,38 @@ public class FileUtils {
 	public String getExePath(InputStream inputStream, String prefix, String suffix) {
 		try {
 			java.nio.file.Path p = java.nio.file.Files.createTempFile(prefix, suffix);
+			System.out.println(p.toString());
 			p.toFile().deleteOnExit();
 			java.nio.file.Files.copy(inputStream, p, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 			return p.toAbsolutePath().toString();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			new LogMessage().writelnLog(e.toString());
 			System.exit(1);
 		}
 
 		//到達しないはず
 		return "";
+	}
+
+	public void deleteKickFiles(String strLsFolderPath) {
+		String regex = ".*FBS_KICK_\\d*-\\d*-\\d*.fbs";
+		Pattern p = Pattern.compile(regex);
+
+		LogMessage log = new LogMessage();
+
+		File lsFolder = new File(strLsFolderPath);
+		if (!lsFolder.isDirectory()) return;
+		for (File file : lsFolder.listFiles()) {
+			Matcher m = p.matcher(file.getName());
+			if (m.find()) {
+				if (!file.delete()) {
+					log.writelnLog("キックファイルの削除に失敗しました。 " + file.getAbsolutePath());
+					return ;
+				}
+			}
+		}
+		log.writelnLog("キックファイルを削除しました。");
+
 	}
 
 }

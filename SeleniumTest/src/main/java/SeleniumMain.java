@@ -19,6 +19,7 @@ public class SeleniumMain  {
 		//TODO;Firebugでチェック→IntelliJでやる
 		//TODO:SetupをログインとIniの読み込み別に
 		//TODO;ログイン→買い→売り→ログアウトという順の処理にする
+		//TODO:DBファイルのパス設定を可能にする
 
 		TradeController trade = new TradeController();
 		boolean resultSetup = trade.tradeSetup();
@@ -49,7 +50,10 @@ public class SeleniumMain  {
         		//trade.newTradeShort();
         		boolean resultTrade = trade.trade();
 
-        		if (resultTrade) trade.makeBackupFile();
+        		if (resultTrade) {
+        			trade.makeBackupFile();
+        			trade.deleteKickFiles();
+        		}
 
             }
         }, 0, 20 * 60 * 1000);
