@@ -1,10 +1,18 @@
 package jp.sigre.selenium.trade;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -12,6 +20,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -55,7 +64,7 @@ public class SeleniumTrade {
 
 		try {
 			while((size = geckoStream.read(buf, 0, buf.length)) != -1) {
-			    xxx.write(buf, 0, size);
+				xxx.write(buf, 0, size);
 			}
 		} catch (IOException e) {
 			// TODO 自動生成された catch ブロック
@@ -74,7 +83,7 @@ public class SeleniumTrade {
 			DesiredCapabilities caps = new DesiredCapabilities();
 			caps.setCapability(
 					PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY,
-					csv.getExePath(phantomStream, "phantomJS", "exe")
+					csv.getExePath(phantomStream, "phantomJS", ".exe")
 					);
 			driver = new PhantomJSDriver(caps);
 		}
@@ -546,23 +555,16 @@ public class SeleniumTrade {
 		return strMsg;
 	}
 
-	public void getSBIStock(IniBean iniBean) {
-
-
-		String entryMethod = "";
-		String exitMethod = "";
-
-		for (String[] methodSet : iniBean.getMethodSet()) {
-
-			if (methodSet[2].equals("2")) {
-				entryMethod = methodSet[0];
-				exitMethod = methodSet[1];
-			}
-		}
+	public List<TradeDataBean> getSBIStock() {
 
 		driver.findElement(By.cssSelector("img[alt=\"ポートフォリオ\"]")).click();
 		//middleAreaM2
 		WebElement element = driver.findElement(By.className("middleAreaM2")).findElements(By.tagName("table")).get(5);
+
+		return getSBIStock(element);
+	}
+
+	public List<TradeDataBean> getSBIStock(WebElement element) {
 		if (!element.isEnabled()) {
 			new LogMessage().writelnLog("ページ番号テーブル取得失敗");
 		}
@@ -611,21 +613,29 @@ public class SeleniumTrade {
 
 			TradeDataBean bean = new TradeDataBean();
 			bean.setCode(strCode);
-			bean.setCorrectedEntryVolume(strStockCount);
-			bean.setDayTime("YYYY-MM-DD");
-			bean.setEntry_money("10000");
-			bean.setEntryMethod(entryMethod);
-			bean.setExitMethod(exitMethod);
-			bean.setMINI_CHECK_flg("2");
 			bean.setRealEntryVolume(strStockCount);
-			bean.setType("DD");
 
 			tradeList.add(bean);
+		}
+
+		List<WebElement> elements = driver.findElements(By.linkText("次へ→"));
+		if (elements.size()!=0) {
+
+			System.out.println("次へ");
+			element = elements.get(0);
+			element.click();
+
+			element = driver.findElement(By.className("middleAreaM2")).findElements(By.tagName("table")).get(5);
+			tradeList.addAll(getSBIStock(element));
 		}
 
 		//TODO:DBをリセット前にCSVファイル出力
 		//TODO：DBをリセット
 		//TODO;tradeListをDBに投入
+
+		return tradeList;
+
+
 	}
 
 	public List<TradeDataBean> getUnusedMethodStockList(IniBean iniBean) {

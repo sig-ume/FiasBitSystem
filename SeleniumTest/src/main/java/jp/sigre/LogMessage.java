@@ -39,7 +39,7 @@ public class LogMessage {
 		String nowTime = sdf.format(now.getTime());
 
 		System.out.println(nowTime + "," + writing);
-		new FileUtils().writeFile(nowTime + "," + writing + "\r\n", folderPath,  "fbs_sys.log");
+		new FileUtils().writeFile(nowTime + "," + writing + "\r\n", folderPath, "fbs_sys.log");
 
 	}
 

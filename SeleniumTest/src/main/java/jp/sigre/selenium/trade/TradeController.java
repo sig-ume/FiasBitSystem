@@ -109,6 +109,7 @@ public class TradeController {
 				log.writelnLog("KICKファイルが存在しないか不正です。");
 				return false;
 			}
+
 		} else {
 			log.writelnLog("LSファイルが存在しません。売買処理は行われません。");
 			return false;
@@ -127,6 +128,13 @@ public class TradeController {
 		}
 
 		return true;
+	}
+
+	private void consistStock() {
+
+		TradeConsistency cons = new TradeConsistency();
+		//cons.checkDbAndSbiStock(trade);
+		cons.checkDbAndFiaKeep(iniBean.getLS_FilePath());
 	}
 
 	private void tradeLong() {
@@ -197,6 +205,8 @@ public class TradeController {
 		} else {
 			log.writelnLog("おわりだよー");
 		}
+
+		trade.logout();
 
 	}
 

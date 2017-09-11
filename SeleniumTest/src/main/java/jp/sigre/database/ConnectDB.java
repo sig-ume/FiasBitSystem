@@ -65,6 +65,27 @@ public class ConnectDB {
 	}
 
 	/**
+	 * TradeViewOfCodeテーブルから全レコードを取得
+	 * @param code
+	 * @return
+	 */
+	public List<TradeDataBean> getTradeViewOfCode() {
+		try {
+			con = getConnection();
+			String sql = "Select * From TradeViewOfCode;";
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			ResultSet rs = pstmt.executeQuery();
+
+			return new ConvertCodeResultSet().convertTradeData(rs);
+
+		} catch (SQLException e1) {
+			closeStatement();
+			new LogMessage().writelnLog(e1.toString());
+		}
+		return null;
+	}
+
+	/**
 	 * TradeViewOfCodeテーブルから特定コードのレコードを取得
 	 * （特定レコードの合計所有株数）
 	 * レコードが存在しない場合、realEntryVolume=0の空Beanを返す。

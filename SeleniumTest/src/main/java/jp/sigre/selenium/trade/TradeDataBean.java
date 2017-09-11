@@ -98,6 +98,33 @@ public class TradeDataBean {
 		result = prime * result + ((exitMethod == null) ? 0 : exitMethod.hashCode());
 		return result;
 	}
+//	@Override
+//	public boolean equals(Object obj) {
+//		if (this == obj)
+//			return true;
+//		if (obj == null)
+//			return false;
+//		if (getClass() != obj.getClass())
+//			return false;
+//		TradeDataBean other = (TradeDataBean) obj;
+//		if (code == null) {
+//			if (other.code != null)
+//				return false;
+//		} else if (!code.equals(other.code))
+//			return false;
+//		if (entryMethod == null) {
+//			if (other.entryMethod != null)
+//				return false;
+//		} else if (!entryMethod.equals(other.entryMethod))
+//			return false;
+//		if (exitMethod == null) {
+//			if (other.exitMethod != null)
+//				return false;
+//		} else if (!exitMethod.equals(other.exitMethod))
+//			return false;
+//		return true;
+//	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -107,20 +134,50 @@ public class TradeDataBean {
 		if (getClass() != obj.getClass())
 			return false;
 		TradeDataBean other = (TradeDataBean) obj;
+		if (MINI_CHECK_flg == null) {
+			if (other.MINI_CHECK_flg != null)
+				return false;
+		} else if (!MINI_CHECK_flg.equals(other.MINI_CHECK_flg))
+			return false;
 		if (code == null) {
 			if (other.code != null)
 				return false;
 		} else if (!code.equals(other.code))
+			return false;
+		if (correctedEntryVolume == null) {
+			if (other.correctedEntryVolume != null)
+				return false;
+		} else if (!correctedEntryVolume.equals(other.correctedEntryVolume))
+			return false;
+		if (dayTime == null) {
+			if (other.dayTime != null)
+				return false;
+		} else if (!dayTime.equals(other.dayTime))
 			return false;
 		if (entryMethod == null) {
 			if (other.entryMethod != null)
 				return false;
 		} else if (!entryMethod.equals(other.entryMethod))
 			return false;
+		if (entry_money == null) {
+			if (other.entry_money != null)
+				return false;
+		} else if (!entry_money.equals(other.entry_money))
+			return false;
 		if (exitMethod == null) {
 			if (other.exitMethod != null)
 				return false;
 		} else if (!exitMethod.equals(other.exitMethod))
+			return false;
+		if (realEntryVolume == null) {
+			if (other.realEntryVolume != null)
+				return false;
+		} else if (!realEntryVolume.equals(other.realEntryVolume))
+			return false;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
 			return false;
 		return true;
 	}

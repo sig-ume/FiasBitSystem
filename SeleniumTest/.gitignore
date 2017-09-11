@@ -36,3 +36,4 @@ bin
 *.swp
 *.bak
 /backup.csv
+/idpassword.fbs

@@ -1,6 +1,7 @@
 package jp.sigre.selenium.trade;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -64,6 +66,30 @@ public class FileUtils {
 			}
 		}
 	}
+
+	public List<TradeDataBean> csvToFiaKeep(String filePath) {
+		final String[] HEADER = new String[] { "code","entryDay","lastEntryDay","entryTimes","averagePrice",
+				"type","entryMethod","exitMethod","MINI_CHECK_flg","ideallyVolume","IDEAaveragePrice",
+				"IDEA_TOTAL_ENTRY_MONEY","realEntryVolume","REALaveragePrice","REAL_TOTAL_ENTRY_MONEY" };
+		CSVReader reader = null;
+		try {
+			reader = new CSVReader(new InputStreamReader(new FileInputStream(filePath), "SJIS"), ',', '"', 1);
+			ColumnPositionMappingStrategy<TradeDataBean> strat = new ColumnPositionMappingStrategy<>();
+			strat.setType(TradeDataBean.class);
+			strat.setColumnMapping(HEADER);
+			CsvToBean<TradeDataBean> csv = new CsvToBean<>();
+			return csv.parse(strat, reader);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			try {
+				reader.close();
+			} catch (IOException | NullPointerException e) {
+				new LogMessage().writelnLog(e.toString());
+			}
+		}
+	}
+
 
 	public IniBean iniToBean(File file) {
 		FileReader fr = null;
@@ -165,8 +191,11 @@ public class FileUtils {
 		File file = new File(logFilePath);
 
 		try {
-			deleteFile(file);
-
+			if (!file.exists()) {
+				if (!file.createNewFile()) {
+					new LogMessage().writelnLog(file.getAbsolutePath() + "の作成に失敗しました。");
+				}
+			}
 			FileWriter filewriter = new FileWriter(file,true);
 			filewriter.write(writing );
 			filewriter.close();
@@ -286,5 +315,10 @@ public class FileUtils {
 			}
 		}
 	}
+
+	public String getFiaKeepFilePath(String strLsFolderPath) {
+		return strLsFolderPath + File.separator + getTodayDate() + "_fias_keep.csv";
+	}
+
 
 }
