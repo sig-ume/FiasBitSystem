@@ -3,6 +3,7 @@
  */
 package jp.sigre.selenium.trade;
 
+import java.io.File;
 import java.util.List;
 
 import jp.sigre.LogMessage;
@@ -53,7 +54,13 @@ public class TradeConsistency {
 		List<TradeDataBean> dbList = db.getTradeViewOfCodeMethods();
 
 		FileUtils file = new FileUtils();
-		List<TradeDataBean> fiaList = file.csvToFiaKeep(file.getFiaKeepFilePath(strLsFolderPath));
+		String strKeepFile = file.getFiaKeepFilePath(strLsFolderPath);
+
+		if (!new File(strKeepFile).exists()) {
+			log.writelnLog("keepファイルが存在しません。");
+
+		}
+		List<TradeDataBean> fiaList = file.csvToFiaKeep(strKeepFile);
 
 		if (!checkCodeMethodsConsistency(dbList, fiaList)) {
 			if (dbList.size()!=0) {
