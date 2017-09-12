@@ -13,12 +13,8 @@ public class SeleniumMain  {
 		//TODO:Firefoxインストールチェック
 		//TODO:PCスリープ、休止モード状態チェック
 
-		//TODO：現行のLファイルをすべてDBに登録してみる
-
-		//TODO:LongとShortの共通部分を抜き出す
 		//TODO;Firebugでチェック→IntelliJでやる
 		//TODO:SetupをログインとIniの読み込み別に
-		//TODO;ログイン→買い→売り→ログアウトという順の処理にする
 		//TODO:DBファイルのパス設定を可能にする
 
 		TradeController trade = new TradeController();
@@ -29,7 +25,6 @@ public class SeleniumMain  {
 		new SeleniumMain().loop(trade);
 
         //timer.cancel();
-
 
 	}
 
