@@ -294,10 +294,11 @@ public class FileUtils {
 				if (!file.delete()) {
 					log.writelnLog("キックファイルの削除に失敗しました。 " + file.getAbsolutePath());
 					return ;
+				} else {
+					log.writelnLog("キックファイルを削除しました。" + file.getAbsolutePath());
 				}
 			}
 		}
-		log.writelnLog("キックファイルを削除しました。");
 
 	}
 

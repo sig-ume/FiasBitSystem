@@ -111,7 +111,7 @@ public class TradeController {
 		Digest dig = new Digest();
 		int count = 0;
 		String keyPath = fileUtils.getKeyPath(strLsPath);
-		if (!dig.checkDigestFile(keyPath, count)) {
+		if (!dig.checkDigestFile(keyPath)) {
 
 			log.writelnLog("KICKファイルが存在しないか不正です。");
 			return false;
@@ -438,7 +438,10 @@ public class TradeController {
 	}
 
 	public void deleteKickFiles() {
+		log.writelnLog("キックファイルを削除します");
 		fileUtils.deleteKickFiles(iniBean.getLS_FilePath());
+
+		log.writelnLog("キックファイルを削除しました。");
 	}
 
 	/**

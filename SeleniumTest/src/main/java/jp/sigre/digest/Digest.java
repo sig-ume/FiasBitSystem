@@ -15,44 +15,7 @@ import jp.sigre.LogMessage;
 
 public class Digest {
 
-	private static final String target1 = "target\\TestFile\\target1.txt";
-	private static final String target2 = "target\\TestFile\\target2.txt";
-	private static final String target3 = "target\\TestFile\\target3.txt";
-	private static final String target4 = "target\\TestFile\\target4.txt";
-
-	//static String target5 = "target\\TestFile\\FBS_KICK_2017-07-20.fbs";
-
 	public Digest() {
-	}
-
-	public static void main(String[] args) throws Exception {
-
-		Digest digSample = new Digest();
-
-		String key = digSample.getKeyStr();
-
-		int count = 0;
-
-		System.out.println("key:" + key);
-
-		System.out.println("key Digest         : " + digSample.getDigestStr(key));
-
-		System.out.println("other key Digest   : " + digSample.getDigestStr("test"));
-
-		System.out.println("make               : " + digSample.makeDigestFile(target1, key, 0));
-
-		System.out.println("success            : " + digSample.checkDigestFile(target1, key, count));
-
-		System.out.println("failed(illegal key): " + digSample.checkDigestFile(target2, key, count));
-
-		System.out.println("failed(no file)    : " + digSample.checkDigestFile(target3, key, count));
-
-		System.out.println("make(count 5)      : " + digSample.makeDigestFile(target4, key, 5));
-
-		System.out.println("failed(count 5)    : " + digSample.checkDigestFile(target4, key, count));
-
-		System.out.println("success            : " + digSample.checkDigestFile(target1, key, count));
-
 	}
 
 	private String getKeyStr() {
@@ -73,7 +36,7 @@ public class Digest {
 		String digest = getDigestStr(key);
 
 		File keyFile = new File(path);
-
+		FileWriter writer = null;
 		try {
 			if (keyFile.exists()) {
 				if (!keyFile.delete()) {
@@ -81,29 +44,31 @@ public class Digest {
 				}
 			}
 			if (!keyFile.createNewFile()) {
-			    System.out.println("Keyファイル作成に失敗しました。");
-            }
+				System.out.println("Keyファイル作成に失敗しました。");
+			}
 
-			FileWriter writer = new FileWriter(keyFile);
+			writer = new FileWriter(keyFile);
 			writer.write(digest);
 			writer.write("\n" + count);
 
-			writer.close();
 		} catch (IOException e) {
-			new LogMessage().writelnLog(e.toString());
 			return false;
+		} finally {
+
+			try {
+				if (writer != null) writer.close();
+			} catch (IOException e) {
+				new LogMessage().writelnLog(e.toString());
+			}
 		}
 
 		return true;
 	}
 
-	public boolean checkDigestFile(String path, int count) {
-		String key = getKeyStr();
-		return checkDigestFile(path, key, count);
-	}
-
 	//TODO;実装確認
-	private boolean checkDigestFile(String path, String key, int count) {
+	public boolean checkDigestFile(String path) {
+
+		String key = getKeyStr();
 
 		String digest = getDigestStr(key);
 
@@ -115,11 +80,13 @@ public class Digest {
 		}
 
 		String digestInFile = "";
-		//count = -1;
+		int count = -1;
 
+		FileReader reader = null;
+		BufferedReader br = null;
 		try {
-			FileReader reader = new FileReader(new File(path));
-			BufferedReader br = new BufferedReader(reader);
+			reader = new FileReader(new File(path));
+			br = new BufferedReader(reader);
 			digestInFile = br.readLine();
 			String strCount = br.readLine();
 
@@ -127,9 +94,16 @@ public class Digest {
 				count = Integer.parseInt(strCount);
 			}
 
-			br.close();
 		} catch (IOException e) {
 			new LogMessage().writelnLog(e.toString());
+		} finally {
+			try {
+				if (br!=null) br.close();
+				if (reader!=null) reader.close();
+			} catch (IOException e) {
+
+				new LogMessage().writelnLog(e.toString());
+			}
 		}
 
 		if (!digest.equals(digestInFile)) {

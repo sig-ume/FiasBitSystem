@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>test</groupId>
   <artifactId>SeleniumTest</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.1-SNAPSHOT</version>
   <build>
     <plugins>
       <plugin>
@@ -25,19 +25,6 @@
           <archive>
             <manifest>
               <mainClass>SeleniumMain</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifest>
-              <mainClass>SampleMain</mainClass>
-              <addClasspath>true</addClasspath>
-              <addExtensions>true</addExtensions>
-              <classpathPrefix>lib/</classpathPrefix>
             </manifest>
           </archive>
         </configuration>
