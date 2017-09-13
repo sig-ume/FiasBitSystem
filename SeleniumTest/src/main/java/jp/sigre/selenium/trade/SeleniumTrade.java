@@ -62,7 +62,7 @@ public class SeleniumTrade {
 			e.printStackTrace();
 		}
 
-		System.out.println("サイズ; " + xxx.size());
+		//System.out.println("サイズ; " + xxx.size());
 
 		System.setProperty("webdriver.gecko.driver", csv.getExePath(geckoStream, "geckodriver", ".exe"));
 
@@ -157,6 +157,11 @@ public class SeleniumTrade {
 
 		//wildcardをリストに追加
 		beanList.addAll(wildcardList);
+
+		//		System.out.println("売却用株リスト取得");
+		//		for (TradeDataBean bean : beanList) {
+		//			System.out.println(bean);
+		//		}
 
 		db.closeStatement();
 
@@ -612,7 +617,7 @@ public class SeleniumTrade {
 		List<WebElement> elements = driver.findElements(By.linkText("次へ→"));
 		if (elements.size()!=0) {
 
-			System.out.println("次へ");
+			//System.out.println("次へ");
 			element = elements.get(0);
 			element.click();
 

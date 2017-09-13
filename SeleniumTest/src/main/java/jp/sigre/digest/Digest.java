@@ -40,11 +40,11 @@ public class Digest {
 		try {
 			if (keyFile.exists()) {
 				if (!keyFile.delete()) {
-					System.out.println("Key削除失敗しました。");
+					new LogMessage().writelnLog("Key削除失敗しました。");
 				}
 			}
 			if (!keyFile.createNewFile()) {
-				System.out.println("Keyファイル作成に失敗しました。");
+				new LogMessage().writelnLog("Keyファイル作成に失敗しました。");
 			}
 
 			writer = new FileWriter(keyFile);

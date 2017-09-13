@@ -34,6 +34,7 @@ public class TradeMethodFilter {
 			}
 		}
 
+		//チェックボックスでFalse＝選択されてないものを削除
 		for (int i = 0; i<list.size(); i++) {
 			if (!checkbox.get(i)) {
 				list.remove(i);
@@ -53,7 +54,7 @@ public class TradeMethodFilter {
 
 		for (int i = 0; i < list.size(); i++) {
 			for (int j = i+1; j < list.size(); j++) {
-				if (list.get(i).equals(list.get(j))) {
+				if (list.get(i).equalsCodeMethods(list.get(j))) {
 					list.remove(j);
 					j--;
 				}

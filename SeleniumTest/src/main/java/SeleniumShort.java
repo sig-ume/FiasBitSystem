@@ -59,7 +59,7 @@ public class SeleniumShort {
 		log.writelnLog("iniファイル読み込み完了");
 
 		//テスト用にLファイルを対象にする→しない
-		String strFilePath = new FileUtils().getSellDataFilePath(strLsPath);
+		String strFilePath = new FileUtils().getSFilePath(strLsPath);
 
 		File lFile = new File(strFilePath);
 
@@ -73,7 +73,7 @@ public class SeleniumShort {
 
 		//TODO：処理終了後のファイル処理をFileUtilsでメソッド化
 
-		String movedPath = new FileUtils().getMovedSellDataPath(strLsPath);
+		String movedPath = new FileUtils().getMovedSFilePath(strLsPath);
 		try {
 			File oldDir = new File(strLsPath + File.separator + "old");
 

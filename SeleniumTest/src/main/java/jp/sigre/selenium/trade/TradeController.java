@@ -88,7 +88,7 @@ public class TradeController {
 		strIdPath = iniBean.getID_FilePath();
 		tradeVisible = iniBean.getTradeVisible();
 
-		String strFilePath = fileUtils.getBuyDataFilePath(strLsPath);
+		String strFilePath = fileUtils.getLFilePath(strLsPath);
 
 		File lFile = new File(strFilePath);
 
@@ -96,7 +96,7 @@ public class TradeController {
 
 		boolean canBuy = lFile.exists() || lRemFile.exists();
 
-		String strSFilePath = fileUtils.getSellDataFilePath(strLsPath);
+		String strSFilePath = fileUtils.getSFilePath(strLsPath);
 
 		File sFile = new File(strSFilePath);
 		File sRemFile = new File(strLsPath + File.separator + "sell_remains.csv");
@@ -123,7 +123,8 @@ public class TradeController {
 		//Login処理
 		trade.login(strIdPath, tradeVisible);
 
-		consistStock();
+		//データ齟齬の確認
+		if (sFile.exists() && lFile.exists()) consistStock();
 
 		if (canBuy) {
 			tradeLong();
@@ -145,21 +146,24 @@ public class TradeController {
 	}
 
 	private void atoshimatsuShort() {
-		String strFilePath = fileUtils.getSellDataFilePath(strLsPath);
 
-		atoshimatsu(strFilePath);
+		String strFilePath = fileUtils.getSFilePath(strLsPath);
+
+		atoshimatsu(strFilePath, false);
 	}
 
 	private void atoshimatsuLong() {
-		String strFilePath = fileUtils.getBuyDataFilePath(strLsPath);
-		atoshimatsu(strFilePath);
+
+		String strFilePath = fileUtils.getLFilePath(strLsPath);
+		atoshimatsu(strFilePath, true);
 	}
 
-	private void atoshimatsu(String strFilePath) {
+	private void atoshimatsu(String strFilePath, boolean isBuying) {
 
 		log.writelnLog("LSファイルの移動、削除を開始します。");
+
 		try {
-			atoshimatsuDataFile(strLsPath, strFilePath);
+			atoshimatsuDataFile(strLsPath, strFilePath, isBuying);
 			//remains削除
 			//fileUtils.deleteFile(lRemFile);
 		} catch (SecurityException | IOException e) {
@@ -180,7 +184,7 @@ public class TradeController {
 
 	private void tradeLong() {
 
-		String strFilePath = fileUtils.getBuyDataFilePath(strLsPath);
+		String strFilePath = fileUtils.getLFilePath(strLsPath);
 
 		File lFile = new File(strFilePath);
 
@@ -220,6 +224,8 @@ public class TradeController {
 
 			log.writelnLog("売買失敗件数：" + failedList.size());
 		} else {
+
+			fileUtils.removeTradeDataFile(strLsPath, true);
 			log.writelnLog("おわりだよー");
 		}
 
@@ -228,7 +234,7 @@ public class TradeController {
 
 	private void newTradeShort() {
 
-		String strFilePath = fileUtils.getSellDataFilePath(strLsPath);
+		String strFilePath = fileUtils.getSFilePath(strLsPath);
 
 		File lFile = new File(strFilePath);
 		File lRemFile = new File(strLsPath + File.separator + "sell_remains.csv");
@@ -284,7 +290,7 @@ public class TradeController {
 		String tradeVisible = iniBean.getTradeVisible();
 
 
-		String strFilePath = fileUtils.getSellDataFilePath(strLsPath);
+		String strFilePath = fileUtils.getSFilePath(strLsPath);
 
 		File lFile = new File(strFilePath);
 		File lRemFile = new File(strLsPath + File.separator + "sell_remains.csv");
@@ -302,7 +308,7 @@ public class TradeController {
 
 		//TODO：処理終了後のファイル処理をFileUtilsでメソッド化
 
-		String movedPath = fileUtils.getMovedSellDataPath(strLsPath);
+		String movedPath = fileUtils.getMovedSFilePath(strLsPath);
 		try {
 			if (!new File(strLsPath + File.separator + "old").mkdirs()) {
 				log.writelnLog(strLsPath + "の削除に失敗しました。");
@@ -422,6 +428,7 @@ public class TradeController {
 			fileUtils.makeTradeDataFile(failedList, strLsPath, false);
 
 		} else {
+			fileUtils.removeTradeDataFile(strLsPath, true);
 			log.writelnLog("おわりだよー");
 		}
 	}
@@ -438,6 +445,29 @@ public class TradeController {
 	}
 
 	public void deleteKickFiles() {
+		strLsPath = iniBean.getLS_FilePath();
+		strIdPath = iniBean.getID_FilePath();
+		tradeVisible = iniBean.getTradeVisible();
+
+		String strFilePath = fileUtils.getLFilePath(strLsPath);
+
+		File lFile = new File(strFilePath);
+
+		File lRemFile = new File(strLsPath + File.separator + "buy_remains.csv");
+
+		boolean canBuy = lFile.exists() || lRemFile.exists();
+
+		String strSFilePath = fileUtils.getSFilePath(strLsPath);
+
+		File sFile = new File(strSFilePath);
+		File sRemFile = new File(strLsPath + File.separator + "sell_remains.csv");
+
+		boolean canSell = sFile.exists() || sRemFile.exists();
+
+		if (canBuy || canSell) {
+			log.writelnLog("LSファイル、remainsファイルが残っています。");
+			return ;
+		}
 		log.writelnLog("キックファイルを削除します");
 		fileUtils.deleteKickFiles(iniBean.getLS_FilePath());
 
@@ -451,13 +481,15 @@ public class TradeController {
 	 * @return
 	 * @throws IOException
 	 */
-	public void atoshimatsuDataFile(String strLsPath, String strFilePath) throws IOException {
-		String movedPath = fileUtils.getMovedSellDataPath(strLsPath);
+	public void atoshimatsuDataFile(String strLsPath, String strFilePath, boolean isBuying) throws IOException {
+		String movedPath = isBuying ? fileUtils.getMovedLFilePath(strLsPath) : fileUtils.getMovedSFilePath(strLsPath);
 
 		File oldFolder = new File(strLsPath + File.separator + "old");
 		if (!oldFolder.exists()) {
 			if (!oldFolder.mkdirs()) {
 				new LogMessage().writelnLog(strLsPath + "\\oldフォルダの作成に失敗しました。");
+			} else {
+				new LogMessage().writelnLog(strLsPath + "\\oldフォルダを作成しました。");
 			}
 		}
 

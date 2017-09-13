@@ -182,6 +182,32 @@ public class TradeDataBean {
 		return true;
 	}
 
+	public boolean equalsCodeMethods(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TradeDataBean other = (TradeDataBean) obj;
+		if (code == null) {
+			if (other.code != null)
+				return false;
+		} else if (!code.equals(other.code))
+			return false;
+		if (entryMethod == null) {
+			if (other.entryMethod != null)
+				return false;
+		} else if (!entryMethod.equals(other.entryMethod))
+			return false;
+		if (exitMethod == null) {
+			if (other.exitMethod != null)
+				return false;
+		} else if (!exitMethod.equals(other.exitMethod))
+			return false;
+		return true;
+	}
+
 	public TradeDataBean clone() {
 		TradeDataBean bean = new TradeDataBean();
 

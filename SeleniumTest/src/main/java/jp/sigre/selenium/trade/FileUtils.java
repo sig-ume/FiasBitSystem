@@ -207,24 +207,34 @@ public class FileUtils {
 		return strFolderPath + File.separator + "idpassword.fbs";
 	}
 
-	public String getBuyDataFilePath(String strFolderPath) {
+	public String getLFilePath(String strFolderPath) {
 
-		return strFolderPath + File.separator + getBuyDataFileName();
+		return strFolderPath + File.separator + getLFileName();
 	}
 
-	public String getSellDataFilePath(String strFolderPath) {
+	public String getSFilePath(String strFolderPath) {
 
-		return strFolderPath + File.separator + getSellDataFileName();
+		return strFolderPath + File.separator + getSFileName();
 	}
 
-	public String getMovedBuyDataPath(String strFolderPath) {
+	public String getMovedLFilePath(String strFolderPath) {
 
-		return strFolderPath + "\\old\\" + getBuyDataFileName();
+		return strFolderPath + "\\old\\" + getLFileName();
 	}
 
-	public String getMovedSellDataPath(String strFolderPath) {
+	public String getMovedSFilePath(String strFolderPath) {
 
-		return strFolderPath + "\\old\\" + getSellDataFileName();
+		return strFolderPath + "\\old\\" + getSFileName();
+	}
+
+	public String getBuyRemainsFilePath(String strFolderPath) {
+
+		return strFolderPath + File.separator + "buy_remains.csv";
+	}
+
+	public String getSellRemainsFilePath(String strFolderPath) {
+
+		return strFolderPath + File.separator + "sell_remains.csv";
 	}
 
 	public String getIniPath(String strFolderPath) {
@@ -237,12 +247,12 @@ public class FileUtils {
 		return strFolderPath + File.separator + "FBS_KICK_" + getTodayDate() + ".fbs";
 	}
 
-	private String getBuyDataFileName() {
+	private String getLFileName() {
 
 		return getTodayDate() + "_L.csv";
 	}
 
-	private String getSellDataFileName() {
+	private String getSFileName() {
 
 		return getTodayDate() + "_S.csv";
 	}
@@ -255,6 +265,7 @@ public class FileUtils {
 	}
 
 	public void removeTradeDataFile(String strLsPath, boolean isBuying) {
+		//TODO;remainsファイルのフルパスを取得するメソッド作成
 		String fileName = isBuying? "buy_remains.csv" : "sell_remains.csv";
 
 		File target = new File(strLsPath + File.separator + fileName);
@@ -267,7 +278,7 @@ public class FileUtils {
 	public String getExePath(InputStream inputStream, String prefix, String suffix) {
 		try {
 			java.nio.file.Path p = java.nio.file.Files.createTempFile(prefix, suffix);
-			System.out.println(p.toString());
+			//System.out.println(p.toString());
 			p.toFile().deleteOnExit();
 			java.nio.file.Files.copy(inputStream, p, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 			return p.toAbsolutePath().toString();
@@ -311,6 +322,8 @@ public class FileUtils {
 		if (target.exists()) {
 			if (!target.delete()) {
 				new LogMessage().writelnLog(target.getAbsolutePath() + "の削除に失敗しました。");
+			} else {
+				new LogMessage().writelnLog(target.getAbsolutePath() + "を削除しました。");
 			}
 		}
 	}

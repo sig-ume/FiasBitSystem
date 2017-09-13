@@ -28,10 +28,10 @@ public class DigestTest {
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		File folder = new File(strFolder);
-		for (File file : folder.listFiles()) {
-			file.delete();
-		}
+//		File folder = new File(strFolder);
+//		for (File file : folder.listFiles()) {
+//			file.delete();
+//		}
 	}
 
 	@Before
