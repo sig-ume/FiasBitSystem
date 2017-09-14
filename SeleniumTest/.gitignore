@@ -37,3 +37,4 @@ bin
 *.bak
 /backup.csv
 /idpassword.fbs
+/test
