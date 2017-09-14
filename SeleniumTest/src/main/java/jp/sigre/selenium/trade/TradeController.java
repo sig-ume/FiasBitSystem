@@ -493,9 +493,9 @@ public class TradeController {
 
 		boolean canSell = sFile.exists() || sRemFile.exists();
 
-		log.writelnLog("キックファイルを削除します");
+		log.writelnLog("Keepファイルを削除します");
 		fileUtils.deleteKeepFiles(iniBean.getLS_FilePath());
-		log.writelnLog("キックファイルを削除しました。");
+		log.writelnLog("Keepファイルを削除しました。");
 
 		if (canBuy || canSell) {
 			log.writelnLog("LSファイル、remainsファイルが残っています。");
