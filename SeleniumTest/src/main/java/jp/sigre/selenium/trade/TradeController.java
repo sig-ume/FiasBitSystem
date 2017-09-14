@@ -444,36 +444,6 @@ public class TradeController {
 		log.writelnLog("バックアップ完了");
 	}
 
-	public void deleteKickFiles() {
-		strLsPath = iniBean.getLS_FilePath();
-		strIdPath = iniBean.getID_FilePath();
-		tradeVisible = iniBean.getTradeVisible();
-
-		String strFilePath = fileUtils.getLFilePath(strLsPath);
-
-		File lFile = new File(strFilePath);
-
-		File lRemFile = new File(strLsPath + File.separator + "buy_remains.csv");
-
-		boolean canBuy = lFile.exists() || lRemFile.exists();
-
-		String strSFilePath = fileUtils.getSFilePath(strLsPath);
-
-		File sFile = new File(strSFilePath);
-		File sRemFile = new File(strLsPath + File.separator + "sell_remains.csv");
-
-		boolean canSell = sFile.exists() || sRemFile.exists();
-
-		if (canBuy || canSell) {
-			log.writelnLog("LSファイル、remainsファイルが残っています。");
-			return ;
-		}
-		log.writelnLog("キックファイルを削除します");
-		fileUtils.deleteKickFiles(iniBean.getLS_FilePath());
-
-		log.writelnLog("キックファイルを削除しました。");
-	}
-
 	/**
 	 * LSファイルの移動を行う
 	 * @param strLsPath
@@ -502,4 +472,39 @@ public class TradeController {
 
 		return;
 	}
+
+	public void deleteOtherFiles() {
+		strLsPath = iniBean.getLS_FilePath();
+		strIdPath = iniBean.getID_FilePath();
+		tradeVisible = iniBean.getTradeVisible();
+
+		String strFilePath = fileUtils.getLFilePath(strLsPath);
+
+		File lFile = new File(strFilePath);
+
+		File lRemFile = new File(strLsPath + File.separator + "buy_remains.csv");
+
+		boolean canBuy = lFile.exists() || lRemFile.exists();
+
+		String strSFilePath = fileUtils.getSFilePath(strLsPath);
+
+		File sFile = new File(strSFilePath);
+		File sRemFile = new File(strLsPath + File.separator + "sell_remains.csv");
+
+		boolean canSell = sFile.exists() || sRemFile.exists();
+
+		log.writelnLog("キックファイルを削除します");
+		fileUtils.deleteKeepFiles(iniBean.getLS_FilePath());
+		log.writelnLog("キックファイルを削除しました。");
+
+		if (canBuy || canSell) {
+			log.writelnLog("LSファイル、remainsファイルが残っています。");
+			return ;
+		}
+		log.writelnLog("キックファイルを削除します");
+		fileUtils.deleteKickFiles(iniBean.getLS_FilePath());
+
+		log.writelnLog("キックファイルを削除しました。");
+	}
+
 }

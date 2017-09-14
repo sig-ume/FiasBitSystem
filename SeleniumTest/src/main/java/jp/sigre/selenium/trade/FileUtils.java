@@ -332,5 +332,27 @@ public class FileUtils {
 		return strLsFolderPath + File.separator + getTodayDate() + "_fias_keep.csv";
 	}
 
+	public void deleteKeepFiles(String strLsFolderPath) {
+		String regex = ".*\\d*-\\d*-\\d*_fias_keep.csv";
+		Pattern p = Pattern.compile(regex);
+
+		LogMessage log = new LogMessage();
+
+		File lsFolder = new File(strLsFolderPath);
+		if (!lsFolder.isDirectory()) return;
+		for (File file : lsFolder.listFiles()) {
+			Matcher m = p.matcher(file.getName());
+			if (m.find()) {
+				if (!file.delete()) {
+					log.writelnLog("Keepファイルの削除に失敗しました。 " + file.getAbsolutePath());
+					return ;
+				} else {
+					log.writelnLog("Keepファイルを削除しました。" + file.getAbsolutePath());
+				}
+			}
+		}
+
+	}
+
 
 }

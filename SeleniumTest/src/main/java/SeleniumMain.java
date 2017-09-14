@@ -52,7 +52,7 @@ public class SeleniumMain  {
 
         		if (resultTrade) {
         			trade.makeBackupFile();
-        			trade.deleteKickFiles();
+        			trade.deleteOtherFiles();
         		}
 
             }
