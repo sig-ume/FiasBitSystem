@@ -561,6 +561,8 @@ public class SeleniumTrade {
 	}
 
 	public List<TradeDataBean> getSBIStock(WebElement element) {
+
+		driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 		if (!element.isEnabled()) {
 			new LogMessage().writelnLog("ページ番号テーブル取得失敗");
 		}
@@ -629,6 +631,7 @@ public class SeleniumTrade {
 		//TODO：DBをリセット
 		//TODO;tradeListをDBに投入
 
+		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 		return tradeList;
 
 
