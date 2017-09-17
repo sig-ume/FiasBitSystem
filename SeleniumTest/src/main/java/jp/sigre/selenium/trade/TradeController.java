@@ -507,4 +507,19 @@ public class TradeController {
 		log.writelnLog("キックファイルを削除しました。");
 	}
 
+	public void makeDigestFile() {
+		String kickPath = new FileUtils().getKeyPath(iniBean.getLS_FilePath());
+		if (new File(kickPath).exists()) return;
+		Digest digest = new Digest();
+		digest.makeDigestFile(kickPath, 0);
+
+		return;
+	}
+
+	public void backupDbFile() {
+
+		new FileUtils().backupDbFile(basePath);
+
+	}
+
 }

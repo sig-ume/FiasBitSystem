@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.io.Files;
+
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.bean.ColumnPositionMappingStrategy;
 import au.com.bytecode.opencsv.bean.CsvToBean;
@@ -354,5 +356,39 @@ public class FileUtils {
 
 	}
 
+	public void backupDbFile(String strFolderPath) {
+		String dbFilePath = getDbFilePath(strFolderPath);
+
+		File dbFile = new File(dbFilePath);
+		if (dbFile.exists()) {
+			int i = 0;
+			while (true) {
+				//TradeInfo.sqlite.yyyy-mm-ddiでファイルをコピー
+				//問題ないiが見つかるまでcontinue
+				String copyPath = dbFilePath + "." + getTodayDate() +i;
+				File copyFile = new File(copyPath);
+				if (copyFile.exists()) {
+					i++;
+					continue;
+				}
+				//指定パスでコピー
+				try {
+					Files.copy(dbFile, copyFile);
+					new LogMessage().writelnLog("DBファイルをコピーしました。" + copyPath);
+					return;
+				} catch (IOException e) {
+					new LogMessage().writelnLog(e.toString());
+					return;
+				}
+			}
+
+		}
+
+		new LogMessage().writelnLog("dbファイルが見つかりません。 " + dbFilePath);
+	}
+
+	private String getDbFilePath(String strFolderPath) {
+		return strFolderPath + File.separator + "db" + File.separator + "TradeInfo.sqlite";
+	}
 
 }
