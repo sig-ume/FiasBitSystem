@@ -50,7 +50,7 @@ public class Digest {
 			writer = new FileWriter(keyFile);
 			writer.write(digest);
 			writer.write("\n" + count);
-
+			new LogMessage().writelnLog("Keyファイルを作成しました。 " + path);
 		} catch (IOException e) {
 			return false;
 		} finally {
