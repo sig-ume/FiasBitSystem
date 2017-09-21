@@ -274,7 +274,10 @@ public class TradeController {
 
 			fileUtils.makeTradeDataFile(failedList, strLsPath, false);
 
+			log.writelnLog("売買失敗件数：" + failedList.size());
 		} else {
+
+			fileUtils.removeTradeDataFile(strLsPath, false);
 			log.writelnLog("おわりだよー");
 		}
 
