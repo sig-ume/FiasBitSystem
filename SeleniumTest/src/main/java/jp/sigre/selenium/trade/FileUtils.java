@@ -257,7 +257,7 @@ public class FileUtils {
 		return getTodayDate() + "_S.csv";
 	}
 
-	private String getTodayDate() {
+	public String getTodayDate() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Date dateToday = new Date();
 
