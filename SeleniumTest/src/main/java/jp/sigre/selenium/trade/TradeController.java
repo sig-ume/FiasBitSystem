@@ -443,6 +443,16 @@ public class TradeController {
 
 		//TODO:不足データを追加する。
 		List<TradeDataBean> tradeList = db.getTradeViewOfCodeMethods();
+		String strDate = fileUtils.getTodayDate();
+
+		for (TradeDataBean bean : tradeList) {
+			bean.setDayTime(strDate);
+			bean.setType("DD");
+			bean.setMINI_CHECK_flg("1");
+			bean.setEntry_money("0");
+		}
+
+
 		fileUtils.makeBackupDataFile(tradeList, basePath);
 		log.writelnLog("バックアップ完了");
 	}
