@@ -2,11 +2,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import jp.sigre.LogMessage;
+import jp.sigre.database.DbController;
 import jp.sigre.selenium.trade.TradeController;
 
 public class SeleniumMain  {
 
+	static LogMessage log = new LogMessage();
 
+	static TradeController trade = new TradeController();
 
 	public static void main(String[] args) {
 
@@ -20,7 +23,6 @@ public class SeleniumMain  {
 		//TODO:当日売買した取引を記録するDBを作成する
 		//TODO:不整合確認時のみタイムアップ時間を短縮
 
-		TradeController trade = new TradeController();
 		boolean resultSetup = trade.tradeSetup();
 
 		if (!resultSetup) return;
@@ -29,10 +31,14 @@ public class SeleniumMain  {
 			if (args[0].equals("supermode")) {
 
 				trade.makeDigestFile();
-				new LogMessage().writelnLog("Kickファイル作成処理終了");
+				log.writelnLog("Kickファイル作成処理終了");
 
 				trade.backupDbFile();
-				new LogMessage().writelnLog("DBファイルバックアップ処理終了");
+				log.writelnLog("DBファイルバックアップ処理終了");
+
+			} else if (args[0].equals("recovery")) {
+				new SeleniumMain().recovery();
+				return;
 
 			}
 		}
@@ -42,6 +48,13 @@ public class SeleniumMain  {
 		//timer.cancel();
 
 		return;
+
+	}
+
+
+	private void recovery() {
+		new DbController().recovery();
+		log.writelnLog("リカバリ終了");
 
 	}
 

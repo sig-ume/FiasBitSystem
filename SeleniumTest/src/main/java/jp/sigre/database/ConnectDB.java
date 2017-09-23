@@ -334,6 +334,22 @@ public class ConnectDB {
 		return null;
 	}
 
+	public int deleteAllData() {
+
+		try {
+			con = getConnection();
+			String sql = "DELETE FROM TradeData;";
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			//DELETE文を実行する
+            return pstmt.executeUpdate();
+
+		} catch (SQLException e1) {
+			new LogMessage().writelnLog(e1.toString());
+		}  finally {
+			closeStatement();
+		}
+		return 0;
+	}
 
 	/**
 	 * 商品を1件DBからDeleteする
