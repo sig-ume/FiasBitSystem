@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -141,6 +142,7 @@ public class SeleniumTrade {
 			if (!bean.getRealEntryVolume().equals("0")) {
 				bean.setRealEntryVolume(tmpBean.getRealEntryVolume());
 				bean.setCorrectedEntryVolume(tmpBean.getCorrectedEntryVolume());
+				bean.setMINI_CHECK_flg("2");
 			} else {
 				//volumeが0なら無視
 				beanList.remove(i);
@@ -150,8 +152,14 @@ public class SeleniumTrade {
 			//wildcardレコード捜索
 			TradeDataBean wildBean = db.getTradeViewOfCodeMethods(bean.getCode(), "wildcard", "wildcard");
 			if (!wildBean.getRealEntryVolume().equals("0")) {
+				wildBean.setDayTime(bean.getDayTime());
+				wildBean.setType(bean.getType());
+				wildBean.setMINI_CHECK_flg("2");
+				wildBean.setEntry_money(bean.getEntry_money());
 				wildcardList.add(wildBean);
 			}
+			//wildcardListの重複排除。同コード別メソッドのレコードがある場合、上記捜索で複数同じものが入る
+			wildcardList = wildcardList.stream().distinct().collect(Collectors.toList());
 
 		}
 
