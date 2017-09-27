@@ -319,6 +319,14 @@ public class SeleniumTrade {
 		for (int i = 1; i < list.size(); i++) {
 			TradeDataBean plusBean = firstBean.clone();
 			TradeDataBean minusBean = list.get(i).clone();
+
+			boolean isEntryEquals = plusBean.getEntryMethod().equals(minusBean.getEntryMethod());
+			boolean isExitEquals = plusBean.getExitMethod().equals(minusBean.getExitMethod());
+
+
+			//振替前と振替後が同じメソッドである場合、スキップ
+			if (isEntryEquals && isExitEquals) continue;
+
 			plusBean.setRealEntryVolume(minusBean.getRealEntryVolume());
 			plusBean.setCorrectedEntryVolume(minusBean.getCorrectedEntryVolume());
 
