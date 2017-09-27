@@ -46,8 +46,9 @@ public class ConnectDB {
 		} catch (ClassNotFoundException e) {
 			new LogMessage().writelnLog(e.toString());
 		}
+		String strPath = "db/TradeInfo.sqlite";
 		con = DriverManager
-				.getConnection("jdbc:sqlite:db/TradeInfo.sqlite");
+				.getConnection("jdbc:sqlite:" + strPath);
 		return con;
 	}
 

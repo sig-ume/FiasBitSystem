@@ -41,6 +41,7 @@ public class DbController {
 
 		count = 0;
 		for (TradeDataBean bean : beanList) {
+			bean.setCorrectedEntryVolume(bean.getRealEntryVolume());
 			db.insertTradeData(bean);
 			count++;
 		}
