@@ -246,7 +246,7 @@ public class FileUtils {
 
 	public String getKeyPath(String strFolderPath) {
 
-		return strFolderPath + File.separator + "FBS_KICK_" + getTodayDate() + ".fbs";
+		return strFolderPath + File.separator + getTodayDate() + "_FBS_KICK" + ".fbs";
 	}
 
 	private String getLFileName() {
