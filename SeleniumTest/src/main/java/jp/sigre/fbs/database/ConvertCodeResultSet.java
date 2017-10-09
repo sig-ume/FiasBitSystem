@@ -1,9 +1,9 @@
-package jp.sigre.database;
+package jp.sigre.fbs.database;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import jp.sigre.selenium.trade.TradeDataBean;
+import jp.sigre.fbs.selenium.trade.TradeDataBean;
 
 public class ConvertCodeResultSet implements ConvertResultSet {
 

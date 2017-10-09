@@ -1,9 +1,10 @@
+package jp.sigre.fbs.main;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import jp.sigre.LogMessage;
-import jp.sigre.database.DbController;
-import jp.sigre.selenium.trade.TradeController;
+import jp.sigre.fbs.database.DbController;
+import jp.sigre.fbs.log.LogMessage;
+import jp.sigre.fbs.selenium.trade.TradeController;
 
 public class SeleniumMain  {
 
@@ -13,6 +14,8 @@ public class SeleniumMain  {
 
 	public static void main(String[] args) {
 
+		//TODO;logback導入
+		//TODO;IniBeanの内容はシステムプロパティに
 
 		//TODO:Firefoxインストールチェック
 		//TODO:PCスリープ、休止モード状態チェック

@@ -1,4 +1,4 @@
-package jp.sigre.selenium.trade;
+package jp.sigre.fbs.selenium.trade;
 
 /**
  * @author sigre

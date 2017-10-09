@@ -1,12 +1,12 @@
-package jp.sigre.database;
+package jp.sigre.fbs.database;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.sigre.LogMessage;
-import jp.sigre.selenium.trade.TradeDataBean;
+import jp.sigre.fbs.log.LogMessage;
+import jp.sigre.fbs.selenium.trade.TradeDataBean;
 
 /**
  * @author sigre

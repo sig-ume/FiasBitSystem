@@ -14,6 +14,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import jp.sigre.fbs.digest.Digest;
+
 public class DigestTest {
 	Digest digest = new Digest();
 	static String strFolder = "C:\\Users\\sigre\\git\\SeleniumTest\\SeleniumTest\\test\\jp.sigre.digest.Digest";

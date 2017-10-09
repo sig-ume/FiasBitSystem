@@ -1,8 +1,8 @@
-package jp.sigre;
+package jp.sigre.fbs.log;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import jp.sigre.selenium.trade.FileUtils;
+import jp.sigre.fbs.selenium.trade.FileUtils;
 
 /**
  * @author sigre

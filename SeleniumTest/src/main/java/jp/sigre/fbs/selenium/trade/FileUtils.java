@@ -1,4 +1,4 @@
-package jp.sigre.selenium.trade;
+package jp.sigre.fbs.selenium.trade;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,7 +19,8 @@ import com.google.common.io.Files;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.bean.ColumnPositionMappingStrategy;
 import au.com.bytecode.opencsv.bean.CsvToBean;
-import jp.sigre.LogMessage;
+import jp.sigre.fbs.controller.SepaCombineBean;
+import jp.sigre.fbs.log.LogMessage;
 
 /**
  * @author sigre
@@ -88,6 +89,28 @@ public class FileUtils {
 				new LogMessage().writelnLog(e.toString());
 			}
 		}
+	}
+
+	public List<SepaCombineBean> csvToSepaCombine(String filePath) {
+		final String[] HEADER = new String[] { "code", "checksepa_combine", "ajustRate" };
+		CSVReader reader = null;
+		try {
+			reader = new CSVReader(new InputStreamReader(new FileInputStream(filePath), "SJIS"), ',', '"', 1);
+			ColumnPositionMappingStrategy<SepaCombineBean> strat = new ColumnPositionMappingStrategy<>();
+			strat.setType(SepaCombineBean.class);
+			strat.setColumnMapping(HEADER);
+			CsvToBean<SepaCombineBean> csv = new CsvToBean<>();
+			return csv.parse(strat, reader);
+		} catch (Exception e) {
+			new LogMessage().writelnLog(e.toString());
+		} finally {
+			try {
+				reader.close();
+			} catch (IOException | NullPointerException e) {
+				new LogMessage().writelnLog(e.toString());
+			}
+		}
+		return null;
 	}
 
 
@@ -389,6 +412,10 @@ public class FileUtils {
 
 	private String getDbFilePath(String strFolderPath) {
 		return strFolderPath + File.separator + "db" + File.separator + "TradeInfo.sqlite";
+	}
+
+	public String getSepaCombineFilePath(String strFolderPath) {
+		return strFolderPath + File.separator + "FBSsepaCombine.csv";
 	}
 
 }

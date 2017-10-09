@@ -1,4 +1,4 @@
-package jp.sigre.selenium.trade;
+package jp.sigre.fbs.selenium.trade;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -19,8 +19,8 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import jp.sigre.LogMessage;
-import jp.sigre.database.ConnectDB;
+import jp.sigre.fbs.database.ConnectDB;
+import jp.sigre.fbs.log.LogMessage;
 
 public class SeleniumTrade {
 

@@ -1,10 +1,11 @@
+package jp.sigre.fbs.main;
 import java.io.File;
 import java.io.IOException;
 
-import jp.sigre.selenium.trade.FileUtils;
-import jp.sigre.selenium.trade.IniBean;
-import jp.sigre.selenium.trade.SeleniumTrade;
-import jp.sigre.selenium.trade.TradeConsistency;
+import jp.sigre.fbs.selenium.trade.FileUtils;
+import jp.sigre.fbs.selenium.trade.IniBean;
+import jp.sigre.fbs.selenium.trade.SeleniumTrade;
+import jp.sigre.fbs.selenium.trade.TradeConsistency;
 
 /**
  * @author sigre

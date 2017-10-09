@@ -1,4 +1,4 @@
-package jp.sigre.digest;
+package jp.sigre.fbs.digest;
 
 
 import java.io.BufferedReader;
@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
-import jp.sigre.LogMessage;
+import jp.sigre.fbs.log.LogMessage;
 
 public class Digest {
 

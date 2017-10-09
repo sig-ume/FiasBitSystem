@@ -1,9 +1,9 @@
-package jp.sigre.selenium.trade;
+package jp.sigre.fbs.selenium.trade;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.sigre.database.ConnectDB;
+import jp.sigre.fbs.database.ConnectDB;
 
 /**
  * @author sigre

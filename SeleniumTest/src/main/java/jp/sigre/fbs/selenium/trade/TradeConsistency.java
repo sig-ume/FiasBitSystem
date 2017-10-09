@@ -1,13 +1,13 @@
 /**
  *
  */
-package jp.sigre.selenium.trade;
+package jp.sigre.fbs.selenium.trade;
 
 import java.io.File;
 import java.util.List;
 
-import jp.sigre.LogMessage;
-import jp.sigre.database.ConnectDB;
+import jp.sigre.fbs.database.ConnectDB;
+import jp.sigre.fbs.log.LogMessage;
 
 /**
  * @author sigre

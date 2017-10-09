@@ -1,4 +1,4 @@
-package jp.sigre.database;
+package jp.sigre.fbs.database;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -8,8 +8,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-import jp.sigre.LogMessage;
-import jp.sigre.selenium.trade.TradeDataBean;
+import jp.sigre.fbs.log.LogMessage;
+import jp.sigre.fbs.selenium.trade.TradeDataBean;
 
 
 /**
