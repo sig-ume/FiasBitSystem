@@ -31,7 +31,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>SeleniumMain</mainClass>
+							<mainClass>jp.sigre.fbs.main.SeleniumMain</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
