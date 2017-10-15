@@ -317,7 +317,7 @@ public class FileUtils {
 	}
 
 	public void deleteKickFiles(String strLsFolderPath) {
-		String regex = ".*FBS_KICK_\\d*-\\d*-\\d*.fbs";
+		String regex = ".*\\d*-\\d*-\\d*_FBS_KICK.fbs";
 		Pattern p = Pattern.compile(regex);
 
 		LogMessage log = new LogMessage();
