@@ -1,10 +1,10 @@
 package jp.sigre.fbs.main;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import jp.sigre.fbs.database.DbController;
 import jp.sigre.fbs.log.LogMessage;
 import jp.sigre.fbs.selenium.trade.TradeController;
+import jp.sigre.fbs.timer.FbsTimerTask;
 
 public class SeleniumMain  {
 
@@ -65,27 +65,7 @@ public class SeleniumMain  {
 	private void loop(TradeController trade) {
 
 		final Timer timer = new Timer();
-		timer.schedule(new TimerTask() {
-
-			@Override
-			public void run() {
-				// ここに繰り返し処理を書く
-				System.out.println("action.");
-
-
-				//trade.tradeLong();
-				//selenium.tradeShort();
-
-				//trade.newTradeShort();
-				boolean resultTrade = trade.trade();
-
-				if (resultTrade) {
-					trade.makeBackupFile();
-					trade.deleteOtherFiles();
-				}
-
-			}
-		}, 0, 20 * 60 * 1000);
+		timer.schedule(new FbsTimerTask(trade), 0, 20 * 60 * 1000);
 
 		// 5秒待つ
 		try {
