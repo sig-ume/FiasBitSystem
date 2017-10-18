@@ -1,4 +1,4 @@
-package jp.sigre.fbs.selenium.trade;
+package jp.sigre.fbs.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,6 +21,8 @@ import au.com.bytecode.opencsv.bean.ColumnPositionMappingStrategy;
 import au.com.bytecode.opencsv.bean.CsvToBean;
 import jp.sigre.fbs.controller.SepaCombineBean;
 import jp.sigre.fbs.log.LogMessage;
+import jp.sigre.fbs.selenium.trade.IniBean;
+import jp.sigre.fbs.selenium.trade.TradeDataBean;
 
 /**
  * @author sigre

@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.List;
 
 import jp.sigre.fbs.log.LogMessage;
-import jp.sigre.fbs.selenium.trade.FileUtils;
+import jp.sigre.fbs.utils.FileUtils;
 import jp.sigre.fbs.selenium.trade.TradeDataBean;
 
 /**
