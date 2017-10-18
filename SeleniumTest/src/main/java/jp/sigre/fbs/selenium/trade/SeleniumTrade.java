@@ -21,6 +21,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import jp.sigre.fbs.database.ConnectDB;
 import jp.sigre.fbs.log.LogMessage;
+import jp.sigre.fbs.utils.FileUtils;
 
 public class SeleniumTrade {
 

@@ -11,6 +11,7 @@ import java.util.List;
 import jp.sigre.fbs.database.ConnectDB;
 import jp.sigre.fbs.digest.Digest;
 import jp.sigre.fbs.log.LogMessage;
+import jp.sigre.fbs.utils.FileUtils;
 
 /**
  * @author sigre
