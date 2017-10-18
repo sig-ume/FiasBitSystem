@@ -8,6 +8,7 @@ import java.util.List;
 
 import jp.sigre.fbs.database.ConnectDB;
 import jp.sigre.fbs.log.LogMessage;
+import jp.sigre.fbs.utils.FileUtils;
 
 /**
  * @author sigre
@@ -31,15 +32,17 @@ public class TradeConsistency {
 
 		if (!checkCodeConsistency(dbList, sbiList)) {
 			if (dbList.size()!=0) {
-				log.writelnLog("DBにSBIで所有していない株のレコードがあります。");
+				log.writelnLog("!!!!DBにSBIで所有していない株のレコードがあります。!!!!");
 				for (TradeDataBean bean : dbList) {
-					log.writelnLog(bean.toString());
+					String message = "銘柄コード; " + bean.getCode() + ", 株数: " + bean.getRealEntryVolume();
+					log.writelnLog(message);
 				}
 			}
 			if (sbiList.size()!=0) {
 				log.writelnLog("SBIにDBで所有していない株のレコードがあります。");
 				for (TradeDataBean bean : sbiList) {
-					log.writelnLog(bean.toString());
+					String message = "銘柄コード; " + bean.getCode() + ", 株数: " + bean.getRealEntryVolume();
+					log.writelnLog(message);
 				}
 			}
 		} else log.writelnLog("SBIとDBの間で情報の齟齬はありませんでした。");
@@ -64,9 +67,11 @@ public class TradeConsistency {
 
 		if (!checkCodeMethodsConsistency(dbList, fiaList)) {
 			if (dbList.size()!=0) {
-				log.writelnLog("DBにfiaで所有していない株のレコードがあります。");
+				log.writelnLog("!!!!DBにfiaで所有していない株のレコードがあります。!!!!!");
 				for (TradeDataBean bean : dbList) {
-					log.writelnLog(bean.toString());
+					String message = "銘柄コード; " + bean.getCode() + ", entryMethod: " + bean.getEntryMethod() +
+							", exitMethod: " + bean.getExitMethod();
+					log.writelnLog(message);
 				}
 			}
 
@@ -86,6 +91,26 @@ public class TradeConsistency {
 					list2.remove(j);
 					j--;
 					break;
+				}
+
+				String code1 = bean1.getCode();
+				String code2 = bean2.getCode();
+				boolean sameCode = code1.equals(code2);
+
+				if (sameCode) {
+					int int1 = Integer.parseInt(bean1.getRealEntryVolume());
+					int int2 = Integer.parseInt(bean2.getRealEntryVolume());
+					if (int1 > int2) {
+						String volume = String.valueOf(int1 - int2);
+						bean1.setRealEntryVolume(volume);
+						bean1.setCorrectedEntryVolume(volume);
+						list2.remove(bean2);
+					} else {
+						String volume = String.valueOf(int1 - int2);
+						bean2.setRealEntryVolume(volume);
+						bean2.setCorrectedEntryVolume(volume);
+						list1.remove(bean1);
+					}
 				}
 			}
 		}
