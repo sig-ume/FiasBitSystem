@@ -2,7 +2,7 @@ package jp.sigre.fbs.log;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import jp.sigre.fbs.selenium.trade.FileUtils;
+import jp.sigre.fbs.utils.FileUtils;
 
 /**
  * @author sigre
