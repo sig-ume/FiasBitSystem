@@ -8,9 +8,9 @@ import java.util.List;
 
 import jp.sigre.fbs.database.ConnectDB;
 import jp.sigre.fbs.log.LogMessage;
-import jp.sigre.fbs.selenium.trade.FileUtils;
 import jp.sigre.fbs.selenium.trade.IniBean;
 import jp.sigre.fbs.selenium.trade.TradeDataBean;
+import jp.sigre.fbs.utils.FileUtils;
 
 /**
  * @author sigre
@@ -25,11 +25,7 @@ public class DataController {
 
 	}
 
-	public void setIniBean(IniBean iniBean) {
-		this.iniBean = iniBean;
-	}
-
-	public void updateSepaCombine() {
+	public boolean updateSepaCombine() {
 
 		//TODO;分割銘柄が割り切れない場合は？
 
@@ -39,7 +35,7 @@ public class DataController {
 
 		if (iniBean==null) {
 			log.writelnLog("Iniファイルが設定されていません。");
-			return;
+			return false;
 		}
 
 		FileUtils file = new FileUtils();
@@ -48,21 +44,26 @@ public class DataController {
 
 		if (!sepaComFile.exists()) {
 			log.writelnLog("分割併合ファイルがありません。");
-			return;
+			return false;
 		}
 
 		List<SepaCombineBean> sepaComList = new FileUtils().csvToSepaCombine(strSepaComFilePath);
 
+		if (sepaComList == null) {
+			log.writelnLog("おそらく分割併合ファイルの形式が不正です。");
+			return false;
+		}
+
 		if (sepaComList.size()==0) {
 			log.writelnLog("分割併合銘柄がありません。");
-			return;
+			return false;
 		}
 
 		ConnectDB db = new ConnectDB();
 		db.connectStatement();
 
 		for (SepaCombineBean bean : sepaComList) {
-			TradeDataBean tradeBean = db.getTradeViewOfCode(String.valueOf(bean.getCode()));
+			TradeDataBean tradeBean = db.getTradeViewOfCode(bean.getCode());
 			tradeBean.setDayTime(file.getTodayDate());
 			tradeBean.setEntry_money("0");
 			tradeBean.setEntryMethod(WILDCARD);
@@ -71,12 +72,19 @@ public class DataController {
 
 			int realEntryVolume = Integer.parseInt(tradeBean.getRealEntryVolume());
 
-			int flag = bean.getChecksepa_combine();
+			int flag = Integer.parseInt(bean.getChecksepa_combine());
+			double ratio = Double.parseDouble(bean.getAjustRate());
 
-			//int sepaComVolume = bean.getChecksepa_combine()==1? realEntryVolume * ()
+			//0:combine, 1:separate
+			double sepaComVolume = flag==1? realEntryVolume * (ratio - 1) : -1 * realEntryVolume * (ratio - 1) / ratio;
 
-			//tradeBean.setRealEntryVolume(realEntryVolume);
+			String strSepaComVolume = String.valueOf(sepaComVolume);
+			tradeBean.setRealEntryVolume(strSepaComVolume);
+
+			db.insertTradeData(tradeBean);
 
 		}
+
+		return true;
 	}
 }
