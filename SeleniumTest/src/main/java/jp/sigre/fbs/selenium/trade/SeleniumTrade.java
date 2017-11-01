@@ -350,6 +350,7 @@ public class SeleniumTrade {
 		db.closeStatement();
 	}
 
+	//TODO：端数への振替をWildcardに
 	private void hurikaeHasuu(int hasuu, TradeDataBean firstBean) {
 		ConnectDB db = new ConnectDB();
 
