@@ -507,7 +507,7 @@ public class SeleniumTrade {
 
 		driver.findElement(By.cssSelector("img[alt=\"取引\"]")).click();
 
-		driver.findElement(By.linkText("単元未満株（S株）")).click();
+		driver.findElement(By.linkText("単元未満株")).click();
 		//買い：genK、売り：genU
 		if (isBuying) 	driver.findElement(By.id("genK")).click();
 		else			driver.findElement(By.id("genU")).click();
