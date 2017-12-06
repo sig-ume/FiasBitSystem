@@ -4,6 +4,7 @@
 package jp.sigre.fbs.selenium.trade;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import jp.sigre.fbs.database.ConnectDB;
@@ -50,7 +51,7 @@ public class TradeConsistency {
 
 	public void checkDbAndFiaKeep(String strLsFolderPath) {
 		LogMessage log = new LogMessage();
-		log.writelnLog("fiaとDB間で所有している株の齟齬がないか確認します。");
+		log.writelnLog("fia保有銘柄とあなたが保有中の銘柄で所有している株の齟齬がないか確認します。");
 
 		ConnectDB db = new ConnectDB();
 		db.connectStatement();
@@ -61,7 +62,7 @@ public class TradeConsistency {
 
 		if (!new File(strKeepFile).exists()) {
 			log.writelnLog("keepファイルが存在しません。");
-
+			return;
 		}
 		List<TradeDataBean> fiaList = file.csvToFiaKeep(strKeepFile);
 
@@ -75,7 +76,47 @@ public class TradeConsistency {
 				}
 			}
 
-		} else log.writelnLog("fiaとDBの間で情報の齟齬はありませんでした。");
+		} else log.writelnLog("fia保有銘柄とDBの間で情報の齟齬はありませんでした。");
+	}
+
+	public List<TradeDataBean> checkDbAndFiaElite(String strLsFolderPath) {
+		LogMessage log = new LogMessage();
+		log.writelnLog("fia登録銘柄とあなたが保有中の銘柄で所有している株の齟齬がないか確認します。");
+
+		ConnectDB db = new ConnectDB();
+		db.connectStatement();
+		List<TradeDataBean> dbList = db.getTradeViewOfCodeMethods();
+
+		FileUtils file = new FileUtils();
+		String strEliteFile = file.getFiaEliteFilePath(strLsFolderPath);
+
+		if (!new File(strEliteFile).exists()) {
+
+			log.writelnLog("Eliteファイル(" + strEliteFile + ")が存在しません。");
+			return new ArrayList<>();
+		}
+
+		List<TradeDataBean> fiaList = file.csvToFiaElite(strEliteFile);
+
+		if (fiaList.size()==0) return new ArrayList<>();
+
+		for (TradeDataBean bean : fiaList) {
+			bean.setCode(bean.getCode().substring(0, 4));
+		}
+
+		if (!checkCodeMethodsConsistency(dbList, fiaList)) {
+			if (dbList.size()!=0) {
+				log.writelnLog("!!!!DBにfiaで登録されていない株のレコードがあります。!!!!!");
+				for (TradeDataBean bean : dbList) {
+					String message = "銘柄コード; " + bean.getCode() + ", entryMethod: " + bean.getEntryMethod() +
+							", exitMethod: " + bean.getExitMethod();
+					log.writelnLog(message);
+				}
+			}
+
+		} else log.writelnLog("fia登録銘柄とDBの間で情報の齟齬はありませんでした。");
+
+		return dbList;
 	}
 
 	private boolean checkCodeConsistency(List<TradeDataBean> list1, List<TradeDataBean> list2) {

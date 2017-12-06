@@ -13,6 +13,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import jp.sigre.fbs.controller.SepaCombineBean;
+import jp.sigre.fbs.selenium.trade.TradeDataBean;
 
 public class FileUtilsTest {
 
@@ -36,6 +37,43 @@ public class FileUtilsTest {
 	public void tearDown() throws Exception {
 	}
 
+	@Test
+	public void testCsvToFiaElite_正常系() {
+		List<TradeDataBean> list = target.csvToFiaElite(folderPath + File.separator + "yyyy-mm-dd_order_STOCK_LIST_正常系.csv");
+
+		assertThat(list.size(), is(5));
+		TradeDataBean bean = list.get(0);
+
+		assertThat(bean.getCode(), is("1400_T"));
+		assertThat(bean.getType(), is("DD"));
+		assertThat(bean.getEntryMethod(), is("technique.Technique06.IDO_HEKIN_3_S"));
+		assertThat(bean.getExitMethod(), is("technique.Technique04.MACD_M_S_OVER0"));
+		assertThat(bean.getRealEntryVolume(), is(nullValue()));
+
+		bean = list.get(4);
+
+		assertThat(bean.getCode(), is("1716_T"));
+		assertThat(bean.getType(), is("DD"));
+		assertThat(bean.getEntryMethod(), is("technique.Technique06.IDO_HEKIN_3_S"));
+		assertThat(bean.getExitMethod(), is("technique.Technique04.MACD_M_S_OVER0"));
+		assertThat(bean.getRealEntryVolume(), is(nullValue()));
+
+	}
+
+	@Test
+	public void testCsvToFiaElite_データが空() {
+		List<TradeDataBean> list = target.csvToFiaElite(folderPath + File.separator + "yyyy-mm-dd_order_STOCK_LIST_データが空.csv");
+
+		assertThat(list.size(), is(0));
+	}
+
+	@Test
+	public void testCsvToFiaElite_ファイルが空() {
+		List<TradeDataBean> list = target.csvToFiaElite(folderPath + File.separator + "yyyy-mm-dd_order_STOCK_LIST_ファイルが空.csv");
+
+		assertThat(list.size(), is(0));
+	}
+
 //	@Test
 //	public void testCsvToTorihikiData() {
 //		fail("まだ実装されていません");
@@ -55,8 +93,8 @@ public class FileUtilsTest {
 	public void testCsvToSepaCombine_正常系() {
 		List<SepaCombineBean> list = target.csvToSepaCombine(folderPath + File.separator + "FBSsepaCombine_正常系.csv");
 
-		assertThat(list.size(), is(410));
-		SepaCombineBean bean = list.get(409);
+		assertThat(list.size(), is(39));
+		SepaCombineBean bean = list.get(39);
 
 		//"9967","0","5"
 		assertThat(bean.getCode(), is("9967"));

@@ -131,7 +131,9 @@ public class TradeController {
 		trade.login(strIdPath, tradeVisible);
 
 		//データ齟齬の確認
-		if (sFile.exists() && lFile.exists()) consistStock();
+		if (sFile.exists() && lFile.exists()) {
+			consistStock();
+		}
 
 		if (canBuy) {
 			tradeLong();
