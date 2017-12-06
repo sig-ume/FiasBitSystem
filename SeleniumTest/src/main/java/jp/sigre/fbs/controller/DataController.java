@@ -64,21 +64,31 @@ public class DataController {
 
 		for (SepaCombineBean bean : sepaComList) {
 			TradeDataBean tradeBean = db.getTradeViewOfCode(bean.getCode());
+			System.out.println(tradeBean.getRealEntryVolume());
+
+			if (tradeBean.getRealEntryVolume().equals("0")) continue;
+
 			tradeBean.setDayTime(file.getTodayDate());
 			tradeBean.setEntry_money("0");
 			tradeBean.setEntryMethod(WILDCARD);
 			tradeBean.setExitMethod(WILDCARD);
 			tradeBean.setMINI_CHECK_flg("2");
 
+			System.out.println(tradeBean.getCode() + " :" + tradeBean.getRealEntryVolume());
 			int realEntryVolume = Integer.parseInt(tradeBean.getRealEntryVolume());
 
 			int flag = Integer.parseInt(bean.getChecksepa_combine());
 			double ratio = Double.parseDouble(bean.getAjustRate());
 
 			//0:combine, 1:separate
-			double sepaComVolume = flag==1? realEntryVolume * (ratio - 1) : -1 * realEntryVolume * (ratio - 1) / ratio;
+			double sepaComVolume = 0;
+			if (flag==1) sepaComVolume = realEntryVolume * (ratio - 1);
+			else if (flag==0) sepaComVolume = -1 * (realEntryVolume - (realEntryVolume % ratio))  * (ratio - 1) / ratio - realEntryVolume % ratio;
+			else continue;
 
-			String strSepaComVolume = String.valueOf(sepaComVolume);
+			String strSepaComVolume = "";
+			if (sepaComVolume % 1 == 0)  strSepaComVolume = String.valueOf((int)sepaComVolume);
+			else strSepaComVolume = String.valueOf(sepaComVolume);
 			tradeBean.setRealEntryVolume(strSepaComVolume);
 
 			db.insertTradeData(tradeBean);
