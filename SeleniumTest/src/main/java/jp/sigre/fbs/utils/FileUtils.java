@@ -93,6 +93,27 @@ public class FileUtils {
 		}
 	}
 
+	public List<TradeDataBean> csvToFiaElite(String filePath) {
+		final String[] HEADER = new String[] { "entryMethod", "exitMethod", "type", "code" };
+		CSVReader reader = null;
+		try {
+			reader = new CSVReader(new InputStreamReader(new FileInputStream(filePath), "SJIS"), ',', '"', 1);
+			ColumnPositionMappingStrategy<TradeDataBean> strat = new ColumnPositionMappingStrategy<>();
+			strat.setType(TradeDataBean.class);
+			strat.setColumnMapping(HEADER);
+			CsvToBean<TradeDataBean> csv = new CsvToBean<>();
+			return csv.parse(strat, reader);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			try {
+				reader.close();
+			} catch (IOException | NullPointerException e) {
+				new LogMessage().writelnLog(e.toString());
+			}
+		}
+	}
+
 	public List<SepaCombineBean> csvToSepaCombine(String filePath) {
 		final String[] HEADER = new String[] { "code", "checksepa_combine", "ajustRate" };
 		CSVReader reader = null;
@@ -357,6 +378,10 @@ public class FileUtils {
 
 	public String getFiaKeepFilePath(String strLsFolderPath) {
 		return strLsFolderPath + File.separator + getTodayDate() + "_fias_keep.csv";
+	}
+
+	public String getFiaEliteFilePath(String strLsFolderPath) {
+		return strLsFolderPath + File.separator + getTodayDate() + "_order_STOCK_LIST.csv";
 	}
 
 	public void deleteKeepFiles(String strLsFolderPath) {

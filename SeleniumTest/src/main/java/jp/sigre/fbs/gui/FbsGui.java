@@ -96,9 +96,9 @@ public class FbsGui extends JFrame implements ActionListener{
 
 		boolean resultSetup = trade.tradeSetup();
 
-		if (!resultSetup) return;
-
 		frame.setVisible(true);
+
+		if (!resultSetup) System.exit(0);;
 	}
 
 	@Override
