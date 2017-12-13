@@ -187,8 +187,12 @@ public class TradeController {
 	private void consistStock() {
 
 		TradeConsistency cons = new TradeConsistency();
-		cons.checkDbAndSbiStock(trade);
-		cons.checkDbAndFiaKeep(iniBean.getLS_FilePath());
+		List<TradeDataBean> keepList = cons.checkDbAndFiaKeep(iniBean.getLS_FilePath());
+		List<TradeDataBean> eliteList = cons.checkDbAndFiaElite(iniBean.getLS_FilePath());
+
+		List<List<TradeDataBean>> stockLists = cons.checkDbAndSbiStock(trade);
+
+
 	}
 
 	private void tradeLong() {

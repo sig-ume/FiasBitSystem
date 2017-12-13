@@ -30,6 +30,9 @@ public class DataControllerTest {
 
 	File iniFile = new File(fileUtils.getIniPath(basePath));
 	IniBean iniBean = fileUtils.iniToBean(iniFile);
+
+	String lsFolderPath = iniBean.getLS_FilePath();
+
 	DataController target;
 
 	static ConnectDB db = new ConnectDB();
@@ -70,25 +73,14 @@ public class DataControllerTest {
 		Files.copy(dbOrig, dbFile);
 	}
 
-	/**
-	 * {@link jp.sigre.fbs.controller.DataController#updateSepaCombine()} のためのテスト・メソッド。
-	 */
-	@Test
-	public final void testUpdateSepaCombine_iniBeanがNull() {
-		target = new DataController(null);
-		boolean result = target.updateSepaCombine();
-
-		assertThat(result, is(false));
-	}
-
 	@Test
 	public final void testUpdateSepaCombine_ファイルが空() throws IOException {
 
 		File file = new File(basePath + "\\test\\jp.sigre.fbs.controller\\FBSsepaCombine_ファイルが空.csv");
 		Files.copy(file, spFile);
 
-		target = new DataController(iniBean);
-		boolean result = target.updateSepaCombine();
+		target = new DataController();
+		boolean result = target.updateSepaCombine(lsFolderPath);
 
 		assertThat(result, is(false));
 	}
@@ -99,8 +91,8 @@ public class DataControllerTest {
 		File file = new File(basePath + "\\test\\jp.sigre.fbs.controller\\FBSsepaCombine_データが空.csv");
 		Files.copy(file, spFile);
 
-		target = new DataController(iniBean);
-		boolean result = target.updateSepaCombine();
+		target = new DataController();
+		boolean result = target.updateSepaCombine(lsFolderPath);
 
 		assertThat(result, is(false));
 	}
@@ -115,8 +107,8 @@ public class DataControllerTest {
 		assertThat(bef, is("203"));
 
 
-		target = new DataController(iniBean);
-		boolean result = target.updateSepaCombine();
+		target = new DataController();
+		boolean result = target.updateSepaCombine(lsFolderPath);
 
 		assertThat(result, is(true));
 		String aft = db.getTradeViewOfCode("2303").getRealEntryVolume();
@@ -137,8 +129,8 @@ public class DataControllerTest {
 		assertThat(bef, is("40"));
 		System.out.println("test" + bef);
 
-		target = new DataController(iniBean);
-		boolean result = target.updateSepaCombine();
+		target = new DataController();
+		boolean result = target.updateSepaCombine(lsFolderPath);
 
 		assertThat(result, is(true));
 		String aft = db.getTradeViewOfCode("2415").getRealEntryVolume();
@@ -162,8 +154,8 @@ public class DataControllerTest {
 		assertThat(bef, is("12"));
 		System.out.println("test" + bef);
 
-		target = new DataController(iniBean);
-		boolean result = target.updateSepaCombine();
+		target = new DataController();
+		boolean result = target.updateSepaCombine(lsFolderPath);
 
 		assertThat(result, is(true));
 		String aft = db.getTradeViewOfCode(code).getRealEntryVolume();
@@ -187,8 +179,8 @@ public class DataControllerTest {
 		assertThat(bef, is("206"));
 		System.out.println("test" + bef);
 
-		target = new DataController(iniBean);
-		boolean result = target.updateSepaCombine();
+		target = new DataController();
+		boolean result = target.updateSepaCombine(lsFolderPath);
 
 		assertThat(result, is(true));
 		String aft = db.getTradeViewOfCode(code).getRealEntryVolume();
@@ -212,8 +204,8 @@ public class DataControllerTest {
 		assertThat(bef, is("70"));
 		System.out.println("test" + bef);
 
-		target = new DataController(iniBean);
-		boolean result = target.updateSepaCombine();
+		target = new DataController();
+		boolean result = target.updateSepaCombine(lsFolderPath);
 
 		assertThat(result, is(true));
 		String aft = db.getTradeViewOfCode(code).getRealEntryVolume();

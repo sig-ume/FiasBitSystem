@@ -82,6 +82,8 @@ public class ConnectDB {
 		} catch (SQLException e1) {
 			closeStatement();
 			new LogMessage().writelnLog(e1.toString());
+		} finally {
+			closeStatement();
 		}
 		return null;
 	}
@@ -113,9 +115,12 @@ public class ConnectDB {
 		} catch (SQLException e1) {
 			closeStatement();
 			new LogMessage().writelnLog(e1.toString());
+		} finally {
+			closeStatement();
 		}
 		return null;
 	}
+
 
 	/**
 	 * TradeViewOfCodeMethodビューから特定コード,売却メソッドのレコードリストを取得
@@ -135,9 +140,36 @@ public class ConnectDB {
 		} catch (SQLException e1) {
 			closeStatement();
 			new LogMessage().writelnLog(e1.toString());
+		} finally {
+			closeStatement();
 		}
 		return null;
 	}
+
+
+	/**
+	 * TradeViewOfCodeMethodビューから特定コード,売却メソッドのレコードリストを取得
+	 * （特定レコードの合計所有株数）
+	 * @param code
+	 * @return
+	 */
+	public List<TradeDataBean> getTradeViewOfCodeMethodsStockOrderAsc(String code) {
+		try {
+			con = getConnection();
+			String sql = "Select * From TradeViewOfCodeMethods WHERE code = ? Order By realEntryVolume asc;";
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, code);
+			ResultSet rs = pstmt.executeQuery();
+			return new ConvertCodeMethodsResultSet().convertTradeData(rs);
+		} catch (SQLException e1) {
+			closeStatement();
+			new LogMessage().writelnLog(e1.toString());
+		} finally {
+			closeStatement();
+		}
+		return null;
+	}
+
 
 	/**
 	 * TradeViewOfCodeMethodビューから特定コード,購入/売却メソッドのレコードを取得
@@ -167,7 +199,10 @@ public class ConnectDB {
 		} catch (SQLException e1) {
 			closeStatement();
 			new LogMessage().writelnLog(e1.toString());
+		} finally {
+			closeStatement();
 		}
+
 		return null;
 	}
 
@@ -184,7 +219,10 @@ public class ConnectDB {
 		} catch (SQLException e1) {
 			closeStatement();
 			new LogMessage().writelnLog(e1.toString());
+		} finally {
+			closeStatement();
 		}
+
 		return null;
 	}
 
@@ -205,7 +243,10 @@ public class ConnectDB {
 		} catch (SQLException e1) {
 			closeStatement();
 			new LogMessage().writelnLog(e1.toString());
+		} finally {
+			closeStatement();
 		}
+
 		return null;
 	}
 
@@ -237,7 +278,10 @@ public class ConnectDB {
 		} catch (SQLException e1) {
 			closeStatement();
 			new LogMessage().writelnLog(e1.toString());
+		} finally {
+			closeStatement();
 		}
+
 		return null;
 	}
 
@@ -270,7 +314,10 @@ public class ConnectDB {
 		} catch (SQLException e1) {
 			closeStatement();
 			new LogMessage().writelnLog(e1.toString());
+		} finally {
+			closeStatement();
 		}
+
 		return null;
 	}
 
@@ -290,7 +337,10 @@ public class ConnectDB {
 			pstmt.executeUpdate();
 		} catch (SQLException e1) {
 			new LogMessage().writelnLog(e1.toString());
+		} finally {
+			closeStatement();
 		}
+
 	}
 
 	private PreparedStatement getPrepStatementOfAllData(String sql, TradeDataBean info) throws SQLException {
@@ -333,6 +383,7 @@ public class ConnectDB {
 			closeStatement();
 		}
 		return null;
+
 	}
 
 	public int deleteAllData() {
@@ -349,6 +400,7 @@ public class ConnectDB {
 		}  finally {
 			closeStatement();
 		}
+
 		return 0;
 	}
 
@@ -377,6 +429,7 @@ public class ConnectDB {
 		}  finally {
 			closeStatement();
 		}
+
 		return 0;
 	}
 

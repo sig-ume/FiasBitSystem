@@ -571,8 +571,14 @@ public class SeleniumTrade {
 
 	public List<TradeDataBean> getSBIStock() {
 
-		driver.findElement(By.cssSelector("img[alt=\"ポートフォリオ\"]")).click();
-		//middleAreaM2
+		try {
+			driver.findElement(By.cssSelector("img[alt=\"ポートフォリオ\"]")).click();
+		} catch (NullPointerException e) {
+			log.writelnLog("おそらくインターネットに接続されていません。");
+			return new ArrayList<>();
+		}
+
+			//middleAreaM2
 		WebElement element = driver.findElement(By.className("middleAreaM2")).findElements(By.tagName("table")).get(5);
 
 		return getSBIStock(element);

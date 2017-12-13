@@ -8,7 +8,6 @@ import java.util.List;
 
 import jp.sigre.fbs.database.ConnectDB;
 import jp.sigre.fbs.log.LogMessage;
-import jp.sigre.fbs.selenium.trade.IniBean;
 import jp.sigre.fbs.selenium.trade.TradeDataBean;
 import jp.sigre.fbs.utils.FileUtils;
 
@@ -18,14 +17,10 @@ import jp.sigre.fbs.utils.FileUtils;
  */
 public class DataController {
 
-	private IniBean iniBean = null;
-
-	public DataController(IniBean iniBean) {
-		this.iniBean = iniBean;
-
+	public DataController() {
 	}
 
-	public boolean updateSepaCombine() {
+	public boolean updateSepaCombine(String lsFilePath) {
 
 		//TODO;分割銘柄が割り切れない場合は？
 
@@ -33,13 +28,8 @@ public class DataController {
 
 		LogMessage log = new LogMessage();
 
-		if (iniBean==null) {
-			log.writelnLog("Iniファイルが設定されていません。");
-			return false;
-		}
-
 		FileUtils file = new FileUtils();
-		String strSepaComFilePath = file.getSepaCombineFilePath(iniBean.getLS_FilePath());
+		String strSepaComFilePath = file.getSepaCombineFilePath(lsFilePath);
 		File sepaComFile = new File(strSepaComFilePath);
 
 		if (!sepaComFile.exists()) {
@@ -93,6 +83,89 @@ public class DataController {
 
 			db.insertTradeData(tradeBean);
 
+		}
+
+		return true;
+	}
+
+	public boolean updateDbAndSbiStock(List<List<TradeDataBean>> beanLists) {
+		ConnectDB db = new ConnectDB();
+		db.connectStatement();
+
+		List<TradeDataBean> dbList = beanLists.get(0);
+
+		//DBに過剰にキープされている銘柄の株数を減らす
+		for (TradeDataBean dbBean : dbList) {
+			int intStock = Integer.parseInt(dbBean.getRealEntryVolume());
+
+			//指定の銘柄のデータを取得
+			List<TradeDataBean> ascList = db.getTradeViewOfCodeMethodsStockOrderAsc(dbBean.getCode());
+
+			for (TradeDataBean ascBean : ascList) {
+
+				int intAscStock = Integer.parseInt(ascBean.getRealEntryVolume());
+
+				if (intStock <= intAscStock) {
+					ascBean.setRealEntryVolume("-" + String.valueOf(intStock));
+					ascBean.setCorrectedEntryVolume("-" + String.valueOf(intStock));
+
+					//取得した銘柄、メソッドから株数をマイナス
+					db.insertTradeData(ascBean);
+					break;
+				} else {
+					ascBean.setRealEntryVolume("-" + String.valueOf(intAscStock));
+					ascBean.setCorrectedEntryVolume("-" + String.valueOf(intAscStock));
+
+					//取得した銘柄、メソッドから株数をマイナス
+					db.insertTradeData(ascBean);
+
+					intStock -= intAscStock;
+				}
+			}
+
+		}
+
+		List<TradeDataBean> sbiList = beanLists.get(1);
+
+		String strToday = new FileUtils().getTodayDate();
+
+		for (TradeDataBean sbiBean : sbiList) {
+			//Beanの不足情報を追加。codeとRealEntryVoume以外。
+			sbiBean.setCorrectedEntryVolume(sbiBean.getRealEntryVolume());
+			sbiBean.setDayTime(strToday);
+			sbiBean.setEntry_money("0");
+			sbiBean.setEntryMethod("wildcard");
+			sbiBean.setExitMethod("wildcard");
+			sbiBean.setMINI_CHECK_flg("2");
+			sbiBean.setType("DD");
+
+			//DBに挿入
+			db.insertTradeData(sbiBean);
+		}
+
+		return true;
+
+	}
+
+	/**
+	 * FiaElite,Keepの齟齬（DBに過剰なデータがある）を修正する。
+	 * DBから特定の銘柄、メソッドの残高を0にする処理。
+	 *
+	 * @param beanList
+	 * @return
+	 */
+	public boolean updateDbAndFia(List<TradeDataBean> beanList) {
+
+		for (TradeDataBean bean : beanList) {
+			//株数をマイナスにして
+			bean.setRealEntryVolume("-" + bean.getRealEntryVolume());
+			bean.setCorrectedEntryVolume("-" + bean.getCorrectedEntryVolume());
+
+			//DBに挿入
+			ConnectDB db = new ConnectDB();
+			db.connectStatement();
+			db.insertTradeData(bean);
+			db.closeStatement();
 		}
 
 		return true;

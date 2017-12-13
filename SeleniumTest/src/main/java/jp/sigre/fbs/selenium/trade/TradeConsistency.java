@@ -20,8 +20,14 @@ public class TradeConsistency {
 	/**
 	 * SBIの所有株とDBの整合性確認
 	 * SBIログイン中のみ有効
+	 *
+	 * result(0): DBにSBIで所有していない株のレコードがあります
+	 * result(1): SBIにDBで所有していない株のレコードがあります。
 	 */
-	public void checkDbAndSbiStock(SeleniumTrade trade) {
+	public List<List<TradeDataBean>> checkDbAndSbiStock(SeleniumTrade trade) {
+
+		List<List<TradeDataBean>> result = new ArrayList<>();
+
 		LogMessage log = new LogMessage();
 		log.writelnLog("SBIとDB間で所有している株の齟齬がないか確認します。");
 
@@ -46,10 +52,18 @@ public class TradeConsistency {
 					log.writelnLog(message);
 				}
 			}
-		} else log.writelnLog("SBIとDBの間で情報の齟齬はありませんでした。");
+		} else {
+			log.writelnLog("SBIとDBの間で情報の齟齬はありませんでした。");
+			return result;
+		}
+
+		result.add(dbList);
+		result.add(sbiList);
+
+		return result;
 	}
 
-	public void checkDbAndFiaKeep(String strLsFolderPath) {
+	public List<TradeDataBean> checkDbAndFiaKeep(String strLsFolderPath) {
 		LogMessage log = new LogMessage();
 		log.writelnLog("fia保有銘柄とあなたが保有中の銘柄で所有している株の齟齬がないか確認します。");
 
@@ -62,7 +76,7 @@ public class TradeConsistency {
 
 		if (!new File(strKeepFile).exists()) {
 			log.writelnLog("keepファイルが存在しません。");
-			return;
+			return new ArrayList<>();
 		}
 		List<TradeDataBean> fiaList = file.csvToFiaKeep(strKeepFile);
 
@@ -77,6 +91,8 @@ public class TradeConsistency {
 			}
 
 		} else log.writelnLog("fia保有銘柄とDBの間で情報の齟齬はありませんでした。");
+
+		return dbList;
 	}
 
 	public List<TradeDataBean> checkDbAndFiaElite(String strLsFolderPath) {
@@ -147,7 +163,7 @@ public class TradeConsistency {
 						bean1.setCorrectedEntryVolume(volume);
 						list2.remove(bean2);
 					} else {
-						String volume = String.valueOf(int1 - int2);
+						String volume = String.valueOf(int2 - int1);
 						bean2.setRealEntryVolume(volume);
 						bean2.setCorrectedEntryVolume(volume);
 						list1.remove(bean1);
