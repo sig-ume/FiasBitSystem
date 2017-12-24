@@ -1,5 +1,8 @@
 package jp.sigre.fbs.timer;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.TimerTask;
 
 import jp.sigre.fbs.log.LogMessage;
@@ -40,6 +43,15 @@ public class FbsTimerTask extends TimerTask {
 			trade.makeBackupFile();
 			trade.deleteOtherFiles();
 		}
+
+		Calendar cal2 = Calendar.getInstance();
+		Date date = new Date();
+		cal2.setTime(date);
+		cal2.add(Calendar.MINUTE, 20);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+
+
+		new LogMessage().writelnLog("一連の処理を完了しました。次の動作は" + sdf.format(cal2.getTime()) + "頃です。");
 
 	}
 }

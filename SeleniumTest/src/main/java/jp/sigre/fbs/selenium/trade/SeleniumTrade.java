@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -32,7 +33,7 @@ public class SeleniumTrade {
 		log = new LogMessage();
 	}
 
-	public void login(String strFolderPath, String visible) {
+	public boolean login(String strFolderPath, String visible) {
 		FileUtils csv = new FileUtils();
 
 
@@ -48,7 +49,7 @@ public class SeleniumTrade {
 
 		if (geckoStream==null) {
 			log.writelnLog("geckoDriverが取得できません。");
-			System.exit(1);
+			return false;
 		}
 
 		ByteArrayOutputStream xxx = new ByteArrayOutputStream();
@@ -61,7 +62,8 @@ public class SeleniumTrade {
 			}
 		} catch (IOException e) {
 			// TODO 自動生成された catch ブロック
-			e.printStackTrace();
+			log.writelnLog(e.getMessage());
+			return false;
 		}
 
 		//System.out.println("サイズ; " + xxx.size());
@@ -101,11 +103,16 @@ public class SeleniumTrade {
 
 		element.click();
 
-		waitForSearch.until(ExpectedConditions.presenceOfElementLocated(By.id("logout")));
+		try {
+			waitForSearch.until(ExpectedConditions.presenceOfElementLocated(By.id("logout")));
+		} catch (TimeoutException e) {
+			log.writelnLog("ログインが失敗しました。インターネット接続、SBIサイトの状態をご確認ください。");
+			return false;
+		}
 
 		log.writelnLog("SBIへのログインが完了しました。");
 		System.out.println("Page title is: " + driver.getTitle());
-
+		return true;
 	}
 
 	public void logout() {
@@ -131,6 +138,8 @@ public class SeleniumTrade {
 	public List<TradeDataBean> getSellData(List<TradeDataBean> beanList) {
 		ConnectDB db = new ConnectDB();
 		db.connectStatement();
+
+		//beanList = removeUnusedWildcardBean(beanList);
 
 		//wildcard(按分)レコード用リスト。最後にbeanListに追加。
 		List<TradeDataBean> wildcardList = new ArrayList<>();
@@ -167,10 +176,10 @@ public class SeleniumTrade {
 		//wildcardをリストに追加
 		beanList.addAll(wildcardList);
 
-		//		System.out.println("売却用株リスト取得");
-		//		for (TradeDataBean bean : beanList) {
-		//			System.out.println(bean);
-		//		}
+		//重複削除。entry,exitMethodがwildcardな売却指示がファイルにある場合、
+		//上記の通常検索とwildcard検索で同じBeanが２つリストに含まれる
+		beanList = beanList.stream().distinct().collect(Collectors.toList());
+
 
 		db.closeStatement();
 
@@ -574,7 +583,7 @@ public class SeleniumTrade {
 		try {
 			driver.findElement(By.cssSelector("img[alt=\"ポートフォリオ\"]")).click();
 		} catch (NullPointerException e) {
-			log.writelnLog("おそらくインターネットに接続されていません。");
+			log.writelnLog("おそらくログインされていないかインターネットに接続されていません。");
 			return new ArrayList<>();
 		}
 

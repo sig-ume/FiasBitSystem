@@ -200,7 +200,7 @@ public class FileUtils {
 		return line.split("=")[1];
 	}
 
-	public void makeTradeDataFile(List<TradeDataBean> list, String outPath, boolean isBuying) {
+	public void makeRemainsDataFile(List<TradeDataBean> list, String outPath, boolean isBuying) {
 
 		String fileName = isBuying? "buy_remains.csv" : "sell_remains.csv";
 
@@ -221,8 +221,11 @@ public class FileUtils {
 	}
 
 	private void makeDataFile(List<TradeDataBean> list, String outPath, String fileName) {
-		writeFile("code,dayTime,type,entryMethod,exitMethod,MINI_CHECK_flg,"
-				+ "realEntryVolume,entry_money\n", outPath, fileName);
+
+		if (!new File(outPath + File.separator + fileName).exists()) {
+			writeFile("code,dayTime,type,entryMethod,exitMethod,MINI_CHECK_flg,"
+					+ "realEntryVolume,entry_money\n", outPath, fileName);
+		}
 
 		for (TradeDataBean bean : list) {
 			writeFile(bean.toCSV() + "\n", outPath, fileName);
@@ -230,7 +233,7 @@ public class FileUtils {
 	}
 
 
-	public void writeFile(String writing,String outPath, String fileName){
+	public void writeFile(String writing, String outPath, String fileName){
 
 		String logFilePath = outPath + File.separator + fileName;
 
@@ -406,6 +409,27 @@ public class FileUtils {
 
 	}
 
+	public void deleteEliteFiles(String strLsFolderPath) {
+		String regex = ".*\\d*-\\d*-\\d*_order_STOCK_LIST.csv";
+		Pattern p = Pattern.compile(regex);
+
+		LogMessage log = new LogMessage();
+
+		File lsFolder = new File(strLsFolderPath);
+		if (!lsFolder.isDirectory()) return;
+		for (File file : lsFolder.listFiles()) {
+			Matcher m = p.matcher(file.getName());
+			if (m.find()) {
+				if (!file.delete()) {
+					log.writelnLog("StockListファイルの削除に失敗しました。 " + file.getAbsolutePath());
+					return ;
+				} else {
+					log.writelnLog("StockListファイルを削除しました。" + file.getAbsolutePath());
+				}
+			}
+		}
+
+	}
 	public void backupDbFile(String strFolderPath) {
 		String dbFilePath = getDbFilePath(strFolderPath);
 
@@ -444,5 +468,11 @@ public class FileUtils {
 	public String getSepaCombineFilePath(String strFolderPath) {
 		return strFolderPath + File.separator + "FBSsepaCombine.csv";
 	}
+
+	public String getSepaComFilePath(String strFolderPath) {
+		// TODO 自動生成されたメソッド・スタブ
+		return strFolderPath + File.separator + "00_00_sepaComKakodata.csv";
+	}
+
 
 }

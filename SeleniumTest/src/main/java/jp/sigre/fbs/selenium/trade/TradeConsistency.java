@@ -75,7 +75,7 @@ public class TradeConsistency {
 		String strKeepFile = file.getFiaKeepFilePath(strLsFolderPath);
 
 		if (!new File(strKeepFile).exists()) {
-			log.writelnLog("keepファイルが存在しません。");
+			log.writelnLog("keepファイル(" + strKeepFile + ")が存在しません。");
 			return new ArrayList<>();
 		}
 		List<TradeDataBean> fiaList = file.csvToFiaKeep(strKeepFile);
@@ -204,14 +204,10 @@ public class TradeConsistency {
 				if (isSameCode && isSameEntry && isSameExit) {
 					list1.remove(i);
 					i--;
-					list2.remove(j);
-					j--;
 					break;
 				} else if (isSameCode && isWildEntry && isWildExit) {
 					list1.remove(i);
 					i--;
-					list2.remove(j);
-					j--;
 					break;
 				}
 			}

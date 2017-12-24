@@ -94,12 +94,12 @@ public class FileUtilsTest {
 		List<SepaCombineBean> list = target.csvToSepaCombine(folderPath + File.separator + "FBSsepaCombine_正常系.csv");
 
 		assertThat(list.size(), is(39));
-		SepaCombineBean bean = list.get(39);
+		SepaCombineBean bean = list.get(38);
 
 		//"9967","0","5"
-		assertThat(bean.getCode(), is("9967"));
-		assertThat(bean.getChecksepa_combine(), is("0"));
-		assertThat(bean.getAjustRate(), is("5"));
+		assertThat(bean.getCode(), is("2415"));
+		assertThat(bean.getChecksepa_combine(), is("1"));
+		assertThat(bean.getAjustRate(), is("2"));
 	}
 
 	@Test

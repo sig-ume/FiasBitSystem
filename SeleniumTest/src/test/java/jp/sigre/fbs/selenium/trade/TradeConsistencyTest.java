@@ -19,6 +19,13 @@ import com.google.common.io.Files;
 
 import jp.sigre.fbs.controller.DataController;
 
+
+/**
+ * DataControllerの齟齬修正メソッドをあわせてテスト
+ *
+ * @author sigre
+ *
+ */
 public class TradeConsistencyTest extends TradeConsistency {
 
 	String strLsFolderPath = "C:\\Users\\sigre\\git\\SeleniumTest\\SeleniumTest\\test\\jp.sigre.fbs.selenium.trade";
@@ -34,6 +41,8 @@ public class TradeConsistencyTest extends TradeConsistency {
 	File toElite = new File(strLsFolderPath + File.separator + toEliteName);
 	File toKeep = new File(strLsFolderPath + File.separator + toKeepName);
 	File db = new File(strDbPath + File.separator + "TradeInfo.sqlite");
+
+	DataController data = new DataController();
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -59,7 +68,7 @@ public class TradeConsistencyTest extends TradeConsistency {
 
 		Files.copy(fromDb, db);
 
-		List<TradeDataBean> result = checkDbAndFiaElite(strLsFolderPath);
+		List<TradeDataBean> result = checkDbAndFiaKeep(strLsFolderPath);
 
 		assertThat(result.size(), is(0));
 
@@ -74,20 +83,22 @@ public class TradeConsistencyTest extends TradeConsistency {
 		Files.copy(fromDb, db);
 
 		SeleniumTrade trade = new SeleniumTrade();
+		trade.login("C:\\Users\\sigre\\Dropbox\\idpassword", "0");
 		List<List<TradeDataBean>> result = checkDbAndSbiStock(trade);
 
 		assertThat(result.get(0).size(), is(not(0)));
 		assertThat(result.get(1).size(), is(not(0)));
 
-		DataController data = new DataController();
+		//以下、DataControllerのテスト
 		boolean isUpdated = data.updateDbAndSbiStock(result);
 		assertThat(isUpdated, is(true));
 
 		result = checkDbAndSbiStock(trade);
 
 
-		assertThat(result.get(0).size(), is(0));
-		assertThat(result.get(1).size(), is(0));
+		assertThat(result.size(), is(0));
+
+		trade.logout();
 	}
 
 	@Test

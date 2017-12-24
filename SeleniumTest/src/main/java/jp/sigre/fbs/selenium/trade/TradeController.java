@@ -6,8 +6,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
+import jp.sigre.fbs.controller.DataController;
 import jp.sigre.fbs.database.ConnectDB;
 import jp.sigre.fbs.digest.Digest;
 import jp.sigre.fbs.log.LogMessage;
@@ -23,6 +25,8 @@ public class TradeController {
 	private final String basePath = System.getProperty("user.dir");
 
 	private final LogMessage log = new LogMessage(basePath);
+
+	//TODO:以下のグローバル引数を削除
 
 	private IniBean iniBean = null;
 	private String strLsPath;
@@ -95,6 +99,24 @@ public class TradeController {
 		strIdPath = iniBean.getID_FilePath();
 		tradeVisible = iniBean.getTradeVisible();
 
+		String strBunkatsuFilePath = fileUtils.getSepaComFilePath(strLsPath);
+		File bunkatsuFile = new File(strBunkatsuFilePath);
+
+		Calendar cal = Calendar.getInstance();
+		int hour = cal.get(Calendar.HOUR_OF_DAY);
+
+		if (!bunkatsuFile.exists()) log.writelnLog("分割併合処理はありません。");
+		else if(hour >= 18 || hour <= 10) {
+			log.writelnLog("分割併合があります。株数を修正後に売買を開始します。");
+
+			//分割併合処理
+			if(new DataController().updateSepaCombine(strLsPath)) log.writelnLog("分割併合処理が成功しました。");
+			else log.writelnLog("分割併合処理が失敗しました。");
+		} else {
+			log.writelnLog("分割併合銘柄があります。売買可能となる18時まで処理を制限します。");
+			return false;
+		}
+
 		String strFilePath = fileUtils.getLFilePath(strLsPath);
 
 		File lFile = new File(strFilePath);
@@ -128,12 +150,15 @@ public class TradeController {
 		log.writelnLog("KICKファイルを確認しました。");
 
 		//Login処理
-		trade.login(strIdPath, tradeVisible);
+		boolean isLogined = trade.login(strIdPath, tradeVisible);
+
+		if (!isLogined) {
+			log.writelnLog("ログインに失敗しました。");
+			return false;
+		}
 
 		//データ齟齬の確認
-		if (sFile.exists() && lFile.exists()) {
-			consistStock();
-		}
+		consistStock();
 
 		if (canBuy) {
 			tradeLong();
@@ -153,6 +178,34 @@ public class TradeController {
 
 		return true;
 	}
+
+	/**
+	 * TODO : tradeメソッドのログイン部分をこれで共通化
+	 * @return
+	 */
+	public boolean login() {
+
+		strLsPath = iniBean.getLS_FilePath();
+		strIdPath = iniBean.getID_FilePath();
+		tradeVisible = iniBean.getTradeVisible();
+		//Login処理
+		boolean isLogined = trade.login(strIdPath, tradeVisible);
+
+		if (!isLogined) {
+			log.writelnLog("ログインに失敗しました。");
+			return false;
+		}
+		return true;
+	}
+
+	public boolean logout() {
+
+		trade.logout();
+
+		return true;
+	}
+
+
 
 	private void atoshimatsuShort() {
 
@@ -184,15 +237,32 @@ public class TradeController {
 	}
 
 
-	private void consistStock() {
+	public void consistStock() {
 
 		TradeConsistency cons = new TradeConsistency();
-		List<TradeDataBean> keepList = cons.checkDbAndFiaKeep(iniBean.getLS_FilePath());
-		List<TradeDataBean> eliteList = cons.checkDbAndFiaElite(iniBean.getLS_FilePath());
+		DataController data = new DataController();
+		String strLsPath = iniBean.getLS_FilePath();
 
 		List<List<TradeDataBean>> stockLists = cons.checkDbAndSbiStock(trade);
+		if(stockLists.size() > 0) data.updateDbAndSbiStock(stockLists);
 
+		List<TradeDataBean> keepList = cons.checkDbAndFiaKeep(strLsPath);
+		if(keepList.size() > 0)	{
+			keepList = data.updateDbAndFia(keepList);
+			fileUtils.makeRemainsDataFile(keepList, strLsPath, false);
+			log.writelnLog("fias上で保有していない銘柄を保有しているため、自動的に売却を行います。");
+			for (TradeDataBean bean : keepList) log.writelnLog("銘柄:" + bean.getCode() + ", entryMethod:"
+			+ bean.getEntryMethod() + ", exitMethod:" + bean.getExitMethod());
+		}
 
+		List<TradeDataBean> eliteList = cons.checkDbAndFiaElite(strLsPath);
+		if(eliteList.size() > 0) {
+			eliteList = data.updateDbAndFia(eliteList);
+			fileUtils.makeRemainsDataFile(eliteList, strLsPath, false);
+			log.writelnLog("fias上で未登録な銘柄を保有しているため、自動的に売却を行います。");
+			for (TradeDataBean bean : keepList) log.writelnLog("銘柄:" + bean.getCode() + ", entryMethod:"
+			+ bean.getEntryMethod() + ", exitMethod:" + bean.getExitMethod());
+		}
 	}
 
 	private void tradeLong() {
@@ -233,7 +303,7 @@ public class TradeController {
 			fileUtils.removeTradeDataFile(strLsPath, true);
 
 			//バックアプファイル作成
-			fileUtils.makeTradeDataFile(failedList, strLsPath, true);
+			fileUtils.makeRemainsDataFile(failedList, strLsPath, true);
 
 			log.writelnLog("売買失敗件数：" + failedList.size());
 		} else {
@@ -285,7 +355,7 @@ public class TradeController {
 			log.writelnLog("のこってるよー");
 			fileUtils.removeTradeDataFile(strLsPath, false);
 
-			fileUtils.makeTradeDataFile(failedList, strLsPath, false);
+			fileUtils.makeRemainsDataFile(failedList, strLsPath, false);
 
 			log.writelnLog("売買失敗件数：" + failedList.size());
 		} else {
@@ -441,7 +511,7 @@ public class TradeController {
 			log.writelnLog("のこってるよー");
 			fileUtils.removeTradeDataFile(strLsPath, false);
 
-			fileUtils.makeTradeDataFile(failedList, strLsPath, false);
+			fileUtils.makeRemainsDataFile(failedList, strLsPath, false);
 
 		} else {
 			fileUtils.removeTradeDataFile(strLsPath, true);
@@ -521,7 +591,9 @@ public class TradeController {
 
 		log.writelnLog("Keepファイルを削除します");
 		fileUtils.deleteKeepFiles(iniBean.getLS_FilePath());
-		log.writelnLog("Keepファイルを削除しました。");
+
+		log.writelnLog("StockListファイルを削除します");
+		fileUtils.deleteEliteFiles(iniBean.getLS_FilePath());
 
 		if (canBuy || canSell) {
 			log.writelnLog("LSファイル、remainsファイルが残っています。");

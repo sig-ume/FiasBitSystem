@@ -17,6 +17,8 @@ import jp.sigre.fbs.utils.FileUtils;
  */
 public class DataController {
 
+	LogMessage log = new LogMessage();
+
 	public DataController() {
 	}
 
@@ -89,10 +91,15 @@ public class DataController {
 	}
 
 	public boolean updateDbAndSbiStock(List<List<TradeDataBean>> beanLists) {
+
 		ConnectDB db = new ConnectDB();
 		db.connectStatement();
 
 		List<TradeDataBean> dbList = beanLists.get(0);
+
+
+
+		String strToday = new FileUtils().getTodayDate();
 
 		//DBに過剰にキープされている銘柄の株数を減らす
 		for (TradeDataBean dbBean : dbList) {
@@ -107,14 +114,24 @@ public class DataController {
 
 				if (intStock <= intAscStock) {
 					ascBean.setRealEntryVolume("-" + String.valueOf(intStock));
-					ascBean.setCorrectedEntryVolume("-" + String.valueOf(intStock));
+					ascBean.setCorrectedEntryVolume(ascBean.getRealEntryVolume());
+
+					ascBean.setDayTime(strToday);
+					ascBean.setEntry_money("0");
+					ascBean.setMINI_CHECK_flg("2");
+					ascBean.setType("DD");
 
 					//取得した銘柄、メソッドから株数をマイナス
 					db.insertTradeData(ascBean);
 					break;
 				} else {
 					ascBean.setRealEntryVolume("-" + String.valueOf(intAscStock));
-					ascBean.setCorrectedEntryVolume("-" + String.valueOf(intAscStock));
+					ascBean.setCorrectedEntryVolume(ascBean.getRealEntryVolume());
+
+					ascBean.setDayTime(strToday);
+					ascBean.setEntry_money("0");
+					ascBean.setMINI_CHECK_flg("2");
+					ascBean.setType("DD");
 
 					//取得した銘柄、メソッドから株数をマイナス
 					db.insertTradeData(ascBean);
@@ -126,8 +143,6 @@ public class DataController {
 		}
 
 		List<TradeDataBean> sbiList = beanLists.get(1);
-
-		String strToday = new FileUtils().getTodayDate();
 
 		for (TradeDataBean sbiBean : sbiList) {
 			//Beanの不足情報を追加。codeとRealEntryVoume以外。
@@ -149,25 +164,30 @@ public class DataController {
 
 	/**
 	 * FiaElite,Keepの齟齬（DBに過剰なデータがある）を修正する。
-	 * DBから特定の銘柄、メソッドの残高を0にする処理。
+	 * DBから特定の銘柄、メソッドを売却する
 	 *
 	 * @param beanList
 	 * @return
 	 */
-	public boolean updateDbAndFia(List<TradeDataBean> beanList) {
+	public List<TradeDataBean> updateDbAndFia(List<TradeDataBean> beanList) {
 
+		String strToday = new FileUtils().getTodayDate();
 		for (TradeDataBean bean : beanList) {
 			//株数をマイナスにして
-			bean.setRealEntryVolume("-" + bean.getRealEntryVolume());
-			bean.setCorrectedEntryVolume("-" + bean.getCorrectedEntryVolume());
+			bean.setDayTime(strToday);
+			bean.setEntry_money("0");
+			bean.setMINI_CHECK_flg("2");
+			bean.setType("DD");
 
-			//DBに挿入
-			ConnectDB db = new ConnectDB();
-			db.connectStatement();
-			db.insertTradeData(bean);
-			db.closeStatement();
+//			//DBに挿入
+//			ConnectDB db = new ConnectDB();
+//			db.connectStatement();
+//			db.insertTradeData(bean);
+//			db.closeStatement();
 		}
 
-		return true;
+
+		return beanList;
 	}
+
 }
