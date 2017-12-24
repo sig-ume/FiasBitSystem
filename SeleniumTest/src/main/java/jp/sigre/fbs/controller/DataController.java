@@ -4,6 +4,8 @@
 package jp.sigre.fbs.controller;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 import jp.sigre.fbs.database.ConnectDB;
@@ -179,15 +181,39 @@ public class DataController {
 			bean.setMINI_CHECK_flg("2");
 			bean.setType("DD");
 
-//			//DBに挿入
-//			ConnectDB db = new ConnectDB();
-//			db.connectStatement();
-//			db.insertTradeData(bean);
-//			db.closeStatement();
 		}
 
 
 		return beanList;
+	}
+
+	public String moveTempTradeData(Calendar nowCal) {
+		int hour = nowCal.get(Calendar.HOUR_OF_DAY);
+		Calendar exeCal = Calendar.getInstance();
+
+		if (hour >= 13) {
+			exeCal.set(Calendar.HOUR_OF_DAY, 10);
+		} else if (hour >= 10) {
+			exeCal.add(Calendar.DAY_OF_MONTH, -1);
+			exeCal.set(Calendar.HOUR_OF_DAY, 21);
+		} else return "";
+
+		exeCal.set(Calendar.MINUTE, 30);
+		exeCal.set(Calendar.SECOND, 0);
+		exeCal.set(Calendar.MILLISECOND, 0);
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		String borderDate = sdf.format(exeCal.getTime());
+
+		ConnectDB db = new ConnectDB();
+		db.connectStatement();
+		int count = db.moveTempTradeData(borderDate);
+		db.deleteAllTempTradeData();
+		db.closeStatement();
+
+		log.writelnLog(borderDate + "以前の取引(" + count + "件)を保有株数へ反映しました。");
+
+		return borderDate;
 	}
 
 }

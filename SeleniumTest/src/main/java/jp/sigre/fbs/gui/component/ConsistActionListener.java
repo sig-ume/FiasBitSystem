@@ -5,7 +5,9 @@ package jp.sigre.fbs.gui.component;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Calendar;
 
+import jp.sigre.fbs.controller.DataController;
 import jp.sigre.fbs.selenium.trade.TradeController;
 
 /**
@@ -19,6 +21,9 @@ public class ConsistActionListener implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
+
+		new DataController().moveTempTradeData(Calendar.getInstance());
+
 		TradeController trade = new TradeController();
 		trade.tradeSetup();
 		trade.login();

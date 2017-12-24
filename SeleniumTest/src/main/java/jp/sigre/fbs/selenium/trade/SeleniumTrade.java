@@ -351,8 +351,8 @@ public class SeleniumTrade {
 			minusBean.setRealEntryVolume("-" + minusBean.getRealEntryVolume());
 			minusBean.setCorrectedEntryVolume("-" + minusBean.getCorrectedEntryVolume());
 
-			db.insertTradeData(minusBean);
-			db.insertTradeData(plusBean);
+			db.insertTempTradeData(minusBean);
+			db.insertTempTradeData(plusBean);
 
 		}
 
@@ -375,8 +375,8 @@ public class SeleniumTrade {
 		minusBean.setRealEntryVolume("-" + strHasuu);
 		minusBean.setCorrectedEntryVolume("-" + strHasuu);
 
-		db.insertTradeData(minusBean);
-		db.insertTradeData(plusBean);
+		db.insertTempTradeData(minusBean);
+		db.insertTempTradeData(plusBean);
 
 		db.closeStatement();
 
@@ -414,10 +414,10 @@ public class SeleniumTrade {
 					bean.setRealEntryVolume		(String.valueOf(Integer.parseInt(bean.getRealEntryVolume())	*-1));
 				}
 
-				ConnectDB connect = new ConnectDB();
-				connect.connectStatement();
-				connect.insertTradeData(bean);
-				connect.closeStatement();
+				ConnectDB db = new ConnectDB();
+				db.connectStatement();
+				db.insertTempTradeData(bean);
+				db.closeStatement();
 
 			} else {
 				failedTradeList.add(bean);
@@ -483,10 +483,10 @@ public class SeleniumTrade {
 					bean.setRealEntryVolume		(String.valueOf(Integer.parseInt(bean.getRealEntryVolume())	*-1));
 				}
 
-				ConnectDB connect = new ConnectDB();
-				connect.connectStatement();
-				connect.insertTradeData(bean);
-				connect.closeStatement();
+				ConnectDB db = new ConnectDB();
+				db.connectStatement();
+				db.insertTempTradeData(bean);
+				db.closeStatement();
 
 			} else {
 

@@ -19,6 +19,8 @@ import jp.sigre.fbs.selenium.trade.TradeDataBean;
 public class ConnectDB {
 	private Connection con;
 	private Statement stmt;
+	private final String TRADE_DATA_TABLE = "TradeData";
+	private final String TRADE_TEMP_TABLE = "TempTradeData";
 
 	/**
 	 * 実質、接続テスト用
@@ -63,6 +65,33 @@ public class ConnectDB {
 		} catch (SQLException e1) {
 			new LogMessage().writelnLog(e1.toString());
 		}
+	}
+
+	public List<TradeDataBean> getTradeData() {
+		return getTradeData_(TRADE_DATA_TABLE);
+	}
+
+	public List<TradeDataBean> getTempTradeData() {
+		return getTradeData_(TRADE_TEMP_TABLE);
+	}
+
+	private List<TradeDataBean> getTradeData_(String tableName) {
+		try {
+			con = getConnection();
+			String sql = "Select * From " + tableName + ";";
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			ResultSet rs = pstmt.executeQuery();
+
+			return new ConvertCodeResultSet().convertTradeData(rs);
+
+		} catch (SQLException e1) {
+			closeStatement();
+			new LogMessage().writelnLog(e1.toString());
+		} finally {
+			closeStatement();
+		}
+		return null;
+
 	}
 
 	/**
@@ -321,6 +350,30 @@ public class ConnectDB {
 		return null;
 	}
 
+	public int moveTempTradeData(String borderDate) {
+
+		String sql = "INSERT INTO " + TRADE_DATA_TABLE + "(code, dayTime, type, entryMethod, exitMethod, "
+				+ "MINI_CHECK_flg, realEntryVolume, entry_money, correctedEntryVolume) "
+				+ "SELECT code, dayTime, type, entryMethod, exitMethod, MINI_CHECK_flg, realEntryVolume, entry_money, "
+				+ "correctedEntryVolume FROM TempTradeData WHERE timeStamp <= '" + borderDate + "';";
+		System.out.println(sql);
+
+		int result = 0;
+
+		try {
+			con = getConnection();
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			result = pstmt.executeUpdate();
+		} catch (SQLException e) {
+			new LogMessage().writelnLog(e.toString());
+			return 0;
+		} finally {
+			closeStatement();
+		}
+
+		return result;
+
+	}
 
 	/**
 	 * 商品を1件DBにInsertする
@@ -328,9 +381,27 @@ public class ConnectDB {
 	 * @return 更新件数
 	 */
 	public void insertTradeData(TradeDataBean info) {
+
+		insertTrade(info, TRADE_DATA_TABLE);
+
+	}
+
+	/**
+	 * 商品を1件TempDBにInsertする
+	 * @param info
+	 * @return 更新件数
+	 */
+	public void insertTempTradeData(TradeDataBean info) {
+
+		insertTrade(info, TRADE_TEMP_TABLE);
+
+	}
+
+	private void insertTrade(TradeDataBean info, String tableName) {
 		try {
 			con = getConnection();
-			String sql =  "INSERT INTO TradeData (code, dayTime, type, entryMethod, exitMethod, MINI_CHECK_flg, realEntryVolume, "
+			String sql =  "INSERT INTO " + tableName + " (code, dayTime, type, entryMethod, exitMethod, "
+					+ "MINI_CHECK_flg, realEntryVolume, "
 					+ "entry_money, correctedEntryVolume) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
 			PreparedStatement pstmt = getPrepStatementOfAllData(sql, info);
 
@@ -386,11 +457,19 @@ public class ConnectDB {
 
 	}
 
-	public int deleteAllData() {
+	public int deleteAllTradeData() {
+		return deleteAllData(TRADE_DATA_TABLE);
+	}
+
+	public int deleteAllTempTradeData() {
+		return deleteAllData(TRADE_TEMP_TABLE);
+	}
+
+	private int deleteAllData(String tableName) {
 
 		try {
 			con = getConnection();
-			String sql = "DELETE FROM TradeData;";
+			String sql = "DELETE FROM " + tableName + ";";
 			PreparedStatement pstmt = con.prepareStatement(sql);
 			//DELETE文を実行する
             return pstmt.executeUpdate();

@@ -5,6 +5,9 @@ import static org.hamcrest.MatcherAssert.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -16,6 +19,7 @@ import com.google.common.io.Files;
 
 import jp.sigre.fbs.database.ConnectDB;
 import jp.sigre.fbs.selenium.trade.IniBean;
+import jp.sigre.fbs.selenium.trade.TradeDataBean;
 import jp.sigre.fbs.utils.FileUtils;
 
 /**
@@ -32,8 +36,6 @@ public class DataControllerTest {
 	IniBean iniBean = fileUtils.iniToBean(iniFile);
 
 	String lsFolderPath = iniBean.getLS_FilePath();
-
-	DataController target;
 
 	static ConnectDB db = new ConnectDB();
 
@@ -79,7 +81,7 @@ public class DataControllerTest {
 		File file = new File(basePath + "\\test\\jp.sigre.fbs.controller\\FBSsepaCombine_ファイルが空.csv");
 		Files.copy(file, spFile);
 
-		target = new DataController();
+		DataController target = new DataController();
 		boolean result = target.updateSepaCombine(lsFolderPath);
 
 		assertThat(result, is(false));
@@ -91,7 +93,7 @@ public class DataControllerTest {
 		File file = new File(basePath + "\\test\\jp.sigre.fbs.controller\\FBSsepaCombine_データが空.csv");
 		Files.copy(file, spFile);
 
-		target = new DataController();
+		DataController target = new DataController();
 		boolean result = target.updateSepaCombine(lsFolderPath);
 
 		assertThat(result, is(false));
@@ -107,7 +109,7 @@ public class DataControllerTest {
 		assertThat(bef, is("203"));
 
 
-		target = new DataController();
+		DataController target = new DataController();
 		boolean result = target.updateSepaCombine(lsFolderPath);
 
 		assertThat(result, is(true));
@@ -129,7 +131,7 @@ public class DataControllerTest {
 		assertThat(bef, is("40"));
 		System.out.println("test" + bef);
 
-		target = new DataController();
+		DataController target = new DataController();
 		boolean result = target.updateSepaCombine(lsFolderPath);
 
 		assertThat(result, is(true));
@@ -154,7 +156,7 @@ public class DataControllerTest {
 		assertThat(bef, is("12"));
 		System.out.println("test" + bef);
 
-		target = new DataController();
+		DataController target = new DataController();
 		boolean result = target.updateSepaCombine(lsFolderPath);
 
 		assertThat(result, is(true));
@@ -179,7 +181,7 @@ public class DataControllerTest {
 		assertThat(bef, is("206"));
 		System.out.println("test" + bef);
 
-		target = new DataController();
+		DataController target = new DataController();
 		boolean result = target.updateSepaCombine(lsFolderPath);
 
 		assertThat(result, is(true));
@@ -204,7 +206,7 @@ public class DataControllerTest {
 		assertThat(bef, is("70"));
 		System.out.println("test" + bef);
 
-		target = new DataController();
+		DataController target = new DataController();
 		boolean result = target.updateSepaCombine(lsFolderPath);
 
 		assertThat(result, is(true));
@@ -217,4 +219,78 @@ public class DataControllerTest {
 
 	}
 
+	@Test
+	public final void TestMoveTempTradeData_13時() {
+		DataController target = new DataController();
+
+		List<TradeDataBean> list11 = db.getTradeData();
+		List<TradeDataBean> list21 = db.getTempTradeData();
+		assertThat(list11.size(), is(565));
+		assertThat(list21.size(), is(3));
+
+		Calendar nowCal = Calendar.getInstance();
+		nowCal.set(Calendar.HOUR_OF_DAY, 13);
+		String actual = target.moveTempTradeData(nowCal);
+
+		List<TradeDataBean> list12 = db.getTradeData();
+		List<TradeDataBean> list22 = db.getTempTradeData();
+		assertThat(list12.size(), is(568));
+		assertThat(list22.size(), is(0));
+
+		assertThat(list21, is(list12.subList(list12.size()-3, list12.size())));
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String expected = sdf.format(nowCal.getTime()) + " 10:30";
+		assertThat(actual, is(expected));
+	}
+
+	@Test
+	public final void TestMoveTempTradeData_10時() {
+		DataController target = new DataController();
+
+		List<TradeDataBean> list11 = db.getTradeData();
+		List<TradeDataBean> list21 = db.getTempTradeData();
+		assertThat(list11.size(), is(565));
+		assertThat(list21.size(), is(3));
+
+		Calendar nowCal = Calendar.getInstance();
+		nowCal.set(Calendar.HOUR_OF_DAY, 10);
+		String actual = target.moveTempTradeData(nowCal);
+
+		List<TradeDataBean> list12 = db.getTradeData();
+		List<TradeDataBean> list22 = db.getTempTradeData();
+		assertThat(list12.size(), is(568));
+		assertThat(list22.size(), is(0));
+
+		assertThat(list21, is(list12.subList(list12.size()-3, list12.size())));
+
+		nowCal.add(Calendar.DAY_OF_MONTH, -1);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String expected = sdf.format(nowCal.getTime()) + " 21:30";
+		assertThat(actual, is(expected));
+	}
+
+	@Test
+	public final void TestMoveTempTradeData_9時() {
+		DataController target = new DataController();
+
+		List<TradeDataBean> list11 = db.getTradeData();
+		List<TradeDataBean> list21 = db.getTempTradeData();
+		assertThat(list11.size(), is(565));
+		assertThat(list21.size(), is(3));
+
+		Calendar nowCal = Calendar.getInstance();
+		nowCal.set(Calendar.HOUR_OF_DAY, 9);
+		String actual = target.moveTempTradeData(nowCal);
+
+		List<TradeDataBean> list12 = db.getTradeData();
+		List<TradeDataBean> list22 = db.getTempTradeData();
+		assertThat(list12.size(), is(565));
+		assertThat(list22.size(), is(3));
+
+		assertThat(list11, is(list12));
+		assertThat(list21, is(list22));
+
+		assertThat(actual, is(""));
+	}
 }

@@ -11,6 +11,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.Timer;
 
 import javax.swing.ImageIcon;
@@ -19,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
+import jp.sigre.fbs.controller.DataController;
 import jp.sigre.fbs.gui.component.ConsistActionListener;
 import jp.sigre.fbs.gui.component.ConsolePanel;
 import jp.sigre.fbs.selenium.trade.TradeController;
@@ -110,6 +112,9 @@ public class FbsGui extends JFrame implements ActionListener{
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+
+		new DataController().moveTempTradeData(Calendar.getInstance());
+
 		if (false == isActive) {
 			startButton.setText("STOP");
 			ImageIcon icon = new ImageIcon(startIconUrl);
