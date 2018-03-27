@@ -10,6 +10,7 @@ import java.util.List;
 
 import jp.sigre.fbs.log.LogMessage;
 import jp.sigre.fbs.selenium.trade.TradeDataBean;
+import jp.sigre.google.HolidayBean;
 
 
 /**
@@ -350,12 +351,78 @@ public class ConnectDB {
 		return null;
 	}
 
+	public List<HolidayBean> getHolidays() {
+		try {
+			con = getConnection();
+			String sql = "Select * From JapanHoliday Order By date asc;";
+			PreparedStatement pstmt = con.prepareStatement(sql);
+
+			ResultSet rs = pstmt.executeQuery();
+			return new ConvertHolidayResultSet().convertHoliday(rs);
+		} catch (SQLException e1) {
+			closeStatement();
+			new LogMessage().writelnLog(e1.toString());
+		} finally {
+			closeStatement();
+		}
+
+		return null;
+	}
+
+
+	public List<HolidayBean> getHolidaysPastEqualToday(String strDate) {
+		try {
+			con = getConnection();
+			String sql = "Select * From JapanHoliday where date <= ?;";
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, strDate);
+
+			ResultSet rs = pstmt.executeQuery();
+			return new ConvertHolidayResultSet().convertHoliday(rs);
+		} catch (SQLException e1) {
+			closeStatement();
+			System.out.println("Test");
+			new LogMessage().writelnLog(e1.toString());
+		} finally {
+			closeStatement();
+		}
+
+		return null;
+	}
+
 	public int moveTempTradeData(String borderDate) {
 
 		String sql = "INSERT INTO " + TRADE_DATA_TABLE + "(code, dayTime, type, entryMethod, exitMethod, "
-				+ "MINI_CHECK_flg, realEntryVolume, entry_money, correctedEntryVolume) "
+				+ "MINI_CHECK_flg, realEntryVolume, entry_money, correctedEntryVolume, timeStamp) "
 				+ "SELECT code, dayTime, type, entryMethod, exitMethod, MINI_CHECK_flg, realEntryVolume, entry_money, "
-				+ "correctedEntryVolume FROM TempTradeData WHERE timeStamp <= '" + borderDate + "';";
+				+ "correctedEntryVolume, timeStamp FROM TempTradeData WHERE timeStamp <= ? ;";
+		System.out.println(sql);
+
+		int result = 0;
+
+		try {
+			con = getConnection();
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, borderDate);
+			result = pstmt.executeUpdate();
+		} catch (SQLException e) {
+			new LogMessage().writelnLog(e.toString());
+			return 0;
+		} finally {
+			closeStatement();
+		}
+
+		return result;
+
+	}
+
+
+	public int moveTempTradeTangenData() {
+
+		String sql = "INSERT INTO " + TRADE_DATA_TABLE + "(code, dayTime, type, entryMethod, exitMethod, "
+				+ "MINI_CHECK_flg, realEntryVolume, entry_money, correctedEntryVolume, timeStamp) "
+				+ "SELECT code, dayTime, type, entryMethod, exitMethod, MINI_CHECK_flg, realEntryVolume, entry_money, "
+				+ "correctedEntryVolume, timeStamp FROM TempTradeData WHERE MINI_CHECK_flg = '0';";
 		System.out.println(sql);
 
 		int result = 0;
@@ -372,7 +439,42 @@ public class ConnectDB {
 		}
 
 		return result;
+	}
 
+
+	public int moveTempTradeData_(String date, int miniCheckFlg) {
+
+		String sql = "INSERT INTO " + TRADE_DATA_TABLE + "(code, dayTime, type, entryMethod, exitMethod, "
+				+ "MINI_CHECK_flg, realEntryVolume, entry_money, correctedEntryVolume, timeStamp) "
+				+ "SELECT code, dayTime, type, entryMethod, exitMethod, MINI_CHECK_flg, realEntryVolume, entry_money, "
+				+ "correctedEntryVolume, timeStamp FROM TempTradeData WHERE timeStamp <= ? "
+				+ "AND MINI_CHECK_flg = ?;";
+		System.out.println(sql);
+
+		int result = 0;
+
+		try {
+			con = getConnection();
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, date);
+			pstmt.setInt(2, miniCheckFlg);
+			result = pstmt.executeUpdate();
+		} catch (SQLException e) {
+			new LogMessage().writelnLog(e.toString());
+			return 0;
+		} finally {
+			closeStatement();
+		}
+
+		return result;
+	}
+
+	public int moveTempTradeTangenData(String date) {
+		return moveTempTradeData_(date, 0);
+	}
+
+	public int moveTempTradeSData(String date) {
+		return moveTempTradeData_(date, 1);
 	}
 
 	/**
@@ -380,9 +482,9 @@ public class ConnectDB {
 	 * @param info
 	 * @return 更新件数
 	 */
-	public void insertTradeData(TradeDataBean info) {
+	public int insertTradeData(TradeDataBean info) {
 
-		insertTrade(info, TRADE_DATA_TABLE);
+		return insertTrade(info, TRADE_DATA_TABLE);
 
 	}
 
@@ -391,13 +493,15 @@ public class ConnectDB {
 	 * @param info
 	 * @return 更新件数
 	 */
-	public void insertTempTradeData(TradeDataBean info) {
+	public int insertTempTradeData(TradeDataBean info) {
 
-		insertTrade(info, TRADE_TEMP_TABLE);
+		return insertTrade(info, TRADE_TEMP_TABLE);
 
 	}
 
-	private void insertTrade(TradeDataBean info, String tableName) {
+	private int insertTrade(TradeDataBean info, String tableName) {
+		int result = 0;
+
 		try {
 			con = getConnection();
 			String sql =  "INSERT INTO " + tableName + " (code, dayTime, type, entryMethod, exitMethod, "
@@ -405,13 +509,38 @@ public class ConnectDB {
 					+ "entry_money, correctedEntryVolume) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
 			PreparedStatement pstmt = getPrepStatementOfAllData(sql, info);
 
-			pstmt.executeUpdate();
+			result = pstmt.executeUpdate();
 		} catch (SQLException e1) {
 			new LogMessage().writelnLog(e1.toString());
 		} finally {
 			closeStatement();
 		}
 
+		return result;
+	}
+
+	/**
+	 * 休日テーブルにレコードを追加
+	 * @param bean
+	 */
+	public int insertHolidays(HolidayBean bean) {
+		int result = 0;
+
+		try {
+			con = getConnection();
+			String sql =  "INSERT INTO JapanHoliday (date, summary) VALUES (?, ?);";
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, bean.getDate());
+			pstmt.setString(2, bean.getSummary());
+
+			result = pstmt.executeUpdate();
+		} catch (SQLException e1) {
+			new LogMessage().writelnLog(e1.toString());
+		} finally {
+			closeStatement();
+		}
+
+		return result;
 	}
 
 	private PreparedStatement getPrepStatementOfAllData(String sql, TradeDataBean info) throws SQLException {
@@ -482,6 +611,126 @@ public class ConnectDB {
 
 		return 0;
 	}
+
+	public int deleteTempTradeTangenData() {
+		return deleteTradeTangenData_(TRADE_TEMP_TABLE);
+	}
+
+	public int deleteTempTradeTangenData(String date) {
+
+		return deleteTradeTangenData_(TRADE_TEMP_TABLE, date);
+	}
+
+	public int deleteTempTradeSData(String date) {
+		return deleteTradeSData_(TRADE_TEMP_TABLE, date);
+	}
+
+	public int deleteTempTradeData(String borderDate) {
+		return deleteTradeData_(TRADE_TEMP_TABLE, borderDate);
+	}
+
+	private int deleteTradeData_(String tableName, String borderDate) {
+
+		try {
+			con = getConnection();
+			String sql = "DELETE FROM " + tableName + " WHERE timeStamp <= '" + borderDate + ";";
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			//DELETE文を実行する
+            return pstmt.executeUpdate();
+
+		} catch (SQLException e1) {
+			new LogMessage().writelnLog(e1.toString());
+		}  finally {
+			closeStatement();
+		}
+
+		return 0;
+
+	}
+
+	private int deleteTradeData_(String tableName, String borderDate, int miniCheckFlg) {
+
+		try {
+			con = getConnection();
+			String sql = "DELETE FROM " + tableName + " WHERE timeStamp <= ? AND MINI_CHECK_flg = ?;";
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, borderDate);
+			pstmt.setInt(2, miniCheckFlg);
+			//DELETE文を実行する
+            return pstmt.executeUpdate();
+
+		} catch (SQLException e1) {
+			new LogMessage().writelnLog(e1.toString());
+		}  finally {
+			closeStatement();
+		}
+
+		return 0;
+
+	}
+
+	private int deleteTradeTangenData_(String tableName, String borderDate) {
+		return deleteTradeData_(tableName, borderDate, 0);
+	}
+
+
+	private int deleteTradeSData_(String tableName, String borderDate) {
+		return deleteTradeData_(tableName, borderDate, 1);
+	}
+
+	private int deleteTradeTangenData_(String tableName) {
+
+		try {
+			con = getConnection();
+			String sql = "DELETE FROM " + tableName + " WHERE MINI_CHECK_flg = '0';";
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			//DELETE文を実行する
+            return pstmt.executeUpdate();
+
+		} catch (SQLException e1) {
+			new LogMessage().writelnLog(e1.toString());
+		}  finally {
+			closeStatement();
+		}
+
+		return 0;
+	}
+
+	public int deletePastHoliday(String strDate) {
+		try {
+			con = getConnection();
+			String sql = "DELETE FROM JapanHoliday WHERE date < ?;";
+
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, strDate);
+
+			return pstmt.executeUpdate();
+		} catch (SQLException e1) {
+			new LogMessage().writelnLog(e1.toString());
+		}  finally {
+			closeStatement();
+		}
+
+		return 0;
+	}
+
+	public int deleteHolidays() {
+		try {
+			con = getConnection();
+			String sql = "DELETE FROM JapanHoliday;";
+
+			PreparedStatement pstmt = con.prepareStatement(sql);
+
+			return pstmt.executeUpdate();
+		} catch (SQLException e1) {
+			new LogMessage().writelnLog(e1.toString());
+		}  finally {
+			closeStatement();
+		}
+
+		return 0;
+	}
+
 
 	/**
 	 * 商品を1件DBからDeleteする
