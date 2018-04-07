@@ -316,12 +316,14 @@ public class SeleniumTrade {
 			if (sVolume != 0) {
 				TradeDataBean sBean = bean.clone();
 				sBean.setRealEntryVolume(String.valueOf(sVolume));
+				//TODO:correctedがおかしい
 				sBean.setMINI_CHECK_flg("1");
 				result.add(sBean);
 			}
 
 			TradeDataBean tangenBean = bean.clone();
 			tangenBean.minusRealEntryVolume(sVolume);
+			//TODO:correctedがおかしい
 			tangenBean.setMINI_CHECK_flg("0");
 			result.add(tangenBean);
 		}
@@ -461,6 +463,8 @@ public class SeleniumTrade {
 		String strTorihPass = aryIdPass[2];
 
 		List<TradeDataBean> failedTradeList = new ArrayList<>();
+
+		//TODO;同じ銘柄を買う際にまとめる機能
 
 		for (TradeDataBean bean : beanList) {
 

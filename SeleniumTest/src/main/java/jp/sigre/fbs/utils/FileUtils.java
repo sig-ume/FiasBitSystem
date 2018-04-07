@@ -30,6 +30,7 @@ import jp.sigre.fbs.selenium.trade.TradeDataBean;
  */
 public class FileUtils {
 
+	LogMessage log = new LogMessage();
 
 	public List<TradeDataBean> csvToTorihikiData(File file) {
 		final String[] HEADER = new String[] { "code","dayTime","type","entryMethod","exitMethod","MINI_CHECK_flg","realEntryVolume","entry_money" };
@@ -169,7 +170,13 @@ public class FileUtils {
 		if (line.startsWith("["))			getUseMethod(line, bean);
 		if (line.startsWith("Trade_Visible")) bean.setTradeVisible(getTradeVisible(line));
 		if (line.startsWith("Sell_UnusedMethod_Immediately")) bean.setSellUnusedMethod(getSellUnusedMethod(line));
-
+		if (line.startsWith("Skip=")) {
+			try {
+			bean.addSkipNumber(getSkipNumber(line));
+			} catch (NumberFormatException e) {
+				log.writelnLog("Skip設定が不正です。: " + line);
+			}
+		}
 	}
 
 	private String getLS_FilePath(String line) {
@@ -198,6 +205,10 @@ public class FileUtils {
 
 	private String getSellUnusedMethod(String line) {
 		return line.split("=")[1];
+	}
+
+	private int getSkipNumber(String line) throws NumberFormatException{
+		return Integer.parseInt(line.split("=")[1]);
 	}
 
 	public void makeRemainsDataFile(List<TradeDataBean> list, String outPath, boolean isBuying) {
@@ -315,7 +326,7 @@ public class FileUtils {
 		return sdf.format(dateToday);
 	}
 
-	public void removeTradeDataFile(String strLsPath, boolean isBuying) {
+	public void removeRemainDataFile(String strLsPath, boolean isBuying) {
 		//TODO;remainsファイルのフルパスを取得するメソッド作成
 		String fileName = isBuying? "buy_remains.csv" : "sell_remains.csv";
 

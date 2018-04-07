@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jp.sigre.fbs.database.ConnectDB;
+import jp.sigre.fbs.log.LogMessage;
 
 /**
  * @author sigre
@@ -11,8 +12,11 @@ import jp.sigre.fbs.database.ConnectDB;
  */
 public class TradeMethodFilter {
 
+	LogMessage log = new LogMessage();
+
 	public void longFilter(List<TradeDataBean> list, IniBean iniBean) {
 		List<Boolean> checkbox = new ArrayList<>();
+
 		for (int i = 0; i<list.size(); i++) {
 			checkbox.add(false);
 		}
@@ -42,6 +46,7 @@ public class TradeMethodFilter {
 				i--;
 			}
 		}
+
 	}
 
 	public void shortFilter(List<TradeDataBean> list, IniBean iniBean) {
@@ -73,6 +78,25 @@ public class TradeMethodFilter {
 			}
 		}
 
+	}
+
+	public void skipCode(List<TradeDataBean> list, IniBean iniBean) {
+		List<Integer> skipList = iniBean.getSkipList();
+
+		for (int j = 0; j<skipList.size(); j++) {
+			for (int i = 0; i<list.size(); i++) {
+
+				int skipNumber = skipList.get(j);
+				TradeDataBean bean = list.get(i);
+				int code = Integer.parseInt(bean.getCode());
+				if (code == skipNumber) {
+					list.remove(i);
+					i--;
+					log.writelnLog(skipNumber + "は設定に従い売買を行いません。");
+					continue;
+				}
+			}
+		}
 	}
 
 }

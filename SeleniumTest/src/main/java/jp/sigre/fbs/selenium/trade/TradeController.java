@@ -252,7 +252,7 @@ public class TradeController {
 			fileUtils.makeRemainsDataFile(keepList, strLsPath, false);
 			log.writelnLog("fias上で保有していない銘柄を保有しているため、自動的に売却を行います。");
 			for (TradeDataBean bean : keepList) log.writelnLog("銘柄:" + bean.getCode() + ", entryMethod:"
-			+ bean.getEntryMethod() + ", exitMethod:" + bean.getExitMethod());
+					+ bean.getEntryMethod() + ", exitMethod:" + bean.getExitMethod());
 		}
 
 		List<TradeDataBean> eliteList = cons.checkDbAndFiaElite(strLsPath);
@@ -261,10 +261,10 @@ public class TradeController {
 			fileUtils.makeRemainsDataFile(eliteList, strLsPath, false);
 			log.writelnLog("fias上で未登録な銘柄を保有しているため、自動的に売却を行います。");
 			for (TradeDataBean bean : keepList) log.writelnLog("銘柄:" + bean.getCode() + ", entryMethod:"
-			+ bean.getEntryMethod() + ", exitMethod:" + bean.getExitMethod());
+					+ bean.getEntryMethod() + ", exitMethod:" + bean.getExitMethod());
 		}
 	}
-
+	
 	private void tradeLong() {
 
 		String strFilePath = fileUtils.getLFilePath(strLsPath);
@@ -283,24 +283,30 @@ public class TradeController {
 
 		if (lRemFile.exists()) beanList.addAll(fileUtils.csvToTorihikiData(lRemFile));
 
-		new TradeMethodFilter().longFilter(beanList, iniBean);
+		TradeMethodFilter filter = new TradeMethodFilter();
+		filter.longFilter(beanList, iniBean);
+		filter.skipCode(beanList, iniBean);
 
 		log.writelnLog("LSファイルの読み込みが完了しました。");
+
+		List<TradeDataBean> failedList = new ArrayList<>();
 
 		//売買株の有無チェック
 		if (beanList.size() == 0) {
 			log.writelnLog("売買対象の株がありません。");
-			return;
+
+		} else {
+
+			log.writelnLog("購入処理を開始します。");
+
+
+			failedList = trade.buyStocks(beanList, strIdPath);
+
 		}
-
-		log.writelnLog("購入処理を開始します。");
-
-
-		List<TradeDataBean> failedList = trade.buyStocks(beanList, strIdPath);
 
 		if (failedList.size()!=0) {
 			log.writelnLog("のこってるよー");
-			fileUtils.removeTradeDataFile(strLsPath, true);
+			fileUtils.removeRemainDataFile(strLsPath, true);
 
 			//バックアプファイル作成
 			fileUtils.makeRemainsDataFile(failedList, strLsPath, true);
@@ -308,7 +314,7 @@ public class TradeController {
 			log.writelnLog("売買失敗件数：" + failedList.size());
 		} else {
 
-			fileUtils.removeTradeDataFile(strLsPath, true);
+			fileUtils.removeRemainDataFile(strLsPath, true);
 			log.writelnLog("おわりだよー");
 		}
 
@@ -327,9 +333,8 @@ public class TradeController {
 
 		if (lRemFile.exists()) beanList.addAll(fileUtils.csvToTorihikiData(lRemFile));
 
-
-		new TradeMethodFilter().shortFilter(beanList, iniBean);
-
+		TradeMethodFilter filter = new TradeMethodFilter();
+		filter.shortFilter(beanList, iniBean);
 
 		//sellUnusedMethodが1の場合、使用していないメソッドの所有銘柄をすべて売却リストに追加
 		if (iniBean.getSellUnusedMethod().equals("1")) {
@@ -338,29 +343,35 @@ public class TradeController {
 
 		log.writelnLog("LSファイルの読み込みが完了しました。");
 
+		//除外リストに記載された銘柄を削除
+		filter.skipCode(beanList, iniBean);
+
+		List<TradeDataBean> failedList = new ArrayList<>();
 		//売買株の有無チェック
 		if (beanList.size() == 0) {
 			log.writelnLog("売買対象の株がありません。");
-			return;
+
+		} else {
+
+			log.writelnLog("売却処理を開始します。");
+
+
+			List<TradeDataBean> tradeList = trade.getSellData(beanList);
+
+			failedList = trade.newSellStocks(tradeList, strIdPath);
+
 		}
 
-		log.writelnLog("売却処理を開始します。");
-
-
-		List<TradeDataBean> tradeList = trade.getSellData(beanList);
-
-		List<TradeDataBean> failedList = trade.newSellStocks(tradeList, strIdPath);
+		fileUtils.removeRemainDataFile(strLsPath, false);
 
 		if (failedList.size()!=0) {
 			log.writelnLog("のこってるよー");
-			fileUtils.removeTradeDataFile(strLsPath, false);
 
 			fileUtils.makeRemainsDataFile(failedList, strLsPath, false);
 
 			log.writelnLog("売買失敗件数：" + failedList.size());
 		} else {
 
-			fileUtils.removeTradeDataFile(strLsPath, false);
 			log.writelnLog("おわりだよー");
 		}
 

@@ -13,6 +13,8 @@ public class IniBean {
 
 	private String sellUnusedMethod;
 
+	private List<Integer> skipList = new ArrayList<>();
+
 	public String getTradeVisible() {
 		return tradeVisible;
 	}
@@ -41,8 +43,6 @@ public class IniBean {
 		return methodSet;
 	}
 
-
-	@SuppressWarnings("unused")
 	public void setMethodSet(List<String[]> methodSet) {
 		this.methodSet = methodSet;
 	}
@@ -59,13 +59,27 @@ public class IniBean {
 		this.sellUnusedMethod = sellUnusedMethod;
 	}
 
+	public List<Integer> getSkipList() {
+		return skipList;
+	}
+
+	public void addSkipNumber(int skipNumber) {
+		skipList.add(skipNumber);
+	}
+
 	@Override
 	public String toString() {
 		String result = "IniBean [lS_FilePath=" + lS_FilePath + ", iD_FilePath=" + iD_FilePath + ", methodSet=\n";
 		for (String[] methods : methodSet) {
 			result += methods[0] + ", " + methods[1] + ", " + methods[2] + "\n";
 		}
-		result += "TradeVisible=" + tradeVisible;
+		result += "TradeVisible=" + tradeVisible + "\n";
+		result += "SkipNumber=";
+		for (int skipNumber : skipList) {
+			result += skipNumber + ", ";
+		}
+
+
 		return result;
 	}
 
