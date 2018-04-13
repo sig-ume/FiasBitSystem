@@ -16,6 +16,24 @@ public class TradeDataBean {
 	private String entry_money;
 	private String correctedEntryVolume;
 
+
+
+	public TradeDataBean(String code, String dayTime, String type, String entryMethod, String exitMethod,
+			String mINI_CHECK_flg, String realEntryVolume, String entry_money, String correctedEntryVolume) {
+		super();
+		this.code = code;
+		this.dayTime = dayTime;
+		this.type = type;
+		this.entryMethod = entryMethod;
+		this.exitMethod = exitMethod;
+		MINI_CHECK_flg = mINI_CHECK_flg;
+		this.realEntryVolume = realEntryVolume;
+		this.entry_money = entry_money;
+		this.correctedEntryVolume = correctedEntryVolume;
+	}
+
+	public TradeDataBean() {}
+
 	public String getCode() {
 		return code;
 	}
@@ -73,6 +91,10 @@ public class TradeDataBean {
 
 	public void minusRealEntryVolume(int volume) {
 		this.realEntryVolume = String.valueOf(Integer.parseInt(this.realEntryVolume) - volume);
+	}
+
+	public void minusRealEntryVolume(double volume) {
+		this.realEntryVolume = String.valueOf(Double.parseDouble(this.realEntryVolume) - volume);
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -712,4 +713,149 @@ public class DataControllerTest extends DataController{
 		assertThat(usualCal, is(expectedCal));
 	}
 
+	@Test
+	public final void testGetSameCodeLists_bean1つ() {
+		TradeDataBean bean0000 = new TradeDataBean();
+		bean0000.setCode("0000");
+
+		List<TradeDataBean> list = new ArrayList<>();
+		list.add(bean0000);
+		List<TradeDataBean> expected0 = new ArrayList<>(list);
+
+		List<List<TradeDataBean>> result = getSameCodeLists(list);
+
+		assertThat(result.size(), is(1));
+		List<TradeDataBean> result0 = result.get(0);
+		assertThat(result0, is(expected0));
+		assertThat(list.size(), is(0));
+	}
+
+	@Test
+	public final void testGetSameCodeLists_bean2つ_同コード() {
+		TradeDataBean bean0000 = new TradeDataBean();
+		bean0000.setCode("0000");
+
+		List<TradeDataBean> list = new ArrayList<>();
+		list.add(bean0000);
+		list.add(bean0000);
+		List<TradeDataBean> expected0 = new ArrayList<>(list);
+
+		List<List<TradeDataBean>> result = getSameCodeLists(list);
+
+		assertThat(result.size(), is(1));
+		List<TradeDataBean> result0 = result.get(0);
+		assertThat(result0, is(expected0));
+		assertThat(list.size(), is(0));
+	}
+
+	@Test
+	public final void testGetSameCodeLists_bean2つ_別コード() {
+		TradeDataBean bean0000 = new TradeDataBean();
+		bean0000.setCode("0000");
+		TradeDataBean bean0001 = new TradeDataBean();
+		bean0001.setCode("0001");
+
+		List<TradeDataBean> list = new ArrayList<>();
+		list.add(bean0000);
+		list.add(bean0001);
+		List<TradeDataBean> expected0 = new ArrayList<>(list.subList(0, 1));
+		List<TradeDataBean> expected1 = new ArrayList<>(list.subList(1, 2));
+
+		List<List<TradeDataBean>> result = getSameCodeLists(list);
+
+		assertThat(result.size(), is(2));
+		List<TradeDataBean> result0 = result.get(0);
+		assertThat(result0, is(expected0));
+		List<TradeDataBean> result1 = result.get(1);
+		assertThat(result1, is(expected1));
+		assertThat(list.size(), is(0));
+	}
+
+	@Test
+	public final void testGetSameCodeLists_bean複数_同コード() {
+		TradeDataBean bean0000 = new TradeDataBean();
+		bean0000.setCode("0000");
+
+		List<TradeDataBean> list = new ArrayList<>();
+		list.add(bean0000);
+		list.add(bean0000.clone());
+		list.add(bean0000.clone());
+		list.add(bean0000.clone());
+		List<TradeDataBean> expected0 = new ArrayList<>(list);
+
+		List<List<TradeDataBean>> result = getSameCodeLists(list);
+
+		assertThat(result.size(), is(1));
+		List<TradeDataBean> result0 = result.get(0);
+		assertThat(result0, is(expected0));
+		assertThat(result0.size(), is(4));
+		assertThat(list.size(), is(0));
+	}
+
+
+	@Test
+	public final void testGetSameCodeLists_bean複数_別コード() {
+		TradeDataBean bean0000 = new TradeDataBean();
+		bean0000.setCode("0000");
+		TradeDataBean bean0001 = new TradeDataBean();
+		bean0001.setCode("0001");
+		TradeDataBean bean0002 = new TradeDataBean();
+		bean0002.setCode("0002");
+		TradeDataBean bean0003 = new TradeDataBean();
+		bean0003.setCode("0003");
+		TradeDataBean bean0004 = new TradeDataBean();
+		bean0004.setCode("0004");
+
+
+		List<TradeDataBean> list = new ArrayList<>();
+		list.add(bean0000);	//0
+		list.add(bean0001); //1
+		list.add(bean0004); //2
+		list.add(bean0000.clone()); //3
+		list.add(bean0001.clone()); //4
+		list.add(bean0002); //5
+		list.add(bean0003); //6
+		list.add(bean0003.clone()); //7
+		list.add(bean0004.clone()); //8
+		list.add(bean0003.clone()); //9
+
+		int i = 0;
+		for (TradeDataBean bean : list) bean.setRealEntryVolume(String.valueOf(i++));
+		List<List<TradeDataBean>> result = getSameCodeLists(list);
+
+		assertThat(result.size(), is(5));
+
+		List<TradeDataBean> result0 = result.get(0);
+		assertThat(result0.size(), is(2));
+		for (TradeDataBean resultBean : result0) assertThat(resultBean.getCode(), is("0000"));
+		assertThat(result0.get(0).getRealEntryVolume(), is("0"));
+		assertThat(result0.get(1).getRealEntryVolume(), is("3"));
+
+		List<TradeDataBean> result1 = result.get(1);
+		assertThat(result1.size(), is(2));
+		for (TradeDataBean resultBean : result1) assertThat(resultBean.getCode(), is("0001"));
+		assertThat(result1.get(0).getRealEntryVolume(), is("1"));
+		assertThat(result1.get(1).getRealEntryVolume(), is("4"));
+
+		List<TradeDataBean> result4 = result.get(2);
+		assertThat(result4.size(), is(2));
+		for (TradeDataBean resultBean : result4) assertThat(resultBean.getCode(), is("0004"));
+		assertThat(result4.get(0).getRealEntryVolume(), is("2"));
+		assertThat(result4.get(1).getRealEntryVolume(), is("8"));
+
+		List<TradeDataBean> result2 = result.get(3);
+		assertThat(result2.size(), is(1));
+		for (TradeDataBean resultBean : result2) assertThat(resultBean.getCode(), is("0002"));
+		assertThat(result2.get(0).getRealEntryVolume(), is("5"));
+
+		List<TradeDataBean> result3 = result.get(4);
+		assertThat(result3.size(), is(3));
+		for (TradeDataBean resultBean : result3) assertThat(resultBean.getCode(), is("0003"));
+		assertThat(result3.get(0).getRealEntryVolume(), is("6"));
+		assertThat(result3.get(1).getRealEntryVolume(), is("7"));
+		assertThat(result3.get(2).getRealEntryVolume(), is("9"));
+
+
+		assertThat(list.size(), is(0));
+	}
 }

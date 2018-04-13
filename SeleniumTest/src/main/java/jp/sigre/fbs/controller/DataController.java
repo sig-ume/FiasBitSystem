@@ -340,7 +340,6 @@ public class DataController {
 			//前日から最も近い平日を取得
 			exe0Cal.add(Calendar.DAY_OF_MONTH, -1);
 			exe0Cal = getUsualCal(exe0Cal);
-			System.out.println("最も近い平日: " + exe0Cal);
 
 			//AM９時以前なら前日15時までの取引を処理
 			exe0Cal.set(Calendar.HOUR_OF_DAY, 15);
@@ -349,7 +348,6 @@ public class DataController {
 			exe0Cal.set(Calendar.MILLISECOND, 0);
 
 			String exe0Date = sdf.format(exe0Cal.getTime());
-			System.out.println("exe0cal : " + exe0Date);
 
 			int count2 = db.moveTempTradeTangenData(exe0Date);
 			if (count2 > 0) db.deleteTempTradeTangenData(exe0Date);
@@ -372,7 +370,7 @@ public class DataController {
 
 		}
 
-		log.writelnLog(borderDate + "以前の取引(" + count + "件)を保有株数へ反映しました。");
+		if (count > 0) log.writelnLog(borderDate + "以前の取引(" + count + "件)を保有株数へ反映しました。");
 
 		db.closeStatement();
 
@@ -422,7 +420,7 @@ public class DataController {
 
 		db.closeStatement();
 
-		log.writelnLog(borderDate + "以前の取引(" + count + "件)を保有株数へ反映しました。");
+		if (count > 0) log.writelnLog(borderDate + "以前の取引(" + count + "件)を保有株数へ反映しました。");
 
 		return borderDate;
 	}
@@ -463,4 +461,39 @@ public class DataController {
 		db.closeStatement();
 	}
 
+	/**
+	 * TODO
+	 * @param beanList
+	 * @return
+	 */
+	public List<List<TradeDataBean>> getSameCodeLists(List<TradeDataBean> beanList) {
+
+		List<List<TradeDataBean>> result = new ArrayList<>();
+
+		for (int i = 0; i < beanList.size() && beanList.size() > 0; i++) {
+
+			List<TradeDataBean> smallReslt = new ArrayList<>();
+			TradeDataBean bean = beanList.get(i);
+			smallReslt.add(bean);
+			beanList.remove(i);
+			i--;
+
+			for (int j = 0; j < beanList.size() && beanList.size() > 0; j++) {
+				TradeDataBean beanJ = beanList.get(j);
+
+				if (beanJ.getCode().equals(bean.getCode())) {
+					smallReslt.add(beanJ);
+					beanList.remove(j);
+					j--;
+
+				}
+			}
+
+			result.add(smallReslt);
+
+			//if (beanList.size() <= 0) break;
+		}
+
+		return result;
+	}
 }

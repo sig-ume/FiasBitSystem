@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import jp.sigre.fbs.bean.TradeSetBean;
 import jp.sigre.fbs.controller.DataController;
 import jp.sigre.fbs.database.ConnectDB;
 import jp.sigre.fbs.digest.Digest;
@@ -103,6 +104,15 @@ public class TradeController {
 		File bunkatsuFile = new File(strBunkatsuFilePath);
 
 		Calendar cal = Calendar.getInstance();
+
+		//休日テーブル更新
+		new DataController().updateHolidayTable(cal.get(Calendar.YEAR) + "-"
+											 + (cal.get(Calendar.MONTH)+1) + "-"
+											 + cal.get(Calendar.DAY_OF_MONTH));
+
+		//Temp取引テーブルを取引テーブルへ移動
+		new DataController().moveTempTradeData(Calendar.getInstance());
+
 		int hour = cal.get(Calendar.HOUR_OF_DAY);
 
 		if (!bunkatsuFile.exists()) log.writelnLog("分割併合処理はありません。");
@@ -264,8 +274,11 @@ public class TradeController {
 					+ bean.getEntryMethod() + ", exitMethod:" + bean.getExitMethod());
 		}
 	}
-	
-	private void tradeLong() {
+
+	/**
+	 * 未使用
+	 */
+	private void tradeLong(int i) {
 
 		String strFilePath = fileUtils.getLFilePath(strLsPath);
 
@@ -319,6 +332,160 @@ public class TradeController {
 		}
 
 
+	}
+
+	/**
+	 * まとめ買い用買いメソッド
+	 */
+	private void tradeLong() {
+		String strFilePath = fileUtils.getLFilePath(strLsPath);
+
+		File lFile = new File(strFilePath);
+
+		File lRemFile = new File(strLsPath + File.separator + "buy_remains.csv");
+
+		if (!lFile.exists() && !lRemFile.exists()) {
+			log.writelnLog("LSファイル等の売買対象データファイルが存在しません。");
+			return;
+		}
+
+		List<TradeDataBean> beanList = new ArrayList<>();
+		if (lFile.exists()) beanList.addAll(fileUtils.csvToTorihikiData(lFile));
+
+		if (lRemFile.exists()) beanList.addAll(fileUtils.csvToTorihikiData(lRemFile));
+
+		log.writelnLog("LSファイルの読み込みが完了しました。");
+
+
+		TradeMethodFilter filter = new TradeMethodFilter();
+		filter.longFilter(beanList, iniBean);
+		filter.skipCode(beanList, iniBean);
+
+		List<TradeDataBean> failedList = new ArrayList<>();
+
+		//売買株の有無チェック
+		if (beanList.size() == 0) {
+			log.writelnLog("売買対象の株がありません。");
+
+		} else {
+
+			log.writelnLog("購入処理を開始します。");
+			failedList = buyTyuumon(beanList);
+
+		}
+
+		if (failedList.size()!=0) {
+			log.writelnLog("のこってるよー");
+			fileUtils.removeRemainDataFile(strLsPath, true);
+
+			//バックアプファイル作成
+			fileUtils.makeRemainsDataFile(failedList, strLsPath, true);
+
+			log.writelnLog("売買失敗件数：" + failedList.size());
+		} else {
+
+			fileUtils.removeRemainDataFile(strLsPath, true);
+			log.writelnLog("おわりだよー");
+		}
+
+	}
+
+	private List<TradeDataBean> buyTyuumon(List<TradeDataBean> beanList) {
+		DataController data = new DataController();
+		List<TradeDataBean> failedList = new ArrayList<>();
+
+		List<List<TradeDataBean>> sameCodeLists = data.getSameCodeLists(beanList);
+		List<TradeSetBean> setList = new ArrayList<>();
+
+		for (List<TradeDataBean> sameCodeList : sameCodeLists) {
+			setList.addAll(getTradeSets(sameCodeList));
+		}
+
+		for (TradeSetBean setBean : setList) {
+			String strResult = trade.buy(setBean.getCode(), setBean.getVolume(), setBean.getIsMini(), strIdPath);
+			List<TradeDataBean> listInSetBean = setBean.getBeanList();
+			if (strResult.contains("ご注文を受け付けました。")
+					||strResult.contains("取引となります。") || strResult.contains("ご注文を受付いたします。")) {
+				//
+				//				if (!isBuying) {
+				//					bean.setCorrectedEntryVolume(String.valueOf(Integer.parseInt(bean.getRealEntryVolume())	*-1));
+				//					bean.setRealEntryVolume		(String.valueOf(Integer.parseInt(bean.getRealEntryVolume())	*-1));
+				//				}
+				insertTradedBeanToDB(listInSetBean);
+
+			} else {
+				failedList.addAll(listInSetBean);
+			}
+
+			for(TradeDataBean bean :  listInSetBean)log.writelnLog(bean.getCode() + ":" + bean.getRealEntryVolume() + " " + strResult);
+
+		}
+
+		return failedList;
+	}
+
+	private void insertTradedBeanToDB(List<TradeDataBean> beanList) {
+
+		ConnectDB db = new ConnectDB();
+		db.connectStatement();
+		for (TradeDataBean bean :beanList)	db.insertTempTradeData(bean);
+		db.closeStatement();
+	}
+
+	protected List<TradeSetBean> getTradeSets(List<TradeDataBean> sameCodeList) {
+
+		int entrySum = getSumEntry(sameCodeList);
+		int mod100 = entrySum % 100;
+		int tangenSum = entrySum - mod100;
+		int sCount = 0;
+		String code = sameCodeList.get(0).getCode();
+
+		List<TradeDataBean> hasuuList = new ArrayList<>();
+
+		for (int i = 0; i < sameCodeList.size() && 0 < sameCodeList.size(); i++) {
+			if (0 == mod100 - sCount) break;
+
+			TradeDataBean bean = sameCodeList.get(i);
+			double beanCount = Double.valueOf(bean.getRealEntryVolume());
+
+			if (mod100 - sCount >= beanCount) {
+				hasuuList.add(bean);
+				sCount += Double.valueOf(bean.getRealEntryVolume());
+
+				sameCodeList.remove(i);
+				i--;
+			} else {
+				TradeDataBean cloneBean = bean.clone();
+				cloneBean.setRealEntryVolume(String.valueOf(mod100 - sCount));
+				bean.minusRealEntryVolume(mod100 - sCount);
+
+				hasuuList.add(cloneBean);
+
+				sCount = mod100;
+			}
+		}
+
+
+		List<TradeSetBean> result = new ArrayList<>();
+
+		if (0<tangenSum) {
+			TradeSetBean tangenSet = new TradeSetBean(code, tangenSum, sameCodeList, "0");
+			result.add(tangenSet);
+		}
+		if (0<mod100) {
+			TradeSetBean hasuuSet = new TradeSetBean(code, mod100, hasuuList, "1");
+			result.add(hasuuSet);
+		}
+
+		return result;
+	}
+
+	private int getSumEntry(List<TradeDataBean> beanList) {
+		int result = 0;
+
+		for (TradeDataBean bean : beanList) result += Integer.valueOf(bean.getRealEntryVolume());
+
+		return result;
 	}
 
 	private void newTradeShort() {

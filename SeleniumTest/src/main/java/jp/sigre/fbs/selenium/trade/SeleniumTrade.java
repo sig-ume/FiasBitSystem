@@ -126,9 +126,82 @@ public class SeleniumTrade {
 		return tradeStocks(beanList, strIdFolderPath, true);
 	}
 
+	/**
+	 * まとめ買い用呼び出しメソッド
+	 * TODO:売りも同じシステムで
+	 * @param code
+	 * @param volume
+	 * @param strIdFolderPath
+	 * @return
+	 */
+	public String buy(String code, int volume, String isMini, String strIdFolderPath) {
+		return trade(code ,volume, isMini, strIdFolderPath, true);
+	}
+
 	public List<TradeDataBean> sellStocks(List<TradeDataBean> beanList, String strIdFolderPath) {
 		return tradeStocks(beanList, strIdFolderPath, false);
 	}
+
+	private String trade(String code, int volume, String isMini, String strIdFolderPath, boolean isBuying) {
+		FileUtils csv = new FileUtils();
+		String strIdPassPath = new FileUtils().getIdPassFilePath(strIdFolderPath);
+
+		String[] aryIdPass = csv.csvToIdPass(new File(strIdPassPath));
+
+		String strTorihPass = aryIdPass[2];
+
+		if (isMini.equals("1")) {
+			tradeSmallStock(code, volume, strTorihPass, isBuying);
+		} else if (isMini.equals("0")){
+			tradeNormalStocks(code, volume, strTorihPass, isBuying);
+		}
+		String strResult = getTradeResult();
+
+		return strResult;
+	}
+
+	private void tradeSmallStock(String code, int volume, String strTorihPass, boolean isBuying) {
+		//TODO：driver有効かチェック
+
+		driver.findElement(By.cssSelector("img[alt=\"取引\"]")).click();
+
+		driver.findElement(By.linkText("単元未満株")).click();
+		//買い：genK、売り：genU
+		if (isBuying) 	driver.findElement(By.id("genK")).click();
+		else			driver.findElement(By.id("genU")).click();
+
+		// ERROR: Caught exception [Error: Dom locators are not implemented yet!]
+		driver.findElement(By.name("odd_agreement")).click();
+		driver.findElement(By.name("stock_sec_code")).clear();
+		driver.findElement(By.name("stock_sec_code")).sendKeys(new String[]{code});
+
+		driver.findElement(By.name("input_quantity")).clear();
+		driver.findElement(By.name("input_quantity")).sendKeys(new String[]{String.valueOf(volume)});
+		driver.findElement(By.name("trade_pwd")).clear();
+		driver.findElement(By.name("trade_pwd")).sendKeys(new String[]{strTorihPass});
+		driver.findElement(By.name("skip_estimate")).click();
+		driver.findElement(By.name("ACT_place")).click();
+	}
+
+	private void tradeNormalStocks(String code, int volume, String strTorihPass, boolean isBuying) {
+		//TODO：driver有効かチェック
+		driver.findElement(By.cssSelector("img[alt=\"取引\"]")).click();
+
+		//買い：genK、売り：genU
+		if (isBuying) 	driver.findElement(By.id("genK")).click();
+		else			driver.findElement(By.id("genU")).click();
+
+		driver.findElement(By.name("stock_sec_code")).clear();
+		driver.findElement(By.name("stock_sec_code")).sendKeys(new String[]{code});
+		driver.findElement(By.name("input_quantity")).clear();
+		driver.findElement(By.name("input_quantity")).sendKeys(new String[]{String.valueOf(volume)});
+		driver.findElement(By.cssSelector("#gsn1 > input[name=\"in_sasinari_kbn\"]")).click();
+		driver.findElement(By.id("pwd3")).clear();
+		driver.findElement(By.id("pwd3")).sendKeys(new String[]{strTorihPass});
+		driver.findElement(By.name("skip_estimate")).click();
+		driver.findElement(By.name("ACT_place")).click();
+	}
+
 
 	/**
 	 * Sファイルのデータをもとに、売却用TradeData（株数入り）をDBから取得
