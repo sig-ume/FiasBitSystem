@@ -1,5 +1,7 @@
 package jp.sigre.fbs.gui.component;
 
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.HeadlessException;
 import java.awt.TextArea;
 import java.io.ByteArrayOutputStream;
@@ -13,7 +15,8 @@ public class OutputTextArea extends TextArea {
 		super();
 		this.setEditable(false);
 		out = new TextAreaOutputStream(this);
-		this.setSize(x, y);
+		this.setPreferredSize(new Dimension(x-3, y-3));
+		this.setFont(new Font("Arial", Font.PLAIN, 18));
 	}
 
 	public void setToSystemOut(){
@@ -33,6 +36,15 @@ public class OutputTextArea extends TextArea {
 		out.reset();
 	}
 
+	public void setFont() {
+		this.setFont(new Font("Arial", Font.PLAIN, 16));
+
+	}
+
+	public void changeSize(int x, int y) {
+		this.setPreferredSize(new Dimension(x-3, y-3));
+
+	}
 }
 
 class TextAreaOutputStream extends ByteArrayOutputStream {

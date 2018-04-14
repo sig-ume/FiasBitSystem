@@ -14,7 +14,8 @@ import javax.swing.JScrollPane;
  *
  */
 public class ConsolePanel extends JPanel {
-
+	OutputTextArea area;
+	JScrollPane sp;
 	public ConsolePanel(int x, int y) {
 		this.setLayout(null);
 		this.setSize(x, y);
@@ -27,17 +28,29 @@ public class ConsolePanel extends JPanel {
 //        System.setOut(out);    // true は AutoFlush の設定
 //        System.setErr(out);
 
-		OutputTextArea area = new OutputTextArea(x, y);
+		area = new OutputTextArea(x, y);
 
 		area.setToSystemErr();
 		area.setToSystemOut();
 
-        JScrollPane sp = new JScrollPane(area);
+        sp = new JScrollPane(area);
 		sp.setPreferredSize(new Dimension(x, y));
 		this.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
 		this.add(sp);
 
+	}
+
+	public void changeSize(int x, int y) {
+		area.changeSize(x, y);
+		this.setPreferredSize(new Dimension(x, y));
+		sp.setPreferredSize(new Dimension(x, y));
+		this.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+
+		this.add(sp);
+
+		area.repaint();
+		this.repaint();
 	}
 
 }

@@ -7,7 +7,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
@@ -17,10 +16,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 
 import jp.sigre.fbs.gui.component.ConsistActionListener;
 import jp.sigre.fbs.gui.component.ConsolePanel;
+import jp.sigre.fbs.gui.component.FbsMainComponentListener;
 import jp.sigre.fbs.selenium.trade.TradeController;
 import jp.sigre.fbs.timer.FbsTimerTask;
 
@@ -28,7 +29,7 @@ import jp.sigre.fbs.timer.FbsTimerTask;
  * @author sigre
  *
  */
-public class FbsGui extends JFrame implements ActionListener{
+public class FbsGui extends JFrame implements ActionListener {
 
 	private boolean isActive = false;
 	JButton startButton = new JButton();
@@ -38,6 +39,17 @@ public class FbsGui extends JFrame implements ActionListener{
 	ClassLoader thisLoader = getClass().getClassLoader();
 	URL stopIconUrl = thisLoader.getResource("lib/stop.png");
 	URL startIconUrl = thisLoader.getResource("lib/running.png");
+	ConsolePanel console;
+	String title;
+	Container contentPane;
+
+	JPanel p1;
+	JPanel p2;
+
+	int widthMainFrame = 500;
+	int heightMainFrame = 580;
+
+	boolean preMove = true;
 
 	public FbsGui(String title){
 		//		setTitle(title);
@@ -54,41 +66,41 @@ public class FbsGui extends JFrame implements ActionListener{
 		//	    contentPane.add(p1, BorderLayout.NORTH);
 		//	    contentPane.add(p2, BorderLayout.SOUTH);
 		setTitle(title);
-		setBounds(100, 100, 500, 580);
+		setBounds(100, 100, widthMainFrame, heightMainFrame);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		setLayout(new FlowLayout());
+		setLayout(new BorderLayout());
 
-		JPanel p1 = new JPanel();
-		p1.setPreferredSize(new Dimension(500, 80));
+		p1 = new JPanel();
+		p1.setPreferredSize(new Dimension(widthMainFrame, 80));
 		//p1.setBackground(Color.BLUE);
 		p1.setOpaque(false);
 
-		JPanel p2 = new JPanel();
+		p2 = new JPanel();
 		p2.setPreferredSize(new Dimension(50, 100));
 		p2.setBackground(Color.ORANGE);
 
 		startButton.setText("START");
-		startButton.setPreferredSize(new Dimension(460, 45));
+		startButton.setPreferredSize(new Dimension(widthMainFrame - 40, 45));
 
 		startButton.addActionListener(this);
 		p1.add(startButton);
 
 		consistButton.setText("CONSIST");
-		consistButton.setPreferredSize(new Dimension(460, 30));
+		consistButton.setPreferredSize(new Dimension(widthMainFrame - 40, 30));
 		consistButton.addActionListener(new ConsistActionListener());
 		p1.add(consistButton);
 
 		BevelBorder border = new BevelBorder(BevelBorder.RAISED);
 		p2.setBorder(border);
 
-		ConsolePanel console = new ConsolePanel(460, 400);
+		console = new ConsolePanel(widthMainFrame - 40, heightMainFrame - 150);
 
-		Container contentPane = getContentPane();
+		contentPane = getContentPane();
 		contentPane.add(p1, BorderLayout.NORTH);
 		//contentPane.add(p1);
 		//contentPane.add(p2);
-		contentPane.add(console, BorderLayout.SOUTH);
+		contentPane.add(console, BorderLayout.CENTER);
 
 		//アプリアイコン設定
 		ImageIcon icon = new ImageIcon(stopIconUrl);
@@ -99,13 +111,28 @@ public class FbsGui extends JFrame implements ActionListener{
 	 */
 	public static void main(String args[]){
 
-		FbsGui frame = new FbsGui("fia bit system");
+		SwingUtilities.invokeLater(new Runnable() {
 
-		boolean resultSetup = trade.tradeSetup();
+			@Override
+			public void run() {
+				// TODO 自動生成されたメソッド・スタブ
+				FbsGui frame = new FbsGui("fia bit system");
 
-		frame.setVisible(true);
+				frame.addComponentListener(new FbsMainComponentListener(frame));
+				frame.preMove = false;
 
-		//if (!resultSetup) System.exit(0);;
+
+				frame.setVisible(true);
+				boolean resultSetup = trade.tradeSetup();
+
+				System.out.println("x=" + frame.getWidth() + ", y=" + frame.getHeight());
+
+				//if (!resultSetup) System.exit(0);;
+
+			}
+
+		});
+
 	}
 
 	@Override
@@ -128,4 +155,41 @@ public class FbsGui extends JFrame implements ActionListener{
 
 	}
 
+	public void changeSize(int width, int height) {
+
+		widthMainFrame = width;
+		heightMainFrame = height;
+
+		setBounds(100, 100, widthMainFrame, heightMainFrame);
+
+		p1.setPreferredSize(new Dimension(widthMainFrame, 80));
+		//p1.setBackground(Color.BLUE);
+
+		startButton.setPreferredSize(new Dimension(widthMainFrame - 40, 45));
+
+		p1.add(startButton);
+
+		consistButton.setPreferredSize(new Dimension(widthMainFrame - 40, 30));
+		p1.add(consistButton);
+
+
+		console.changeSize(widthMainFrame - 40, heightMainFrame - 150);
+
+		contentPane.add(p1, BorderLayout.NORTH);
+		//contentPane.add(p1);
+		//contentPane.add(p2);
+		contentPane.add(console, BorderLayout.CENTER);
+
+
+		repaint();
+		//setVisible(true);
+
+	}
 }
+//
+//class ComponentAdapter_JFrame extends ComponentAdapter{
+//	public void componentResized(ComponentEvent e) {              //フレームのサイズが変更されたとき
+//		System.out.println("x=" + e.getComponent().getWidth() + ", y=" + frame.getHeight());
+//
+//	}
+//}
