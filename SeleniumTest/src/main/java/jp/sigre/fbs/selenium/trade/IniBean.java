@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IniBean {
-	private String lS_FilePath;
-	private String iD_FilePath;
+	private String lS_FilePath = "";
+	private String iD_FilePath = "";
 
 	private List<String[]> methodSet = new ArrayList<>();
 

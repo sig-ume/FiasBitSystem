@@ -381,7 +381,7 @@ public class ConnectDB {
 			return new ConvertHolidayResultSet().convertHoliday(rs);
 		} catch (SQLException e1) {
 			closeStatement();
-			System.out.println("Test");
+			//System.out.println("Test");
 			new LogMessage().writelnLog(e1.toString());
 		} finally {
 			closeStatement();
@@ -396,7 +396,7 @@ public class ConnectDB {
 				+ "MINI_CHECK_flg, realEntryVolume, entry_money, correctedEntryVolume, timeStamp) "
 				+ "SELECT code, dayTime, type, entryMethod, exitMethod, MINI_CHECK_flg, realEntryVolume, entry_money, "
 				+ "correctedEntryVolume, timeStamp FROM TempTradeData WHERE timeStamp <= ? ;";
-		System.out.println(sql);
+		//System.out.println(sql);
 
 		int result = 0;
 
@@ -423,7 +423,7 @@ public class ConnectDB {
 				+ "MINI_CHECK_flg, realEntryVolume, entry_money, correctedEntryVolume, timeStamp) "
 				+ "SELECT code, dayTime, type, entryMethod, exitMethod, MINI_CHECK_flg, realEntryVolume, entry_money, "
 				+ "correctedEntryVolume, timeStamp FROM TempTradeData WHERE MINI_CHECK_flg = '0';";
-		System.out.println(sql);
+		//System.out.println(sql);
 
 		int result = 0;
 
@@ -449,7 +449,7 @@ public class ConnectDB {
 				+ "SELECT code, dayTime, type, entryMethod, exitMethod, MINI_CHECK_flg, realEntryVolume, entry_money, "
 				+ "correctedEntryVolume, timeStamp FROM TempTradeData WHERE timeStamp <= ? "
 				+ "AND MINI_CHECK_flg = ?;";
-		System.out.println(sql);
+		//System.out.println(sql);
 
 		int result = 0;
 

@@ -83,7 +83,7 @@ public class TradeConsistencyTest extends TradeConsistency {
 		Files.copy(fromDb, db);
 
 		SeleniumTrade trade = new SeleniumTrade();
-		trade.login("C:\\Users\\sigre\\Dropbox\\idpassword", "0");
+		trade.login(strLsFolderPath, "0");
 		List<List<TradeDataBean>> result = checkDbAndSbiStock(trade);
 
 		assertThat(result.get(0).size(), is(not(0)));

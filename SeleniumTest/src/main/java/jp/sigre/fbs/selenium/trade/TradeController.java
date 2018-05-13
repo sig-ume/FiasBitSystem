@@ -67,7 +67,15 @@ public class TradeController {
 			return false;
 		}
 
-		if (!new File(strIdPath).isDirectory()) {
+		//idPath未指定時は直下（idPath指定が隠しパラメータとなったため）
+		if (strIdPath.equals("")) {
+			strIdPath = basePath;
+			iniBean.setID_FilePath(strIdPath);
+		}
+
+		File idFolder = new File(strIdPath);
+
+		if (!idFolder.isDirectory()) {
 			log.writelnLog("fbs.iniに指定されたIDファイル格納フォルダが存在しません。");
 			return false;
 		}

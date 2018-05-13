@@ -33,7 +33,7 @@ public class FbsMainComponentListener implements ComponentListener {
 		Component comp = e.getComponent();
 		if (comp==null) return;
 
-		System.out.println("x=" + comp.getWidth() + ", y=" + comp.getHeight());
+		//System.out.println("x=" + comp.getWidth() + ", y=" + comp.getHeight());
 		if (comp.getWidth() != pastWidth && comp.getHeight() != pastHeight) {
 			frame.changeSize(comp.getWidth(), comp.getHeight());
 			pastWidth = comp.getWidth();

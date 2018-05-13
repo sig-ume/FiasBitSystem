@@ -86,7 +86,7 @@ public class FbsGui extends JFrame implements ActionListener {
 		startButton.addActionListener(this);
 		p1.add(startButton);
 
-		consistButton.setText("CONSIST");
+		consistButton.setText("接続確認");
 		consistButton.setPreferredSize(new Dimension(widthMainFrame - 40, 30));
 		consistButton.addActionListener(new ConsistActionListener());
 		p1.add(consistButton);
@@ -125,7 +125,7 @@ public class FbsGui extends JFrame implements ActionListener {
 				frame.setVisible(true);
 				boolean resultSetup = trade.tradeSetup();
 
-				System.out.println("x=" + frame.getWidth() + ", y=" + frame.getHeight());
+				//System.out.println("x=" + frame.getWidth() + ", y=" + frame.getHeight());
 
 				//if (!resultSetup) System.exit(0);;
 
