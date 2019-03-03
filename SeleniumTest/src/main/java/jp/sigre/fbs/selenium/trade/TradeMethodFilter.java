@@ -47,6 +47,14 @@ public class TradeMethodFilter {
 			}
 		}
 
+		//株数が0なら削除
+		for (int i = 0; i<list.size(); i++) {
+			if (list.get(i).getRealEntryVolume().equals("0")) {
+				list.remove(i);
+				i--;
+			}
+		}
+
 	}
 
 	public void shortFilter(List<TradeDataBean> list, IniBean iniBean) {
@@ -54,6 +62,15 @@ public class TradeMethodFilter {
 		//sellUnusedMethodが0だった場合、使用するメソッドのみ売却処理→methodでのフィルターをかける
 		if (iniBean.getSellUnusedMethod().equals("0")) {
 			this.longFilter(list, iniBean);
+		} else {
+
+			//株数が0なら削除
+			for (int i = 0; i<list.size(); i++) {
+				if (list.get(i).getRealEntryVolume().equals("0")) {
+					list.remove(i);
+					i--;
+				}
+			}
 		}
 
 

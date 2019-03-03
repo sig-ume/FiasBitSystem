@@ -15,7 +15,8 @@ import jp.sigre.fbs.selenium.trade.TradeController;
 
 public class FbsTimerTask extends TimerTask {
 
-	TradeController trade = null;
+	private TradeController trade = null;
+	private LogMessage log = new LogMessage();
 
 	public FbsTimerTask(TradeController controller) {
 		this.trade = controller;
@@ -26,7 +27,7 @@ public class FbsTimerTask extends TimerTask {
 		// ここに繰り返し処理を書く
 
 		if (trade == null) {
-			new LogMessage().writelnLog("FbsControllerが設定されていません。処理を終了します。");
+			log.writelnLog("FbsControllerが設定されていません。処理を終了します。");
 			return;
 		}
 
@@ -48,10 +49,10 @@ public class FbsTimerTask extends TimerTask {
 		Date date = new Date();
 		cal2.setTime(date);
 		cal2.add(Calendar.MINUTE, 20);
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
 
-		new LogMessage().writelnLog("一連の処理を完了しました。次の動作は" + sdf.format(cal2.getTime()) + "頃です。");
+		log.writelnLog("一連の処理を完了しました。次の動作は" + sdf.format(cal2.getTime()) + "頃です。");
 
 	}
 }

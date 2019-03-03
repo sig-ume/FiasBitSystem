@@ -17,6 +17,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.UnreachableBrowserException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -34,6 +35,8 @@ public class SeleniumTrade {
 	}
 
 	public boolean login(String strFolderPath, String visible) {
+		int retryCount = 0;
+
 		FileUtils csv = new FileUtils();
 
 
@@ -80,7 +83,18 @@ public class SeleniumTrade {
 					PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY,
 					csv.getExePath(phantomStream, "phantomJS", ".exe")
 					);
-			driver = new PhantomJSDriver(caps);
+			try {
+				driver = new PhantomJSDriver(caps);
+
+			} catch (UnreachableBrowserException e) {
+				if (retryCount > 2) {
+					return false;
+				} else {
+					log.writelnLog("ログイン処理が失敗しました。再実行します。");
+					retryCount++;
+					return login(strFolderPath, visible);
+				}
+			}
 		}
 
 		// 検索は8秒以内に終了して欲しい
@@ -112,6 +126,7 @@ public class SeleniumTrade {
 
 		log.writelnLog("SBIへのログインが完了しました。");
 		System.out.println("Page title is: " + driver.getTitle());
+
 		return true;
 	}
 
@@ -423,11 +438,11 @@ public class SeleniumTrade {
 			plusBean.setRealEntryVolume(minusBean.getRealEntryVolume());
 			plusBean.setCorrectedEntryVolume(minusBean.getCorrectedEntryVolume());
 
-			minusBean.setRealEntryVolume("-" + minusBean.getRealEntryVolume());
-			minusBean.setCorrectedEntryVolume("-" + minusBean.getCorrectedEntryVolume());
+			minusBean.setRealEntryVolume(minus(minusBean.getRealEntryVolume()));
+			minusBean.setCorrectedEntryVolume(minus(minusBean.getCorrectedEntryVolume()));
 
-			db.insertTempTradeData(minusBean);
-			db.insertTempTradeData(plusBean);
+			db.insertTradeData(minusBean);
+			db.insertTradeData(plusBean);
 
 		}
 
@@ -438,6 +453,8 @@ public class SeleniumTrade {
 	private void hurikaeHasuu(int hasuu, TradeDataBean firstBean) {
 		ConnectDB db = new ConnectDB();
 
+		log.writelnLog(firstBean.toString());
+
 		db.connectStatement();
 		TradeDataBean plusBean = db.getHighestTradeViewOfCodeMethods(
 				firstBean.getCode(), firstBean.getEntryMethod(), firstBean.getExitMethod());
@@ -445,10 +462,19 @@ public class SeleniumTrade {
 		String strHasuu = String.valueOf(hasuu);
 		plusBean.setRealEntryVolume(strHasuu);
 		plusBean.setCorrectedEntryVolume(strHasuu);
+		plusBean.setDayTime(firstBean.getDayTime());
+		plusBean.setEntry_money(firstBean.getEntry_money());
+		plusBean.setMINI_CHECK_flg(firstBean.getMINI_CHECK_flg());
+		plusBean.setType(firstBean.getType());
+
+		log.writelnLog(plusBean.toString());
 
 		TradeDataBean minusBean = firstBean.clone();
-		minusBean.setRealEntryVolume("-" + strHasuu);
-		minusBean.setCorrectedEntryVolume("-" + strHasuu);
+		minusBean.setRealEntryVolume(minus(strHasuu));
+		minusBean.setCorrectedEntryVolume(minus(strHasuu));
+
+
+		log.writelnLog(minusBean.toString());
 
 		db.insertTempTradeData(minusBean);
 		db.insertTempTradeData(plusBean);
@@ -664,7 +690,7 @@ public class SeleniumTrade {
 			return new ArrayList<>();
 		}
 
-			//middleAreaM2
+		//middleAreaM2
 		WebElement element = driver.findElement(By.className("middleAreaM2")).findElements(By.tagName("table")).get(5);
 
 		return getSBIStock(element);
@@ -763,6 +789,12 @@ public class SeleniumTrade {
 		db.closeStatement();
 
 		return result;
+	}
+
+
+	private String minus(String realEntryVolume) {
+		int value = Integer.valueOf(realEntryVolume);
+		return String.valueOf(-1 * value);
 	}
 
 }

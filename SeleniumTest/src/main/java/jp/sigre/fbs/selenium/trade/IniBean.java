@@ -15,6 +15,8 @@ public class IniBean {
 
 	private List<Integer> skipList = new ArrayList<>();
 
+	private boolean isAdminUser = false;
+
 	public String getTradeVisible() {
 		return tradeVisible;
 	}
@@ -81,6 +83,14 @@ public class IniBean {
 
 
 		return result;
+	}
+
+	public boolean getIsAdminUser() {
+		return isAdminUser;
+	}
+
+	public void setIsAdminUser(boolean isAdminUser) {
+		this.isAdminUser = isAdminUser;
 	}
 
 }

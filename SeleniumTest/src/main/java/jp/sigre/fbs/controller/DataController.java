@@ -66,7 +66,6 @@ public class DataController {
 
 		for (SepaCombineBean bean : sepaComList) {
 			TradeDataBean tradeBean = db.getTradeViewOfCode(bean.getCode());
-			System.out.println(tradeBean.getRealEntryVolume());
 
 			if (tradeBean.getRealEntryVolume().equals("0")) continue;
 
@@ -74,7 +73,8 @@ public class DataController {
 			tradeBean.setEntry_money("0");
 			tradeBean.setEntryMethod(WILDCARD);
 			tradeBean.setExitMethod(WILDCARD);
-			tradeBean.setMINI_CHECK_flg("2");
+			//分割併合は３
+			tradeBean.setMINI_CHECK_flg("3");
 
 			System.out.println(tradeBean.getCode() + " :" + tradeBean.getRealEntryVolume());
 			int realEntryVolume = Integer.parseInt(tradeBean.getRealEntryVolume());
@@ -123,24 +123,25 @@ public class DataController {
 				int intAscStock = Integer.parseInt(ascBean.getRealEntryVolume());
 
 				if (intStock <= intAscStock) {
-					ascBean.setRealEntryVolume("-" + String.valueOf(intStock));
+					ascBean.setRealEntryVolume(String.valueOf(-1 * intStock));
 					ascBean.setCorrectedEntryVolume(ascBean.getRealEntryVolume());
 
 					ascBean.setDayTime(strToday);
 					ascBean.setEntry_money("0");
-					ascBean.setMINI_CHECK_flg("2");
+					//DBとSBIのストック齟齬は4
+					ascBean.setMINI_CHECK_flg("4");
 					ascBean.setType("DD");
 
 					//取得した銘柄、メソッドから株数をマイナス
 					db.insertTradeData(ascBean);
 					break;
 				} else {
-					ascBean.setRealEntryVolume("-" + String.valueOf(intAscStock));
+					ascBean.setRealEntryVolume(String.valueOf(-1 * intAscStock));
 					ascBean.setCorrectedEntryVolume(ascBean.getRealEntryVolume());
 
 					ascBean.setDayTime(strToday);
 					ascBean.setEntry_money("0");
-					ascBean.setMINI_CHECK_flg("2");
+					ascBean.setMINI_CHECK_flg("4");
 					ascBean.setType("DD");
 
 					//取得した銘柄、メソッドから株数をマイナス
@@ -161,7 +162,7 @@ public class DataController {
 			sbiBean.setEntry_money("0");
 			sbiBean.setEntryMethod("wildcard");
 			sbiBean.setExitMethod("wildcard");
-			sbiBean.setMINI_CHECK_flg("2");
+			sbiBean.setMINI_CHECK_flg("4");
 			sbiBean.setType("DD");
 
 			//DBに挿入
@@ -186,7 +187,8 @@ public class DataController {
 			//株数をマイナスにして
 			bean.setDayTime(strToday);
 			bean.setEntry_money("0");
-			bean.setMINI_CHECK_flg("2");
+			//eliteとの比較は5
+			bean.setMINI_CHECK_flg("5");
 			bean.setType("DD");
 
 		}
@@ -204,6 +206,9 @@ public class DataController {
 
 		//getUsualCalでisHolidayがかわる
 		Calendar usualCal = getUsualCal(nowCal);
+
+		String strDay = isHoliday ? "休日" : "平日";
+		log.writelnLog("本日は" + strDay + "です。");
 
 		if (isHoliday) moveTempTradeDateHoliday(usualCal);
 		else moveTempTradeDateUsual(usualCal);
@@ -323,10 +328,15 @@ public class DataController {
 		System.out.println("borderDate: " + borderDate);
 
 		int count3 = db.moveTempTradeSData(borderDate);
-		if (count3 > 0) db.deleteTempTradeSData(borderDate);
+		if (count3 > 0) {
+			db.deleteTempTradeSData(borderDate);
+			count += count3;
+		}
 
-		count += count3;
+		log.writelnLog(borderDate + "以前のS株取引(" + count3 + "件)を保有株数へ反映しました。");
 
+		int count4 = db.moveTempTradeFurikaeData(borderDate);
+		if (count4 > 0) db.deleteTempTradeFurikaeData(borderDate);
 
 		//AM9時～PM3時であれば、単元の注文をすべて処理
 		if (hour >= 9 && hour < 15) {
@@ -352,6 +362,8 @@ public class DataController {
 			int count2 = db.moveTempTradeTangenData(exe0Date);
 			if (count2 > 0) db.deleteTempTradeTangenData(exe0Date);
 
+			log.writelnLog(exe0Date + "以前の単元株取引(" + count2 + "件)を保有株数へ反映しました。");
+
 			count += count2;
 
 		} else {
@@ -366,11 +378,13 @@ public class DataController {
 			int count2 = db.moveTempTradeTangenData(exe0Date);
 			if (count2 > 0) db.deleteTempTradeTangenData(exe0Date);
 
+			log.writelnLog(exe0Date + "以前の単元株取引(" + count2 + "件)を保有株数へ反映しました。");
+
 			count += count2;
 
 		}
 
-		if (count > 0) log.writelnLog(borderDate + "以前の取引(" + count + "件)を保有株数へ反映しました。");
+		//if (count > 0) log.writelnLog(borderDate + "以前の取引(" + count + "件)を保有株数へ反映しました。");
 
 		db.closeStatement();
 
@@ -404,6 +418,8 @@ public class DataController {
 			count += count2;
 		}
 
+		log.writelnLog(exe0Date + "以前の単元株取引(" + count2 + "件)を保有株数へ反映しました。");
+
 		exeCal.set(Calendar.HOUR_OF_DAY, 10);
 
 		exeCal.set(Calendar.MINUTE, 30);
@@ -418,9 +434,15 @@ public class DataController {
 			count += count3;
 		}
 
+		log.writelnLog(borderDate + "以前のS株取引(" + count3 + "件)を保有株数へ反映しました。");
+
+		int count4 = db.moveTempTradeFurikaeData(borderDate);
+		if (count4 > 0) db.deleteTempTradeFurikaeData(borderDate);
+
+
 		db.closeStatement();
 
-		if (count > 0) log.writelnLog(borderDate + "以前の取引(" + count + "件)を保有株数へ反映しました。");
+		//if (count > 0) log.writelnLog(borderDate + "以前の取引(" + count + "件)を保有株数へ反映しました。");
 
 		return borderDate;
 	}

@@ -177,6 +177,7 @@ public class FileUtils {
 				log.writelnLog("Skip設定が不正です。: " + line);
 			}
 		}
+		if (line.startsWith("isAdminUser")) bean.setIsAdminUser(getIsAdminUser(line));
 	}
 
 	private String getLS_FilePath(String line) {
@@ -209,6 +210,19 @@ public class FileUtils {
 
 	private int getSkipNumber(String line) throws NumberFormatException{
 		return Integer.parseInt(line.split("=")[1]);
+	}
+
+	private boolean getIsAdminUser(String line) throws NumberFormatException{
+		if (line.split("=")[1].equals("cw1988")) return true;
+		else return false;
+	}
+
+	public void makeOutOfLoopFile(List<TradeDataBean> list, String outPath, boolean isBuying) {
+
+		String fileName = isBuying? "手動で購入してください.csv" : "手動で売却してください.csv";
+
+		makeDataFile(list, outPath, fileName);
+
 	}
 
 	public void makeRemainsDataFile(List<TradeDataBean> list, String outPath, boolean isBuying) {
@@ -335,6 +349,13 @@ public class FileUtils {
 		deleteFile(target);
 	}
 
+	public void removeSepaComFile(String strLsPath) {
+		//TODO;remainsファイルのフルパスを取得するメソッド作成
+		String fileName = "FBSsepaCombine.csv";
+		File target = new File(strLsPath + File.separator + fileName);
+
+		deleteFile(target);
+	}
 
 
 	public String getExePath(InputStream inputStream, String prefix, String suffix) {
@@ -481,9 +502,9 @@ public class FileUtils {
 	}
 
 	public String getSepaComFilePath(String strFolderPath) {
-		// TODO 自動生成されたメソッド・スタブ
-		return strFolderPath + File.separator + "00_00_sepaComKakodata.csv";
+		return strFolderPath + File.separator + "FBSsepaCombine.csv";
 	}
+
 
 
 }

@@ -451,6 +451,7 @@ public class ConnectDB {
 				+ "AND MINI_CHECK_flg = ?;";
 		//System.out.println(sql);
 
+		new LogMessage(sql + ": " + date + ": " + miniCheckFlg);
 		int result = 0;
 
 		try {
@@ -475,6 +476,11 @@ public class ConnectDB {
 
 	public int moveTempTradeSData(String date) {
 		return moveTempTradeData_(date, 1);
+	}
+
+
+	public int moveTempTradeFurikaeData(String date) {
+		return moveTempTradeData_(date, 2);
 	}
 
 	/**
@@ -622,12 +628,17 @@ public class ConnectDB {
 	}
 
 	public int deleteTempTradeSData(String date) {
-		return deleteTradeSData_(TRADE_TEMP_TABLE, date);
+		return deleteTradeData_(TRADE_TEMP_TABLE, date, 1);
 	}
 
 	public int deleteTempTradeData(String borderDate) {
 		return deleteTradeData_(TRADE_TEMP_TABLE, borderDate);
 	}
+
+	public int deleteTempTradeFurikaeData(String date) {
+		return deleteTradeData_(TRADE_TEMP_TABLE, date, 2);
+	}
+
 
 	private int deleteTradeData_(String tableName, String borderDate) {
 
@@ -673,10 +684,6 @@ public class ConnectDB {
 		return deleteTradeData_(tableName, borderDate, 0);
 	}
 
-
-	private int deleteTradeSData_(String tableName, String borderDate) {
-		return deleteTradeData_(tableName, borderDate, 1);
-	}
 
 	private int deleteTradeTangenData_(String tableName) {
 
@@ -760,6 +767,7 @@ public class ConnectDB {
 
 		return 0;
 	}
+
 
 }
 

@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.*;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.After;
@@ -114,6 +115,83 @@ public class FileUtilsTest {
 		List<SepaCombineBean> list = target.csvToSepaCombine(folderPath + File.separator + "FBSsepaCombine_ファイルが空.csv");
 
 		assertThat(list.size(), is(0));
+	}
+
+	@Test
+	public void testMakeOutOfLoopFile_正常系() {
+
+		File file = new File(folderPath + File.separator + "手動で購入してください.csv");
+
+		file.delete();
+
+		TradeDataBean bean1 = new TradeDataBean("1111", "test", "test", "test", "test", "test", "test", "test", null);
+		TradeDataBean bean2 = new TradeDataBean("2222", "test", "test", "test", "test", "test", "test", "test", null);
+		TradeDataBean bean3 = new TradeDataBean("3333", "test", "test", "test", "test", "test", "test", "test", null);
+
+		List<TradeDataBean> expected = new ArrayList<>();
+		expected.add(bean1);
+		expected.add(bean2);
+		expected.add(bean3);
+
+		target.makeOutOfLoopFile(expected, folderPath, true);
+
+		assertThat(file.exists(), is(true));
+		List<TradeDataBean> actual = target.csvToTorihikiData(file);
+
+		assertThat(actual, is(expected));
+	}
+
+	@Test
+	public void testMakeOutOfLoopFile_正常系_二回書き込み() {
+
+		File file = new File(folderPath + File.separator + "手動で購入してください.csv");
+
+		file.delete();
+
+		TradeDataBean bean1 = new TradeDataBean("1111", "test", "test", "test", "test", "test", "test", "test", null);
+		TradeDataBean bean2 = new TradeDataBean("2222", "test", "test", "test", "test", "test", "test", "test", null);
+		TradeDataBean bean3 = new TradeDataBean("3333", "test", "test", "test", "test", "test", "test", "test", null);
+
+		List<TradeDataBean> expected = new ArrayList<>();
+		expected.add(bean1);
+		expected.add(bean2);
+		expected.add(bean3);
+
+		target.makeOutOfLoopFile(expected, folderPath, true);
+		target.makeOutOfLoopFile(expected, folderPath, true);
+
+		expected.add(bean1);
+		expected.add(bean2);
+		expected.add(bean3);
+
+		assertThat(file.exists(), is(true));
+		List<TradeDataBean> actual = target.csvToTorihikiData(file);
+
+		assertThat(actual, is(expected));
+	}
+
+	@Test
+	public void testMakeOutOfLoopFile_正常系_売却() {
+
+		File file = new File(folderPath + File.separator + "手動で売却してください.csv");
+
+		file.delete();
+
+		TradeDataBean bean1 = new TradeDataBean("1111", "test", "test", "test", "test", "test", "test", "test", null);
+		TradeDataBean bean2 = new TradeDataBean("2222", "test", "test", "test", "test", "test", "test", "test", null);
+		TradeDataBean bean3 = new TradeDataBean("3333", "test", "test", "test", "test", "test", "test", "test", null);
+
+		List<TradeDataBean> expected = new ArrayList<>();
+		expected.add(bean1);
+		expected.add(bean2);
+		expected.add(bean3);
+
+		target.makeOutOfLoopFile(expected, folderPath, false);
+
+		assertThat(file.exists(), is(true));
+		List<TradeDataBean> actual = target.csvToTorihikiData(file);
+
+		assertThat(actual, is(expected));
 	}
 
 //	@Test

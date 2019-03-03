@@ -128,7 +128,11 @@ public class TradeController {
 			log.writelnLog("分割併合があります。株数を修正後に売買を開始します。");
 
 			//分割併合処理
-			if(new DataController().updateSepaCombine(strLsPath)) log.writelnLog("分割併合処理が成功しました。");
+			if(new DataController().updateSepaCombine(strLsPath)) {
+				//分割併合ファイル削除
+				fileUtils.removeSepaComFile(strLsPath);
+				log.writelnLog("分割併合処理が成功しました。");
+			}
 			else log.writelnLog("分割併合処理が失敗しました。");
 		} else {
 			log.writelnLog("分割併合銘柄があります。売買可能となる18時まで処理を制限します。");
@@ -158,6 +162,12 @@ public class TradeController {
 		Digest dig = new Digest();
 		int count = 0;
 		String keyPath = fileUtils.getKeyPath(strLsPath);
+
+		if (iniBean.getIsAdminUser() && !new File(keyPath).exists()) {
+			log.writelnLog("Keyファイルを作成します。");
+			dig.makeDigestFile(keyPath, count);
+		}
+
 		if (!dig.checkDigestFile(keyPath)) {
 
 			log.writelnLog("KICKファイルが存在しないか不正です。");
@@ -398,6 +408,11 @@ public class TradeController {
 
 	}
 
+	/**
+	 * 購入時のメソッド
+	 * @param beanList
+	 * @return
+	 */
 	private List<TradeDataBean> buyTyuumon(List<TradeDataBean> beanList) {
 		DataController data = new DataController();
 		List<TradeDataBean> failedList = new ArrayList<>();
@@ -422,7 +437,9 @@ public class TradeController {
 				insertTradedBeanToDB(listInSetBean);
 
 			} else {
-				failedList.addAll(listInSetBean);
+				//特定のエラーメッセージは別ファイルに書き出し
+				if (checkLoopError(strResult)) fileUtils.makeOutOfLoopFile(listInSetBean, strLsPath, true);
+				else failedList.addAll(listInSetBean);
 			}
 
 			for(TradeDataBean bean :  listInSetBean)log.writelnLog(bean.getCode() + ":" + bean.getRealEntryVolume() + " " + strResult);
@@ -430,6 +447,19 @@ public class TradeController {
 		}
 
 		return failedList;
+	}
+
+	private boolean checkLoopError(String strResult) {
+
+		//預り残高が不足しております。保有証券、発注状況を再度ご確認ください。
+		final String WECEA00030 = "WECEA00030";
+		//買付余力が不足しております。
+		final String WECEK00210 = "WECEK00210";
+
+		if (strResult.contains(WECEK00210)) return true;
+		if (strResult.contains(WECEA00030)) return true;
+
+		return false;
 	}
 
 	private void insertTradedBeanToDB(List<TradeDataBean> beanList) {
