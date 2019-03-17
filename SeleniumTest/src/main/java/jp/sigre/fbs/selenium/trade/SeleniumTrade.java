@@ -1,9 +1,6 @@
 package jp.sigre.fbs.selenium.trade;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -37,51 +34,54 @@ public class SeleniumTrade {
 	public boolean login(String strFolderPath, String visible) {
 		int retryCount = 0;
 
-		FileUtils csv = new FileUtils();
+		FileUtils file = new FileUtils();
 
 
 		//idpassword.fbsのフルパスをFileUtilsから取得する
-		String strIdPassPath = csv.getIdPassFilePath(strFolderPath);
+		String strIdPassPath = file.getIdPassFilePath(strFolderPath);
 
-		String[] aryIdPass = csv.csvToIdPass(new File(strIdPassPath));
+		String[] aryIdPass = file.csvToIdPass(new File(strIdPassPath));
 
 		String strId = aryIdPass[0];
 		String strLoginPass = aryIdPass[1];
 
-		InputStream geckoStream = this.getClass().getClassLoader().getResourceAsStream("lib/geckodriver.exe");
+		//InputStream geckoStream = this.getClass().getClassLoader().getResourceAsStream("lib/geckodriver.exe");
 
-		if (geckoStream==null) {
-			log.writelnLog("geckoDriverが取得できません。");
-			return false;
-		}
-
-		ByteArrayOutputStream xxx = new ByteArrayOutputStream();
-		byte[] buf = new byte[32768]; // この値は適当に変更してください
-		int size = 0;
-
-		try {
-			while((size = geckoStream.read(buf, 0, buf.length)) != -1) {
-				xxx.write(buf, 0, size);
-			}
-		} catch (IOException e) {
-			// TODO 自動生成された catch ブロック
-			log.writelnLog(e.getMessage());
-			return false;
-		}
+//		if (geckoStream==null) {
+//			log.writelnLog("geckoDriverが取得できません。");
+//			return false;
+//		}
+//
+//		ByteArrayOutputStream xxx = new ByteArrayOutputStream();
+//		byte[] buf = new byte[32768]; // この値は適当に変更してください
+//		int size = 0;
+//
+//		try {
+//			while((size = geckoStream.read(buf, 0, buf.length)) != -1) {
+//				xxx.write(buf, 0, size);
+//			}
+//		} catch (IOException e) {
+//			// TODO 自動生成された catch ブロック
+//			log.writelnLog(e.getMessage());
+//			return false;
+//		}
 
 		//System.out.println("サイズ; " + xxx.size());
-
-		System.setProperty("webdriver.gecko.driver", csv.getExePath(geckoStream, "geckodriver", ".exe"));
+		System.out.println(file.getGeckoDriverFilePath(System.getProperty("user.dir")));
+		//System.setProperty("webdriver.gecko.driver", file.getExePath(geckoStream, "geckodriver", ".exe"));
+		System.setProperty("webdriver.gecko.driver", file.getGeckoDriverFilePath(System.getProperty("user.dir")));
 
 		//FirefoxとPhantomJSの選択設定を追加
 		if (visible.equals("1")) {
 			driver = new FirefoxDriver();
 		} else {
-			InputStream phantomStream = this.getClass().getClassLoader().getResourceAsStream("lib/phantomjs.exe");
+			//InputStream phantomStream = this.getClass().getClassLoader().getResourceAsStream("lib/phantomjs.exe");
+			System.out.println("debug後削除コメ："+ file.getPhantomJsFilePath(System.getProperty("user.dir")));
 			DesiredCapabilities caps = new DesiredCapabilities();
 			caps.setCapability(
 					PhantomJSDriverService.PHANTOMJS_EXECUTABLE_PATH_PROPERTY,
-					csv.getExePath(phantomStream, "phantomJS", ".exe")
+					//csv.getExePath(phantomStream, "phantomJS", ".exe")
+					file.getPhantomJsFilePath(System.getProperty("user.dir"))
 					);
 			try {
 				driver = new PhantomJSDriver(caps);

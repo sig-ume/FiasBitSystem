@@ -505,6 +505,13 @@ public class FileUtils {
 		return strFolderPath + File.separator + "FBSsepaCombine.csv";
 	}
 
+	public String getGeckoDriverFilePath(String strFolderPath) {
+		return strFolderPath + File.separator + "lib" + File.separator + "geckodriver.exe";
+	}
+
+	public String getPhantomJsFilePath(String strFolderPath) {
+		return strFolderPath + File.separator + "lib" + File.separator + "phantomjs.exe";
+	}
 
 
 }
