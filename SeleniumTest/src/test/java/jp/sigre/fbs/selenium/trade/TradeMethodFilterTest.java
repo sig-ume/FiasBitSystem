@@ -23,7 +23,9 @@ import jp.sigre.fbs.utils.FileUtils;
  * @author sigre
  *
  */
-public class TradeMethodFilterTest extends TradeMethodFilter {
+public class TradeMethodFilterTest  {
+
+
 
 	private final static FileUtils fileUtils = new FileUtils();
 	private final static String basePath = System.getProperty("user.dir");
@@ -33,6 +35,7 @@ public class TradeMethodFilterTest extends TradeMethodFilter {
 	//TODO:以下のグローバル引数を削除
 
 	private static IniBean iniBean = null;
+	private static TradeMethodFilter target = null;
 
 	/**
 	 * @throws java.lang.Exception
@@ -51,6 +54,7 @@ public class TradeMethodFilterTest extends TradeMethodFilter {
 		//iniBeanの形式エラーチェック
 		iniBean = fileUtils.iniToBean(iniFile);
 
+		target = new TradeMethodFilter(iniBean);
 	}
 
 	/**
@@ -136,7 +140,7 @@ public class TradeMethodFilterTest extends TradeMethodFilter {
 		bean9.setCode("0009");
 		list.add(bean9);
 
-		skipCode(list, iniBean);
+		target.skipCode(list, iniBean);
 
 		assertThat(list.size(), is(5));
 		assertThat(list.get(0).getCode(), is("0000"));
@@ -176,7 +180,7 @@ public class TradeMethodFilterTest extends TradeMethodFilter {
 		bean8.setCode("0008");
 		list.add(bean8);
 
-		skipCode(list, iniBean);
+		target.skipCode(list, iniBean);
 
 		assertThat(list.size(), is(0));
 

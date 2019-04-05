@@ -314,7 +314,7 @@ public class TradeController {
 
 		if (lRemFile.exists()) beanList.addAll(fileUtils.csvToTorihikiData(lRemFile));
 
-		TradeMethodFilter filter = new TradeMethodFilter();
+		TradeMethodFilter filter = new TradeMethodFilter(iniBean);
 		filter.longFilter(beanList, iniBean);
 		filter.skipCode(beanList, iniBean);
 
@@ -375,9 +375,10 @@ public class TradeController {
 		log.writelnLog("LSファイルの読み込みが完了しました。");
 
 
-		TradeMethodFilter filter = new TradeMethodFilter();
+		TradeMethodFilter filter = new TradeMethodFilter(iniBean);
 		filter.longFilter(beanList, iniBean);
 		filter.skipCode(beanList, iniBean);
+		//ここでRatio分の倍数をかける
 
 		List<TradeDataBean> failedList = new ArrayList<>();
 
@@ -538,7 +539,7 @@ public class TradeController {
 
 		if (lRemFile.exists()) beanList.addAll(fileUtils.csvToTorihikiData(lRemFile));
 
-		TradeMethodFilter filter = new TradeMethodFilter();
+		TradeMethodFilter filter = new TradeMethodFilter(iniBean);
 		filter.shortFilter(beanList, iniBean);
 
 		//sellUnusedMethodが1の場合、使用していないメソッドの所有銘柄をすべて売却リストに追加

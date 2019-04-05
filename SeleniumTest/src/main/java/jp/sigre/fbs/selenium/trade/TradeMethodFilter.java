@@ -12,11 +12,19 @@ import jp.sigre.fbs.log.LogMessage;
  */
 public class TradeMethodFilter {
 
+
 	LogMessage log = new LogMessage();
+	List<String[]> methodSets = new ArrayList<>();
+	IniBean iniBean = null;
+
+	public TradeMethodFilter(IniBean iniBean)  {
+		this.iniBean = iniBean;
+		methodSets = iniBean.getMethodSet();
+	}
 
 	public void longFilter(List<TradeDataBean> list, IniBean iniBean) {
 		List<Boolean> checkbox = new ArrayList<>();
-
+		methodSets = iniBean.getMethodSet();
 		for (int i = 0; i<list.size(); i++) {
 			checkbox.add(false);
 		}
@@ -26,7 +34,7 @@ public class TradeMethodFilter {
 			String entryMethod = tradeData.getEntryMethod();
 			String exitMethod = tradeData.getExitMethod();
 
-			for (String[] methodSet : iniBean.getMethodSet()) {
+			for (String[] methodSet : methodSets) {
 
 				if (entryMethod.equals(methodSet[0]) && exitMethod.equals(methodSet[1]) && !methodSet[2].equals("0")) {
 					checkbox.set(i, true);

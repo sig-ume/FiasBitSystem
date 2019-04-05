@@ -195,7 +195,7 @@ public class SeleniumTrade {
 		driver.findElement(By.name("trade_pwd")).clear();
 		driver.findElement(By.name("trade_pwd")).sendKeys(new String[]{strTorihPass});
 		driver.findElement(By.name("skip_estimate")).click();
-		driver.findElement(By.name("ACT_place")).click();
+		driver.findElement(By.id("botton2")).click();
 	}
 
 	private void tradeNormalStocks(String code, int volume, String strTorihPass, boolean isBuying) {
@@ -210,11 +210,14 @@ public class SeleniumTrade {
 		driver.findElement(By.name("stock_sec_code")).sendKeys(new String[]{code});
 		driver.findElement(By.name("input_quantity")).clear();
 		driver.findElement(By.name("input_quantity")).sendKeys(new String[]{String.valueOf(volume)});
-		driver.findElement(By.cssSelector("#gsn1 > input[name=\"in_sasinari_kbn\"]")).click();
+		//driver.findElements(By.name("in_sasinari_kbn")).get(1).click();
+		WebElement elem = driver.findElement(By.id("gsn1"));
+		log.writelnLog("mmmmmm" + elem.getText() + "\n\n");
+		elem.findElement(By.name("in_sasinari_kbn")).click();
 		driver.findElement(By.id("pwd3")).clear();
 		driver.findElement(By.id("pwd3")).sendKeys(new String[]{strTorihPass});
 		driver.findElement(By.name("skip_estimate")).click();
-		driver.findElement(By.name("ACT_place")).click();
+		driver.findElement(By.id("botton2")).click();
 	}
 
 
@@ -500,8 +503,10 @@ public class SeleniumTrade {
 			calcCorrectedEntryVolume(bean);
 
 			if (bean.getMINI_CHECK_flg().equals("1")) {
+				log.writelnLog("mini");
 				tradeSmallStock(bean, strTorihPass, isBuying);
 			} else if (bean.getMINI_CHECK_flg().equals("0")){
+				log.writelnLog("normal");
 				tradeNormalStocks(bean, strTorihPass, isBuying);
 			}
 			String strResult = getTradeResult();
@@ -634,13 +639,15 @@ public class SeleniumTrade {
 		driver.findElement(By.name("trade_pwd")).clear();
 		driver.findElement(By.name("trade_pwd")).sendKeys(new String[]{strTorihPass});
 		driver.findElement(By.name("skip_estimate")).click();
-		driver.findElement(By.name("ACT_place")).click();
+		driver.findElement(By.id("botton2")).click();
 	}
 
 
 	private void tradeNormalStocks(TradeDataBean bean, String strTorihPass, boolean isBuying) {
 		//TODO：driver有効かチェック
 		driver.findElement(By.cssSelector("img[alt=\"取引\"]")).click();
+
+		log.writelnLog("test mess");
 
 		//買い：genK、売り：genU
 		if (isBuying) 	driver.findElement(By.id("genK")).click();
@@ -650,29 +657,29 @@ public class SeleniumTrade {
 		driver.findElement(By.name("stock_sec_code")).sendKeys(new String[]{bean.getCode()});
 		driver.findElement(By.name("input_quantity")).clear();
 		driver.findElement(By.name("input_quantity")).sendKeys(new String[]{bean.getRealEntryVolume()});
-		driver.findElement(By.cssSelector("#gsn1 > input[name=\"in_sasinari_kbn\"]")).click();
+		//driver.findElement(By.cssSelector("#gsn1 > input[name=\"in_sasinari_kbn\"]")).click();
+		//
+		WebElement elem = driver.findElement(By.id("gsn1"));
+		log.writelnLog("mmmmmm" + elem.getText() + "\n\n");
+		elem.findElement(By.name("in_sasinari_kbn")).click();
+
 		driver.findElement(By.id("pwd3")).clear();
 		driver.findElement(By.id("pwd3")).sendKeys(new String[]{strTorihPass});
 		driver.findElement(By.name("skip_estimate")).click();
-		driver.findElement(By.name("ACT_place")).click();
+		driver.findElement(By.id("botton2")).click();
 	}
 
 	private String getTradeResult() {
 		String strMsg;
 		try{
-			WebElement element = driver.findElement(By.name("FORM"));
-
-			List<WebElement> elements = element.findElements(By.tagName("table"));
-
-			element = elements.get(2);
-
-			//if (strMiniFlg.equals("1")) element = element.findElement(By.tagName("font"));
-			//else if (strMiniFlg.equals("0")) element = element.findElement(By.className("mtext"));
-
-			element = element.findElement(By.tagName("b"));
-
-			//WebElement element = driver.findElement(By.xpath("//form/table[3].0.0"));
-
+//			WebElement element = driver.findElement(By.name("FORM"));
+//
+//			List<WebElement> elements = element.findElements(By.tagName("table"));
+//
+//			element = elements.get(1);
+//
+//			element = element.findElement(By.tagName("b"));
+			WebElement element = driver.findElement(By.cssSelector("p[class='fl01 bold']"));
 			strMsg = element.getText();
 		} catch (org.openqa.selenium.NoSuchElementException e) {
 			strMsg = e.toString().split("\n")[0];

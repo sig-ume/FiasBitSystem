@@ -34,11 +34,13 @@
 							<mainClass>jp.sigre.fbs.gui.FbsGui</mainClass>
 						</manifest>
 					</archive>
+					<excldes>
+						<exclude>C:\Users\sigre\git\SeleniumTest\SeleniumTest\lib\*</exclude>
+					</excldes>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-
 
 	<dependencies>
 
