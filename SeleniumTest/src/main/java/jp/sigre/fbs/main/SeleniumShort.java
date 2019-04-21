@@ -67,7 +67,7 @@ public class SeleniumShort {
 		//TODO:ファイルが無い場合の例外処理
 		List<TradeDataBean> beanList = csv.csvToTorihikiData(lFile);//
 
-		new TradeMethodFilter(iniBean).shortFilter(beanList, iniBean);
+		new TradeMethodFilter(iniBean).shortFilter(beanList);
 
 		ConnectDB db = new ConnectDB();
 		db.connectStatement();

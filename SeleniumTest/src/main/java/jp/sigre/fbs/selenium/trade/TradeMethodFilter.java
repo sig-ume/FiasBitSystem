@@ -22,7 +22,7 @@ public class TradeMethodFilter {
 		methodSets = iniBean.getMethodSet();
 	}
 
-	public void longFilter(List<TradeDataBean> list, IniBean iniBean) {
+	public void longFilter(List<TradeDataBean> list) {
 		List<Boolean> checkbox = new ArrayList<>();
 		methodSets = iniBean.getMethodSet();
 		for (int i = 0; i<list.size(); i++) {
@@ -65,11 +65,11 @@ public class TradeMethodFilter {
 
 	}
 
-	public void shortFilter(List<TradeDataBean> list, IniBean iniBean) {
+	public void shortFilter(List<TradeDataBean> list) {
 
 		//sellUnusedMethodが0だった場合、使用するメソッドのみ売却処理→methodでのフィルターをかける
 		if (iniBean.getSellUnusedMethod().equals("0")) {
-			this.longFilter(list, iniBean);
+			this.longFilter(list);
 		} else {
 
 			//株数が0なら削除
@@ -105,7 +105,7 @@ public class TradeMethodFilter {
 
 	}
 
-	public void skipCode(List<TradeDataBean> list, IniBean iniBean) {
+	public void skipCode(List<TradeDataBean> list) {
 		List<Integer> skipList = iniBean.getSkipList();
 
 		for (int j = 0; j<skipList.size(); j++) {
@@ -124,4 +124,46 @@ public class TradeMethodFilter {
 		}
 	}
 
+	public List<TradeDataBean> setLongRatioedValue(List<TradeDataBean> beanList) {
+
+		methodSets = iniBean.getMethodSet();
+		//entry&exit=0 or 1のメソッドを削除
+		for (int i = 0; i < methodSets.size(); i++) {
+			String[] methodSet = methodSets.get(i);
+			if (methodSet[2].equals("0") || methodSet[2].equals("1")) {
+				methodSets.remove(i);
+				i--;
+			}
+		}
+
+		for (String[] methodSet : methodSets) {
+			double ratio = Double.valueOf(methodSet[2]);
+			if (ratio < 1) {
+				log.writelnLog(methodSet[0] + ":" + methodSet[1] + "はレシオ1未満なので1扱いとします。");
+				continue;
+			}
+			for (TradeDataBean tradeData : beanList) {
+				String strEntryMethod = tradeData.getEntryMethod();
+				String strExitMethod = tradeData.getExitMethod();
+				if (!(strEntryMethod.equals(methodSet[0]) && strExitMethod.equals(methodSet[1]))) continue;
+				Double realEntryVolume = Double.valueOf(tradeData.getRealEntryVolume());
+				//String ratioedVolume = String.valueOf((int)Math.round(realEntryVolume * ratio));
+				String ratioedVolume = String.valueOf(realEntryVolume * ratio);
+				tradeData.setRealEntryVolume(ratioedVolume);
+			}
+		}
+
+		return beanList;
+	}
+
+	public List<TradeDataBean> setVolumeLongToInt(List<TradeDataBean> beanList) {
+		for (TradeDataBean tradeData : beanList) {
+			double volume = Double.parseDouble(tradeData.getRealEntryVolume());
+			String ratioedVolume = String.valueOf((int)Math.ceil(volume));
+
+			tradeData.setRealEntryVolume(ratioedVolume);
+		}
+
+		return beanList;
+	}
 }

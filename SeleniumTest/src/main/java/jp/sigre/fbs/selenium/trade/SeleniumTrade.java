@@ -503,7 +503,6 @@ public class SeleniumTrade {
 			calcCorrectedEntryVolume(bean);
 
 			if (bean.getMINI_CHECK_flg().equals("1")) {
-				log.writelnLog("mini");
 				tradeSmallStock(bean, strTorihPass, isBuying);
 			} else if (bean.getMINI_CHECK_flg().equals("0")){
 				log.writelnLog("normal");

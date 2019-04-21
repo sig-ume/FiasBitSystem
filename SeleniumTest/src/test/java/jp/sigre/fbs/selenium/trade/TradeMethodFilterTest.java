@@ -4,7 +4,7 @@
 package jp.sigre.fbs.selenium.trade;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -140,7 +140,7 @@ public class TradeMethodFilterTest  {
 		bean9.setCode("0009");
 		list.add(bean9);
 
-		target.skipCode(list, iniBean);
+		target.skipCode(list);
 
 		assertThat(list.size(), is(5));
 		assertThat(list.get(0).getCode(), is("0000"));
@@ -180,9 +180,148 @@ public class TradeMethodFilterTest  {
 		bean8.setCode("0008");
 		list.add(bean8);
 
-		target.skipCode(list, iniBean);
+		target.skipCode(list);
 
 		assertThat(list.size(), is(0));
 
 	}
+
+	@Test
+	public void testSetLongRatioedValue() {
+
+		List<TradeDataBean> list = new ArrayList<>();
+
+		TradeDataBean bean6 = new TradeDataBean();
+		bean6.setCode("0006");
+		bean6.setEntryMethod("ratioTest1");
+		bean6.setExitMethod("ratioTest1");
+		bean6.setRealEntryVolume("1");
+		list.add(bean6);
+
+		TradeDataBean bean7 = new TradeDataBean();
+		bean7.setCode("0007");
+		bean7.setEntryMethod("ratioTest2");
+		bean7.setExitMethod("ratioTest2");
+		bean7.setRealEntryVolume("1");
+		list.add(bean7);
+
+		TradeDataBean bean8 = new TradeDataBean();
+		bean8.setCode("0008");
+		bean8.setEntryMethod("ratioTest3");
+		bean8.setExitMethod("ratioTest3");
+		bean8.setRealEntryVolume("1");
+		list.add(bean8);
+
+		TradeDataBean bean9 = new TradeDataBean();
+		bean9.setCode("0009");
+		bean9.setEntryMethod("ratioTest4");
+		bean9.setExitMethod("ratioTest4");
+		bean9.setRealEntryVolume("1");
+		list.add(bean9);
+
+		TradeDataBean bean6x = new TradeDataBean();
+		bean6x.setCode("0006");
+		bean6x.setEntryMethod("ratioTest1");
+		bean6x.setExitMethod("ratioTest1");
+		bean6x.setRealEntryVolume("1");;
+
+		TradeDataBean bean7x = new TradeDataBean();
+		bean7x.setCode("0007");
+		bean7x.setEntryMethod("ratioTest2");
+		bean7x.setExitMethod("ratioTest2");
+		bean7x.setRealEntryVolume("2.49");
+
+		TradeDataBean bean8x = new TradeDataBean();
+		bean8x.setCode("0008");
+		bean8x.setEntryMethod("ratioTest3");
+		bean8x.setExitMethod("ratioTest3");
+		bean8x.setRealEntryVolume("1.5");
+
+		TradeDataBean bean9x = new TradeDataBean();
+		bean9x.setCode("0009");
+		bean9x.setEntryMethod("ratioTest4");
+		bean9x.setExitMethod("ratioTest4");
+		bean9x.setRealEntryVolume("1");
+
+
+		List<TradeDataBean> result = target.setLongRatioedValue(list);
+
+		assertThat(result.get(0), is(bean6x));
+		assertThat(result.get(1), is(bean7x));
+		assertThat(result.get(2), is(bean8x));
+		assertThat(result.get(3), is(bean9x));
+
+
+	}
+
+
+	@Test
+	public void testSetVolumeLongToInt() {
+
+		List<TradeDataBean> list = new ArrayList<>();
+
+		TradeDataBean bean6 = new TradeDataBean();
+		bean6.setCode("0006");
+		bean6.setEntryMethod("ratioTest1");
+		bean6.setExitMethod("ratioTest1");
+		bean6.setRealEntryVolume("1");
+		list.add(bean6);
+
+		TradeDataBean bean7 = new TradeDataBean();
+		bean7.setCode("0007");
+		bean7.setEntryMethod("ratioTest2");
+		bean7.setExitMethod("ratioTest2");
+		bean7.setRealEntryVolume("1");
+		list.add(bean7);
+
+		TradeDataBean bean8 = new TradeDataBean();
+		bean8.setCode("0008");
+		bean8.setEntryMethod("ratioTest3");
+		bean8.setExitMethod("ratioTest3");
+		bean8.setRealEntryVolume("1");
+		list.add(bean8);
+
+		TradeDataBean bean9 = new TradeDataBean();
+		bean9.setCode("0009");
+		bean9.setEntryMethod("ratioTest4");
+		bean9.setExitMethod("ratioTest4");
+		bean9.setRealEntryVolume("1");
+		list.add(bean9);
+
+		TradeDataBean bean6x = new TradeDataBean();
+		bean6x.setCode("0006");
+		bean6x.setEntryMethod("ratioTest1");
+		bean6x.setExitMethod("ratioTest1");
+		bean6x.setRealEntryVolume("1");;
+
+		TradeDataBean bean7x = new TradeDataBean();
+		bean7x.setCode("0007");
+		bean7x.setEntryMethod("ratioTest2");
+		bean7x.setExitMethod("ratioTest2");
+		bean7x.setRealEntryVolume("2");
+
+		TradeDataBean bean8x = new TradeDataBean();
+		bean8x.setCode("0008");
+		bean8x.setEntryMethod("ratioTest3");
+		bean8x.setExitMethod("ratioTest3");
+		bean8x.setRealEntryVolume("2");
+
+		TradeDataBean bean9x = new TradeDataBean();
+		bean9x.setCode("0009");
+		bean9x.setEntryMethod("ratioTest4");
+		bean9x.setExitMethod("ratioTest4");
+		bean9x.setRealEntryVolume("1");
+
+
+		List<TradeDataBean> result = target.setLongRatioedValue(list);
+		result = target.setVolumeLongToInt(result);
+
+		assertThat(result.get(0), is(bean6x));
+		assertThat(result.get(1), is(bean7x));
+		assertThat(result.get(2), is(bean8x));
+		assertThat(result.get(3), is(bean9x));
+
+
+	}
+
 }

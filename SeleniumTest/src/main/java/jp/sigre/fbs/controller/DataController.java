@@ -208,7 +208,7 @@ public class DataController {
 		Calendar usualCal = getUsualCal(nowCal);
 
 		String strDay = isHoliday ? "休日" : "平日";
-		log.writelnLog("本日は" + strDay + "です。");
+		//log.writelnLog("本日は" + strDay + "です。");
 
 		if (isHoliday) moveTempTradeDateHoliday(usualCal);
 		else moveTempTradeDateUsual(usualCal);
@@ -232,25 +232,25 @@ public class DataController {
 		String strDate = sdf.format(nowCal.getTime());
 		List<HolidayBean> holidays = db.getHolidaysPastEqualToday(strDate);
 
-//		for (int i = 0; i < holidays.size(); i++) {
-//			HolidayBean holiday = holidays.get(i);
-//			String strDate1 = holiday.getDate();
-//
-//			Calendar cal1 = Calendar.getInstance();
-//			String[] splitStrDate1 = strDate1.split("-");
-//			cal1.set(Integer.parseInt(splitStrDate1[0]),
-//					Integer.parseInt(splitStrDate1[1]),
-//					Integer.parseInt(splitStrDate1[2]));
-//
-//			int donichi = cal1.get(Calendar.DAY_OF_WEEK);
-//
-//			if (strDate1.equals(strDate) || donichi == Calendar.SUNDAY || donichi == Calendar.SATURDAY) {
-//				nowCal.add(Calendar.DATE, -1);
-//				isHoliday = true;
-//				strDate = sdf.format(nowCal.getTime());
-//				i = 0;
-//			}
-//		}
+		//		for (int i = 0; i < holidays.size(); i++) {
+		//			HolidayBean holiday = holidays.get(i);
+		//			String strDate1 = holiday.getDate();
+		//
+		//			Calendar cal1 = Calendar.getInstance();
+		//			String[] splitStrDate1 = strDate1.split("-");
+		//			cal1.set(Integer.parseInt(splitStrDate1[0]),
+		//					Integer.parseInt(splitStrDate1[1]),
+		//					Integer.parseInt(splitStrDate1[2]));
+		//
+		//			int donichi = cal1.get(Calendar.DAY_OF_WEEK);
+		//
+		//			if (strDate1.equals(strDate) || donichi == Calendar.SUNDAY || donichi == Calendar.SATURDAY) {
+		//				nowCal.add(Calendar.DATE, -1);
+		//				isHoliday = true;
+		//				strDate = sdf.format(nowCal.getTime());
+		//				i = 0;
+		//			}
+		//		}
 
 		while(true) {
 
@@ -333,7 +333,8 @@ public class DataController {
 			count += count3;
 		}
 
-		log.writelnLog(borderDate + "以前のS株取引(" + count3 + "件)を保有株数へ反映しました。");
+		if (count3 > 0)
+			log.writelnLog(borderDate + "以前のS株取引(" + count3 + "件)を保有株数へ反映しました。");
 
 		int count4 = db.moveTempTradeFurikaeData(borderDate);
 		if (count4 > 0) db.deleteTempTradeFurikaeData(borderDate);
@@ -362,7 +363,8 @@ public class DataController {
 			int count2 = db.moveTempTradeTangenData(exe0Date);
 			if (count2 > 0) db.deleteTempTradeTangenData(exe0Date);
 
-			log.writelnLog(exe0Date + "以前の単元株取引(" + count2 + "件)を保有株数へ反映しました。");
+			if (count2 > 0)
+				log.writelnLog(exe0Date + "以前の単元株取引(" + count2 + "件)を保有株数へ反映しました。");
 
 			count += count2;
 
@@ -378,7 +380,8 @@ public class DataController {
 			int count2 = db.moveTempTradeTangenData(exe0Date);
 			if (count2 > 0) db.deleteTempTradeTangenData(exe0Date);
 
-			log.writelnLog(exe0Date + "以前の単元株取引(" + count2 + "件)を保有株数へ反映しました。");
+			if (count2 > 0)
+				log.writelnLog(exe0Date + "以前の単元株取引(" + count2 + "件)を保有株数へ反映しました。");
 
 			count += count2;
 
@@ -458,7 +461,7 @@ public class DataController {
 
 		//取得テーブルがNullじゃない、かつ当日以前の休日がMAXの100日じゃない場合は終了
 		if (holidays.size() != 30 && holidays.size() != 0) {
-			log.writelnLog("休日テーブルの更新は不要です。");
+			//log.writelnLog("休日テーブルの更新は不要です。");
 			return;
 		}
 

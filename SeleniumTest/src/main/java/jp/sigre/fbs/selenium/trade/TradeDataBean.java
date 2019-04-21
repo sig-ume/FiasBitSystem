@@ -32,6 +32,7 @@ public class TradeDataBean {
 		this.correctedEntryVolume = correctedEntryVolume;
 	}
 
+
 	public TradeDataBean() {}
 
 	public String getCode() {
